@@ -1,0 +1,32 @@
+# Local temp / scratch (do not commit)
+.tmp/
+*.tmp
+.tmp_*.json
+
+# 简历 / PII，勿提交
+/person/
+
+# Hub 挂载到工作区的入口（真实源在 hub，勿提交junction/重复拷贝）
+.agents/
+.cursor/skills/
+.claude/skills/
+
+# 备份后缀文件（散落在各目录，勿提交）
+*.bak
+*.bak.*
+*.bak-*
+
+# Generated indexes (optional ignore — share index is committed after build-skill-index)
+prompts/indexes/prompts.index.json
+
+# Export scratch (optional local output)
+dist/
+vendors/
+
+# Local backups / vendor trees / NAS metadata（任意层级名为 bak 的目录）
+**/bak/
+vendors/
+.SynologyWorkingDirectory/
+**/__pycache__/
+*.py[cod]
+*$py.class

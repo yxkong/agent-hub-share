@@ -1,0 +1,30 @@
+name: Install Problem
+description: install-hub, register-project, or skill mount issues
+title: "[install]: "
+labels: ["support"]
+body:
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - Windows (pwsh)
+        - Windows (powershell 5.1)
+        - macOS
+        - Linux
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command run
+      placeholder: "pwsh -File scripts/install-hub.ps1 -DryRun"
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Error output
+      render: shell
+    validations:
+      required: true

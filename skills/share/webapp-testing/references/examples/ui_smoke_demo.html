@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Webapp Testing Demo</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 24px; }
+      .result { margin-top: 16px; color: #0a7f2e; font-weight: 600; }
+    </style>
+  </head>
+  <body>
+    <h1>UI Smoke Demo</h1>
+    <p id="status">Status: idle</p>
+    <button id="run-demo" type="button">Run smoke</button>
+    <div id="result" class="result" hidden>Smoke flow passed</div>
+    <script>
+      document.getElementById("run-demo").addEventListener("click", function () {
+        document.getElementById("status").textContent = "Status: done";
+        document.getElementById("result").hidden = false;
+      });
+    </script>
+  </body>
+  </html>

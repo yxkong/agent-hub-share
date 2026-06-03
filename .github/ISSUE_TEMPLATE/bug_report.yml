@@ -1,0 +1,35 @@
+name: Bug Report
+description: Something is broken in share skills or hub scripts
+title: "[bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Include hub root layout (public clone vs private hub) and PowerShell version (`pwsh -Version`).
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: "1. Set AGENTS_HUB_ROOT=...\n2. Run install-hub..."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      placeholder: "OS, pwsh version, Cursor/Claude/Codex"
+    validations:
+      required: true

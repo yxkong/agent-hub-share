@@ -1,0 +1,27 @@
+name: Skill Request
+description: Propose a new share skill or major skill boundary change
+title: "[skill]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / gap
+      description: What existing share skill does not cover?
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Proposed scope (负责 / 不负责)
+    validations:
+      required: true
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: Checked agent-asset-router — not just a prompt or project skill
+          required: true
+        - label: No private project names in proposed share text
+          required: true

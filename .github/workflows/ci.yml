@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  share-gates-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: UTF-8 without BOM
+        shell: bash
+        run: |
+          bash scripts/check-utf8-no-bom.sh --repo-root "$PWD"
+
+      - name: Check skill entrypoints
+        shell: bash
+        run: bash scripts/check-skill-entrypoints.sh --hub-root "$PWD" --only-share
+
+      - name: Check skill structure (share only)
+        shell: bash
+        run: bash scripts/check-skill-structure.sh --hub-root "$PWD" --only-share
+
+      - name: Check share skill private coupling
+        shell: bash
+        run: bash scripts/check-share-skill-private-coupling.sh --hub-root "$PWD"
+
+      - name: Build skill index
+        shell: bash
+        run: bash scripts/build-skill-index.sh --hub-root "$PWD"
+
+  share-gates-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: UTF-8 without BOM
+        shell: pwsh
+        run: ./scripts/check-utf8-no-bom.ps1 -RepoRoot $PWD
+
+      - name: Check skill entrypoints
+        shell: pwsh
+        run: ./scripts/check-skill-entrypoints.ps1 -HubRoot $PWD -OnlyShare
+
+      - name: Check skill structure (share only)
+        shell: pwsh
+        run: ./scripts/check-skill-structure.ps1 -HubRoot $PWD -OnlyShare
+
+      - name: Check share skill private coupling
+        shell: pwsh
+        run: ./scripts/check-share-skill-private-coupling.ps1 -HubRoot $PWD
+
+      - name: Build skill index
+        shell: pwsh
+        run: ./scripts/build-skill-index.ps1 -HubRoot $PWD
+

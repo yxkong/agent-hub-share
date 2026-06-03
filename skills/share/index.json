@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "count": 13,
+  "items": [
+    {
+      "name": "agent-asset-router",
+      "dir": "agent-asset-router",
+      "path": "skills/share/agent-asset-router",
+      "description": "Agent 资产类任务的轻量总路由器（asset router, skill routing）。用于 skill、prompt、hub、文档治理、技术洞察、长文内容成稿、项目评审、TDD 测试闭环等混合任务时，先判定目标产物并转交 skill-discovery、skill-engineering、prompt-engineering、project-insight-extractor、`<private-media-skill>`、agent-hub-bootstrap、doc-script-governance、ai-development-governance、biz-safety-audit、tdd-workflow 或 `<project-review-skill>`。"
+    },
+    {
+      "name": "agent-hub-bootstrap",
+      "dir": "agent-hub-bootstrap",
+      "path": "skills/share/agent-hub-bootstrap",
+      "description": "初始化、修复、发布和校验 agent hub 挂载（install-hub, skill mount, junction, symlink）。适用于 register-project、publish-skill、sync-prompts、check-skill-links、Cursor/Claude/Codex 找不到技能；不负责 skill/prompt 正文质量或 docs 放置规则。"
+    },
+    {
+      "name": "ai-development-governance",
+      "dir": "ai-development-governance",
+      "path": "skills/share/ai-development-governance",
+      "description": "AI 研发治理总纲技能（AI development governance, spec, ADR, release gate, security gate, scorecard）。用于定义从需求入口、Spec、设计 ADR、任务契约、实现、质量验证、安全、发布回滚到失败沉淀的端到端治理闭环；不直接写代码，不替代 delivery-workflow、doc-script-governance 或 skill-engineering。"
+    },
+    {
+      "name": "biz-safety-audit",
+      "dir": "biz-safety-audit",
+      "path": "skills/share/biz-safety-audit",
+      "description": "业务安全审计技能（content safety, interaction safety, SMS safety, rate limiting, anti-abuse）。审计内容发布、用户交互、短信/通知等业务场景的安全规则与限制是否到位；适用于 UGC 审核、频率限制、验证码策略、短信防轰炸、敏感词过滤等业务安全盲区排查。不替代 ai-development-governance 的 G6 Security Gate（权限/租户/数据），不写业务代码。"
+    },
+    {
+      "name": "delivery-workflow",
+      "dir": "delivery-workflow",
+      "path": "skills/share/delivery-workflow",
+      "description": "面向 AI 真实研发交付的通用 workflow 技能（delivery workflow, stage gate, Fast Path, debug, fullstack）。**任何研发任务到达时自动触发**：新增功能、接口开发、Bug 修复、重构优化、前后端联动、SQL/数据迁移。按阶段门推进：需求理解→设计收敛→最小实现→验证收口→失败沉淀；含路由规则、Fast/Full Path 分级、「接口成功但缺数据」三联检。不负责提炼 skill 或研发 SOP；那属于 skill-engineering。"
+    },
+    {
+      "name": "doc-script-governance",
+      "dir": "doc-script-governance",
+      "path": "skills/share/doc-script-governance",
+      "description": "文档、SQL、脚本与技能资料的治理技能（docs placement, SQL dev/online, backup-file）。处理 docs 放置、dev/online SQL 分层、命名引用、标准 backup-file 备份、归档与回退边界。适用于 review 放哪、SQL 合终版、改文档前备份；不处理代码实现质量、prompt 正文或 insight vault 洞察。"
+    },
+    {
+      "name": "project-insight-extractor",
+      "dir": "project-insight-extractor",
+      "path": "skills/share/project-insight-extractor",
+      "description": "从 AI 编程过程、调试记录、重构决策、代码变更和复盘材料中提炼“给人读”的技术洞察资产。适用于复盘、面试表达、简历 bullet、方法论、案例库、TechInsightVault 归档；不负责给 Agent 执行的长 prompt、SKILL.md 规则回填或真实代码 review。"
+    },
+    {
+      "name": "prompt-engineering",
+      "dir": "prompt-engineering",
+      "path": "skills/share/prompt-engineering",
+      "description": "提炼、裁剪、评测和落盘可复用提示词资产（prompt asset, agent-task, eval）。适用于子 Agent 长指令沉淀、系统提示词优化、划分 prompts/share 与 projects；不负责 SKILL.md、insight vault 或 hub 链接同步。"
+    },
+    {
+      "name": "skill-discovery",
+      "dir": "skill-discovery",
+      "path": "skills/share/skill-discovery",
+      "description": "发现、评估、去重和安装可复用 Agent Skill。适用于“有没有现成 skill”“找/搜索 skill”“外部 registry 安装”“本地 hub 有没有覆盖”“这个能力该不该做成 skill”；不负责创建或重构 SKILL.md 正文（转 skill-engineering）、写长 prompt（转 prompt-engineering）或 hub 挂载修复（转 agent-hub-bootstrap）。"
+    },
+    {
+      "name": "skill-engineering",
+      "dir": "skill-engineering",
+      "path": "skills/share/skill-engineering",
+      "description": "创建、提炼、审查、重构和优化 AI Skill（skill creation, trigger eval, references structure）。适用于新建 skill、从项目抽 skill、优化 description/trigger/eval、沉淀坏味道；不负责长 prompt、insight vault 或 hub 挂载脚本或真实业务代码。"
+    },
+    {
+      "name": "skill-scorecard",
+      "dir": "skill-scorecard",
+      "path": "skills/share/skill-scorecard",
+      "description": "以双 100 分制审查 AI skill、prompt、references、scripts 与挂载资产的质量和能力兑现度，并输出门禁结论。适用于给单个 skill 打分、比较多个 vendor skill、审查 prompt 资产是否可复用、发现路径漂移、脚本放错层、缺契约/缺验证/缺执行闭环等问题。"
+    },
+    {
+      "name": "tdd-workflow",
+      "dir": "tdd-workflow",
+      "path": "skills/share/tdd-workflow",
+      "description": "测试驱动开发共享技能（TDD, test-first, red-green-refactor）。用于新增或修复逻辑时先写失败测试、最小实现、重构并保留验证证据；适用于单元测试、组件测试、契约测试、回归用例补齐。不替代 delivery-workflow 的研发阶段门、项目领域技能的实现细节或 webapp-testing 的浏览器黑盒验证。"
+    },
+    {
+      "name": "webapp-testing",
+      "dir": "webapp-testing",
+      "path": "skills/share/webapp-testing",
+      "description": "面向本地 Web 应用验证的共享技能。用于指导 AI 使用 Playwright 或等价浏览器自动化能力，对本地前端页面、联调中的 Web 应用、管理后台页面做黑盒验证、UI 行为排查、主链路冒烟、截图采集与控制台日志检查。适用于“本地页面怎么自动验证”“如何先侦察 DOM 再写脚本”“如何用浏览器自动化复现问题”“如何验证主链路而不是只看代码”这类场景。优先把现有脚本和启动器当黑盒调用，不先读大脚本源码。"
+    }
+  ]
+}
