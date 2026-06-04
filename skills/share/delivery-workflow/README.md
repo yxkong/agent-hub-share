@@ -6,6 +6,13 @@
 
 > 与 `doc-script-governance` 的协作顺序见 `rules/common/COMMON_AGENT_RULES.md` §研发全流程。
 
+## 修订记录
+
+| 版本 | 日期 | 修订要点 |
+|------|------|----------|
+| 1.1.0 | 2026-06-04 | 同步真实协作算子 P0、行为模式变更确认、trigger/eval 口径与 R1/R3 边界 |
+| 1.0.0 | 2026-05-21 | 初版：delivery 节奏总线、Fast/Full Path、R1/R2/R3 与 references 分层 |
+
 ## 核心用途
 
 用于约束 Agent 面对真实研发任务时，如何按低返工成本推进：先路由，再决定 Fast / Full Path，再按阶段门推进实现、验证与失败沉淀。
@@ -65,6 +72,7 @@
 | `P0` | `references/fullstack_workflow.md` | 前后端联动 |
 | `P0` | `references/checklist.md` | 上线前自检 |
 | `P0` | `references/ai_execution_protocol.md` | 阶段门、推压处理、R1/R3 |
+| `P0` | `references/real_collaboration_operators.md` | 真实协作算子与行为模式变更确认 |
 | `P1` | `references/ai_context_protocol.md` | 上下文注入、任务切分、偏离检测 |
 | `P1` | `references/missing_data_debug_triad.md` | 接口成功但缺数据三联检 |
 | `P1` | `references/subagent_prompt_template.md` | 已判定派发子 Agent 后的 7 要素模板 |

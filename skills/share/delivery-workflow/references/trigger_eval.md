@@ -30,6 +30,6 @@
 
 - 「帮我从这个项目提炼一个 skill」（→ `skill-engineering`）
 - 「帮我审查这个 SKILL.md」（→ `skill-engineering`）
-- 「帮我实现这个后端接口」（→ 领域技能 + 本技能提供流程框架）
-- 「帮我改这个前端页面的弹窗」（→ `<frontend-domain-skill>`；实际技能名见 PROJECT_RULES）
 - 「文档放哪个目录？」（→ `doc-script-governance`）
+
+说明：具体接口 / 页面实现仍 should-trigger `delivery-workflow` 做流程门与范围约束；进入实现阶段后，具体代码落地转项目领域技能。

@@ -111,6 +111,7 @@ description: 面向 AI 真实研发交付的通用 workflow 技能（delivery wo
 - `references/fullstack_workflow.md`
 - `references/checklist.md`
 - `references/ai_execution_protocol.md`
+- `references/real_collaboration_operators.md`
 
 **P1 补充规则（命中条件再读）**
 

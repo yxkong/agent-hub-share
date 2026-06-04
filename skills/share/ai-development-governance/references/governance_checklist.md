@@ -29,6 +29,8 @@
 
 - [ ] 见 [quality_gate.md](quality_gate.md) 主链路 + 失败链路
 - [ ] 见 [code_review_gate.md](code_review_gate.md) 代码审查（命名/架构符合度/错误处理/安全内建/可测试性）
+- [ ] Realism Gate 已过：已暴露 fact / assumption / unknown / risk / validation，未用专家式总结掩盖未验证事实
+- [ ] 已证明最小方案、重构必要性、边界测试与反方复核；不满足时回到 `delivery-workflow` 对应 Gate
 
 ## 安全（G6，若触发）
 

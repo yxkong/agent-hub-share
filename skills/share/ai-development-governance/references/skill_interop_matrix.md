@@ -1,6 +1,6 @@
 # Skill Interop Matrix
 
-> 六层模型：**L0 路由 → L1 治理总线 → L2 交付 → L3 资产治理 → L4 能力资产 → L5 项目领域**。
+> 七层模型：**L0 路由 → L1 治理总线 → L2 交付 → L3 资产治理 → L4 能力资产 → L5 验证闭环 → L6 项目领域**。
 
 ## 层级与主 skill
 
@@ -18,7 +18,7 @@
 
 | 阶段 | 主 skill | 辅 skill | 典型产物 |
 |------|----------|----------|----------|
-| 需求入口 G0 | `ai-development-governance` | `agent-asset-router` | Fast/Full 初判 |
+| 需求入口 G0 | `delivery-workflow` | `ai-development-governance`、`agent-asset-router` | Fast/Full 初判；必要时转治理或资产路由 |
 | Spec G1 | `ai-development-governance` | `delivery-workflow` | Feature Spec |
 | 设计 G2 | `delivery-workflow` | `ai-development-governance` | 最小设计 / ADR |
 | 任务契约 G3 | `ai-development-governance` | `delivery-workflow` | Task Contract |
@@ -37,14 +37,14 @@
 
 | 冲突 | 裁决 |
 |------|------|
-| 先读 governance 还是 delivery？ | **研发任务默认先进 `delivery-workflow`**；问体系/规范/门禁/评分 → governance |
+| 先读 governance 还是 delivery？ | **研发任务默认先进 `delivery-workflow` 做入口 triage**；问体系/规范/门禁/评分，或 triage 判定需要 Spec/ADR/Task Contract → governance |
 | Spec 放哪？ | 过程 `docs/plan/`；终版升格 `docs/design/` — **`doc-script-governance` 为准** |
 | 验证清单听谁的？ | 执行细节 `delivery-workflow/checklist`；门禁框架 `ai-development-governance/quality_gate` |
 | 失败沉淀去哪？ | R3 三路分流；治理缺口回填 `governance_checklist` |
 
 ## 固定顺序（真实研发）
 
-1. `delivery-workflow` 进场（或 governance 做 G0–G3 后转 delivery）
+1. `delivery-workflow` 进场做 Fast/Full triage（体系/规范/门禁/评分或需 G1–G3 产物时转 governance，再回 delivery）
 2. 写/改 docs/SQL → `doc-script-governance`
 3. 写代码 → 项目领域技能（可并行 `tdd-workflow` 先写测试）
 4. 代码审查 → `ai-development-governance` G5 code_review_gate

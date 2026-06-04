@@ -12,7 +12,7 @@
 
 ### 元数据与修订记录（仅项目 docs / SQL / 落地后的 TEMPLATE 目标文件）
 
-见 [document_revision_metadata.md](document_revision_metadata.md) §0。改 **hub 技能 `references/`** 时跳过本节，只更新根 [README.md](../README.md) §修订记录。
+见 [document_revision_metadata.md](document_revision_metadata.md) §0。改 **hub 技能 `references/`** 时跳过本节；是否更新根 [README.md](../README.md) §修订记录按下方 “改 hub 技能 references 后” 判定。
 
 - [ ] YAML 含 `created`（新建或已补录，且未伪造历史）
 - [ ] YAML `updated` = **本次**修改日期
@@ -25,7 +25,7 @@
 ### 改 hub 技能 references 后
 
 - [ ] 未在 `references/*.md` 增加 YAML 或 §修订记录
-- [ ] 根 `README.md` §修订记录已追加一行
+- [ ] 若属于 material change（改变 trigger、门禁、目录、流程、公共行为），根 `README.md` §修订记录已追加一行；纯错字 / 格式修正可在汇报中说明无需追加
 
 ### 文档资产
 

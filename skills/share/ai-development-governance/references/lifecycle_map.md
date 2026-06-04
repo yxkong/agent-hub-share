@@ -23,7 +23,7 @@ G8 Learning Gate        失败沉淀门      → delivery-workflow R3
 | 字段 | 内容 |
 |------|------|
 | **Trigger** | 任何非 trivial 研发任务到达；用户问「规范 / 体系 / 总纲」 |
-| **Owner Skill** | `ai-development-governance`（路由）→ `delivery-workflow`（执行） |
+| **Owner Skill** | `delivery-workflow`（默认入口 triage）→ 命中体系 / Spec / ADR / 门禁 / 评分时转 `ai-development-governance` |
 | **Required Inputs** | 用户描述、现象或目标（可不完整） |
 | **Required Outputs** | Fast / Full Path 初判；是否需 Spec / ADR / Task Contract |
 | **Blockers** | 目标完全不明且用户拒绝澄清 → 暂停实现 |

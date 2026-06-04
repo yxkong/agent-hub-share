@@ -15,6 +15,7 @@
 | 阶段门执行细则、用户推压、R1 / R3 展开 | [ai_execution_protocol.md](ai_execution_protocol.md) |
 | 前端 / 后端 / fullstack 最小设计模板与实现路径 | [frontend_workflow.md](frontend_workflow.md) / [backend_workflow.md](backend_workflow.md) / [fullstack_workflow.md](fullstack_workflow.md) |
 | debug 路由与根因定位 | [debug_workflow.md](debug_workflow.md) |
+| 真实协作算子：假设优先、不确定暴露、最小改动、反方复核、风险测试 | [real_collaboration_operators.md](real_collaboration_operators.md) |
 | 上线 / 交付自检 | [checklist.md](checklist.md) |
 | 缺数据三联检 | [missing_data_debug_triad.md](missing_data_debug_triad.md) |
 | 子 Agent 7 要素模板与完成状态协议（已判定派发后） | [subagent_prompt_template.md](subagent_prompt_template.md) |
@@ -38,6 +39,8 @@
 | [debug_workflow.md](debug_workflow.md) | 排障与根因定位（症状优先） |
 | [frontend_workflow.md](frontend_workflow.md) | 前端路由最小设计产物与实现要点 |
 | [fullstack_workflow.md](fullstack_workflow.md) | 前后端联动与契约冻结 |
+| [real_collaboration_operators.md](real_collaboration_operators.md) | 真实协作算子：防盲改、防装懂、防过度设计、防漏验 |
+
 ## P1 补充规则
 
 | 文件 | 什么时候读 |
