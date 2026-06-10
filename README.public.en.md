@@ -18,6 +18,8 @@ Prompts alone do not fix:
 
 Agent Hub closes the loop with **skills + common rules + gate scripts** (executable prompt assets are not published in this repo).
 
+**0.2.0 highlights**: evidence closure and stage gates—mainline evidence matrix, Gate 5 replay archive, R3 handoff, rd-audit, and AGENT-GATE-CARD; see [CHANGELOG.md](CHANGELOG.md).
+
 ## What you get
 
 | Layer | Contents |

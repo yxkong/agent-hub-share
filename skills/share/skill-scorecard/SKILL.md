@@ -20,7 +20,7 @@ description: 以双 100 分制审查 AI skill、prompt、references、scripts �
 **覆盖**：
 
 - 给 `SKILL.md`、`README.md`、`references/`、`scripts/`、`templates/`、相关 prompt 资产做结构化评分
-- 识别触发不准、契约不全、SOP 空泛、验证缺失、脚本错层、路径失效、share 私有耦合
+- 识别触发不准、契约不全、SOP 空泛、验证缺失、脚本错层、路径失效、share 私有耦合、Release Evidence / Task Replay Lite / Skill Health Signal 缺口
 - 输出 findings-first 的评分报告，包含**质量分（100）**、**兑现分（100）**、**门禁结论**与证据等级
 - 为后续修复提供 P0 / P1 / P2 整改建议
 
@@ -40,7 +40,7 @@ description: 以双 100 分制审查 AI skill、prompt、references、scripts �
 1. **证据先于分数**：没有读到 `SKILL.md` / `README.md` / 关键 references / 关键脚本时，不给最终分。
 2. **findings first**：用户说“review / 审查 / 看问题”时，先列问题，再给分数。
 3. **事实 / 假设 / unknown 分开**：读不到的脚本、没跑过的校验、找不到的路径必须标 `unknown`。
-4. **闭环优先**：缺验证、缺执行、缺路径更新、脚本不可用时，优先扣“闭环分”，不要只夸文档写得好。
+4. **闭环优先**：缺验证、缺执行、缺路径更新、脚本不可用、只有 static 证据却宣称完成时，优先扣“闭环分”，不要只夸文档写得好。
 5. **脚本放置按 L1/L2 判断**：只服务一个 skill 的脚本默认应在技能目录；跨技能或独立运维入口才应在 hub `scripts/`。
 6. **share 去项目化必查**：share skill 若硬编码项目名、私有路径、内网 URL、真实模块前缀，应降分并标为可迁移性问题。
 7. **active 全包口径**：评分对象是整个技能包；必须盘点同目录 active 文件，排除 `bak/`，不能只看 `SKILL.md`。
@@ -70,6 +70,7 @@ description: 以双 100 分制审查 AI skill、prompt、references、scripts �
    - `check-skill-structure`
    - `check-skill-size`
    - `check-share-skill-private-coupling`
+   - `check-backup-policy`（涉及备份脚本/备份契约时）
    - `check-prompts`（prompt 资产）
 7. 用 `references/report_template.md` 输出结论
 

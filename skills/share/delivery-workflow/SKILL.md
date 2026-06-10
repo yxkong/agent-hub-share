@@ -1,6 +1,6 @@
 ---
 name: delivery-workflow
-description: 面向 AI 真实研发交付的通用 workflow 技能（delivery workflow, stage gate, Fast Path, debug, fullstack）。**任何研发任务到达时自动触发**：新增功能、接口开发、Bug 修复、重构优化、前后端联动、SQL/数据迁移。按阶段门推进：需求理解→设计收敛→最小实现→验证收口→失败沉淀；含路由规则、Fast/Full Path 分级、「接口成功但缺数据」三联检。不负责提炼 skill 或研发 SOP；那属于 skill-engineering。
+description: 面向 AI 真实研发交付的通用 workflow 技能（delivery workflow, stage gate, Fast Path, debug, fullstack）。**任何研发任务到达时自动触发**：新增功能、接口开发、Bug 修复、重构优化、前后端联动、SQL/数据迁移。按阶段门推进：需求理解→设计收敛→最小实现→验证收口→复盘落盘→失败沉淀；含路由规则、Fast/Full Path 分级、「接口成功但缺数据」三联检。Gate 5 复盘只写入 `$AGENTS_HUB_ROOT/docs/resource/replay/` 供后续 Agent 分析，禁止写业务工程 `docs/resource/`；洞察/prompt 沉淀分别走 project-insight-extractor / prompt-engineering。不负责提炼 skill 或研发 SOP；那属于 skill-engineering。
 ---
 
 # Delivery Workflow
@@ -15,13 +15,14 @@ description: 面向 AI 真实研发交付的通用 workflow 技能（delivery wo
 | `fullstack` | 前后端联动、字段未定、接口契约未冻结 | `references/fullstack_workflow.md`（P0） |
 | `tdd` | 用户明确要求先写测试、补回归用例、红绿重构 | `tdd-workflow` |
 | `checklist` | 上线前、交付前、自检、review 前 | `references/checklist.md`（P0） |
+| `rd-audit` | 研发体系审计、闭环验证、证据复核、技能健康 / release evidence / replay 复核 | `references/gates/ai_rd_closure_audit.md`（P0） + share audit prompt |
 | `ai-native` | 上下文注入、任务切分、子 Agent 调度、偏离检测 | `references/ai_context_protocol.md`（P1） |
 
-规则：**症状优先**。只要任务以排障/定位根因为主，即使同句出现前后端词，也先走 `debug`。不是纯排障后，再按单端 / 联动决定 `frontend`、`backend`、`fullstack`。
+规则：**症状优先**。只要任务以排障/定位根因为主，即使同句出现前后端词，也先走 `debug`。不是纯排障后，再按单端 / 联动决定 `frontend`、`backend`、`fullstack`。用户明确说“研发体系审计 / 闭环验证 / 体系复核 / 技能健康 / release evidence / Task Replay”时，走 `rd-audit`，不当作普通 checklist。
 
 ## 作用边界
 
-**负责**：指导 AI 将真实研发任务按低返工成本推进到交付，覆盖需求理解、设计收敛、最小实现、验证收口与失败沉淀。
+**负责**：指导 AI 将真实研发任务按低返工成本推进到交付，覆盖需求理解、设计收敛、最小实现、验证收口、复盘落盘与失败沉淀。
 
 **不负责**：
 
@@ -29,7 +30,8 @@ description: 面向 AI 真实研发交付的通用 workflow 技能（delivery wo
 - 文档类型、目录、模板、备份、SQL 放置 → `doc-script-governance`
 - 创建 / 提炼 / 审查 `SKILL.md` → `skill-engineering`
 - 浏览器黑盒验证 → `webapp-testing`
-- 子 Agent 长指令沉淀 → `prompt-engineering`
+- 子 Agent 长指令沉淀 → `prompt-engineering`（返工后 R3，非 Gate 5 复盘）
+- 给人读的洞察 / 面试表达 → `project-insight-extractor`（用户明确要求时，非 Gate 5 复盘）
 
 ## 上游治理入口
 
@@ -91,15 +93,18 @@ description: 面向 AI 真实研发交付的通用 workflow 技能（delivery wo
 | `Gate 1 需求理解` | 分清业务目标、现象、根因、真实边界 | `references/ai_execution_protocol.md` |
 | `Gate 2 设计收敛` | 收敛目标、边界、契约、风险、验证路径；Full Path 先发散再收敛 | 各路由 `*_workflow.md` |
 | `Gate 3 实现推进` | 一次一个最小闭环；进入下一闭环前做 checkpoint | `references/ai_execution_protocol.md` |
-| `Gate 4 验证完成` | 主链路、关键失败链路、文档/SQL/配置落点都过；缺数据问题补三联检 | `references/checklist.md` + `references/missing_data_debug_triad.md` |
-| `Gate 5 失败沉淀` | 返工先归因，再落到 R3 三路之一 | `references/ai_execution_protocol.md` |
+| `Gate 4 验证完成` | 主链路、关键失败链路、文档/SQL/配置落点都过；Full Path 必须给出主链证据矩阵；缺数据问题补三联检 | `references/checklist.md` + `references/gates/mainline_evidence_matrix.md` + `references/missing_data_debug_triad.md` |
+| `Gate 5 复盘` | Gate 4 后读 `replay_body_template.md`（6 个账本 + `gate5-v2`）+ closeout prompt，Path Guard 通过后落盘到 hub replay + `check-replay-structure.ps1` | `references/gates/delivery_replay.md` + `references/gates/replay_body_template.md` |
+| `Gate 6 失败沉淀` | 返工先归因，按 R3 handoff packet 路由到目标技能 | `references/ai_execution_protocol.md` + `references/gates/r3_handoff_contract.md` |
+| `Audit 研发体系审计` | 用户用关键词触发时，按入口真源、证据闭环、发布证据、Replay/Skill Health、脚本化治理五类审计；输出 P0/P1/P2 与验证判据 | `references/gates/ai_rd_closure_audit.md` + `prompts/share/agent-task/prompt-share-agent-task-ai-rd-closure-audit.prompt.md` |
 
 ## 闭环门
 
 - 需求已过 Gate 1 / 2，或明确属于 Fast Path。
 - 实现前已满足 R1；派发子 Agent 时已满足 R2。
-- 验证至少覆盖主链路；缺数据类问题完成三联检。
-- 失败 / 返工已按 R3 分流到 insight / 反模式 / prompt。
+- 验证至少覆盖主链路；Full Path 已按 `references/gates/mainline_evidence_matrix.md` 标出 static / contract / runtime / user-visible / release / limitation 证据；缺数据类问题完成三联检。
+- Full Path / 跨模块 / 交付闭环任务已在 Gate 5 复盘落盘到 `$AGENTS_HUB_ROOT/docs/resource/replay/`（或明确标 `不落盘` / `BLOCKED` 原因）。
+- 失败 / 返工已按 R3 分流到 insight / 反模式 / prompt（Gate 6）。
 
 ## References 优先级
 
@@ -110,6 +115,12 @@ description: 面向 AI 真实研发交付的通用 workflow 技能（delivery wo
 - `references/backend_workflow.md`
 - `references/fullstack_workflow.md`
 - `references/checklist.md`
+- `references/gates/mainline_evidence_matrix.md`
+- `references/gates/delivery_replay.md`
+- `references/gates/r3_handoff_contract.md`
+- `references/gates/ai_rd_closure_audit.md`
+- `prompts/share/agent-task/prompt-share-agent-task-delivery-closeout-summary.prompt.md`（Gate 5 执行模板）
+- `prompts/share/agent-task/prompt-share-agent-task-ai-rd-closure-audit.prompt.md`（研发体系审计执行模板）
 - `references/ai_execution_protocol.md`
 - `references/real_collaboration_operators.md`
 
@@ -127,7 +138,7 @@ description: 面向 AI 真实研发交付的通用 workflow 技能（delivery wo
 
 完整正负例见 `references/trigger_eval.md`。主文件只保留一条记忆规则：
 
-- **should-trigger**：任何真实研发任务、排障、联动开发、交付自检、流程元问题
+- **should-trigger**：任何真实研发任务、排障、联动开发、交付自检、研发体系审计 / 闭环验证、流程元问题
 - **should-not-trigger**：提炼/审查 skill、文档放置治理、领域实现细节本身
 
 ## 与其他技能的关系
@@ -138,7 +149,7 @@ description: 面向 AI 真实研发交付的通用 workflow 技能（delivery wo
 | `skill-engineering` | 目标产物是 `SKILL.md` / SOP 时 |
 | `doc-script-governance` | 涉及文档/SQL 放置、模板、备份时 |
 | `tdd-workflow` | 用户要求 test-first、补回归测试、红绿重构时 |
-| `project-insight-extractor` | 失败需沉淀给人看的方法论/洞察时 |
-| `prompt-engineering` | 高质量 `Task` prompt 可复用时 |
+| `project-insight-extractor` | 用户要洞察/面试表达；**读取** Gate 5 的 `docs/resource/replay/` 为 source_anchor |
+| `prompt-engineering` | 返工后 R3 需可复用 `Task` prompt 时 |
 | `biz-safety-audit` | 涉及 UGC/交互/短信的业务安全审计时 |
 | `<frontend-domain-skill>` / `<backend-domain-skill>` | 进入具体实现阶段时 |

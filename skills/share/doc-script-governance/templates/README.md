@@ -9,6 +9,7 @@
 | 类型 | 项目目录 | 模板 |
 |------|----------|------|
 | 终版设计 | `docs/design/<domain>/` | [TEMPLATE_DESIGN_CANONICAL.md](./TEMPLATE_DESIGN_CANONICAL.md) |
+| 头脑风暴/方案收敛 | `docs/plan/<domain>/` | [TEMPLATE_BRAINSTORM_CONVERGENCE.md](./TEMPLATE_BRAINSTORM_CONVERGENCE.md) |
 | 执行计划 | `docs/plan/<domain>/` | [TEMPLATE_PLAN_EXECUTION.md](./TEMPLATE_PLAN_EXECUTION.md) |
 | 重构计划 | `docs/plan/<domain>/` | [TEMPLATE_REFACTOR_PLAN.md](./TEMPLATE_REFACTOR_PLAN.md) |
 | 实现说明 | `docs/implementation/<lang>/<domain>/` | [TEMPLATE_IMPLEMENTATION.md](./TEMPLATE_IMPLEMENTATION.md) |

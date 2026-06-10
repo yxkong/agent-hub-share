@@ -34,7 +34,7 @@ description: 创建、提炼、审查、重构和优化 AI Skill（skill creatio
 - **完成门**：真实入口可定位、主链路可复述、≥ 3 个高频场景有切入点、≥ 1 个真实任务可验证，四项未满不算可用。
 - **冲突处理**：文档与代码冲突优先代码；多实现并存优先当前主调用链；找不到主链路不允许虚构。
 - **开发可驱动性优先**：先问能否让 AI 更快找到入口、减少误改漏改返工；结构再完整，两问答不了"是"也不合格。
-- **工程门禁**：hub 内 skill 有改动时收尾须按 `references/review/engineering_completion_gate.md` 执行 **§1–§5**（或该文档声明的适用子集），不得以零散命令替代。
+- **工程门禁**：hub 内 skill 有改动时收尾须按 `references/review/engineering_completion_gate.md` 执行 **§1–§5**（或该文档声明的适用子集）；涉及备份脚本/备份契约时补跑 `check-backup-policy`，不得以零散命令替代。
 
 ## References 优先级
 
@@ -105,7 +105,7 @@ description: 创建、提炼、审查、重构和优化 AI Skill（skill creatio
 
 ## 反馈闭环（坏味道 → 规则）
 
-每次路由：**开始前**读 `governance/bad_smell_registry.md`；**结束后**检查坏味道并计数。同一模式 **N≥2** → 写入 `governance/design_principles.md` §六，并修正 skill 切入点/SOP。
+每次路由：**开始前**读 `governance/bad_smell_registry.md`；**结束后**检查坏味道并计数。同一模式 **N≥2** → 形成 `Skill Health Signal`，写入 `governance/design_principles.md` §六，并修正 skill 切入点/SOP / trigger eval。
 
 | 信号 | 类型 |
 |------|------|
@@ -114,6 +114,7 @@ description: 创建、提炼、审查、重构和优化 AI Skill（skill creatio
 | 主文件需通读才懂路由 | 路由器失效 |
 | 非空行超类型上限 | 主文件膨胀 |
 | 同一追问跨 session 重复 | 系统性问题 |
+| 同类返工或同类脚本失败重复 | Skill Health Signal |
 
 ## 技能钩子协议
 

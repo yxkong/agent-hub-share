@@ -126,6 +126,18 @@
 - 1 条明确的首读路径：触发后先读哪份 active 文件
 - 1 个主文件纯度判断：`SKILL.md` 不承担 README、INDEX、handbook 或示例库职责
 
+### Step 5.5：闭环能力裁剪（按类型创建，不机械铺满）
+
+新建 skill 时必须先判断它是否承诺以下能力；命中才创建对应 reference / checklist / eval，未命中则不要为了“完整”硬塞文件：
+
+| 承诺能力 | 需要内建什么 | 不需要做什么 |
+|---|---|---|
+| 真实研发交付 / 验证收口 | 可映射到 `delivery-workflow/references/gates/mainline_evidence_matrix.md` 的主链证据口径；至少区分 `static / contract / runtime / user-visible / release / limitation` | 不把 delivery 全流程复制进领域 skill |
+| 上线 / 发布 / 灰度 / 回滚 | `Release Evidence`：观察窗口、观察入口、回滚触发条件；归 `ai-development-governance` Gate | 不新增独立 `release-ops-runbook` |
+| 失败学习 / 重复返工治理 | `Task Replay Lite`：触发输入、缺失证据、误判 gate、回填位置 | 不新增 skill health dashboard |
+| skill 行为健康 / 触发误判 | `Skill Health Signal`：同类返工、SOP 找不到入口、trigger 误判 → bad smell / trigger eval / design principles | 不在业务 skill 主文件复制整段钩子协议 |
+| 备份脚本 / 备份契约 | 工程完成门补跑 `check-backup-policy`，并说明 `BACKUP_POLICY=ok` 是通过判据 | 不用手写 `cp` 或临时备份命令替代 |
+
 若该 skill 属于**高风险 / 纪律类**，再额外补一层最小要求：
 
 - 1 条**无 skill 基线样本**：证明没有 skill 时，Agent 默认会怎么走老习惯

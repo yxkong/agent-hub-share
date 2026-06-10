@@ -18,6 +18,8 @@
 
 Agent Hub 用 **技能 + 通用规则 + 脚本门禁** 组成闭环（可执行 Prompt 资产不在本仓发布）。
 
+**0.2.0 重点**：证据闭环与阶段门——主链证据矩阵、Gate 5 复盘落盘、R3 handoff、研发体系审计（`rd-audit`）与 AGENT-GATE-CARD；详见 [CHANGELOG.md](CHANGELOG.md)。
+
 ## 你得到什么
 
 | 层级 | 内容 |

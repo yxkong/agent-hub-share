@@ -1,121 +1,94 @@
 # Common Agent Rules (core)
 
-High-signal defaults only. Procedures and details belong in skills—see §技能路由。
+高信号默认；细节进技能，公共规则只放零跳硬约束。
 
-**本文档是 Agent 全局必遵规则**（同步到各仓库 `AGENTS.md`、`.cursor/rules/00-common.mdc` 等）。`skills/share/README.md` 供**人**查阅技能目录，**不是** Agent 入口。
+## 基线
 
-## Goals
-
-- Hard constraints first: no garbled text, no broken structure, no unsafe shortcuts.
-- Reduce detours: prefer the shortest correct path, avoid rework, avoid duplicate investigation.
-- Save tokens: read the minimum useful context; prefer canonical sources over scattered history.
-- Design before implementation: non-trivial work should be designed and aligned before code lands.
-- Learn after failure: when a change fails or causes rework, extract the lesson in reusable form.
-
-## Output
-
-- Default to **Simplified Chinese** and **Markdown** unless the user asks otherwise.
-- Keep answers **concise** and **actionable**.
-- Separate **fact / assumption / unknown / risk** when that affects the next action.
-- Put **executable commands** in fenced code blocks matching the shell environment.
-
-## Hard Constraints
-
-- **Preserve existing encoding** when editing; new files prefer **UTF-8 without BOM + LF**.
-- Prefer the **smallest effective change**; avoid scope creep; reuse before inventing.
-- For **non-trivial work**, align on goals, constraints, and acceptance before implementation.
-- Validate with the **smallest safe check**; no remote/deploy/production commands unless explicitly asked.
-- **Windows shell 强规则**：在 Windows 上执行命令时，默认**显式使用 `pwsh`（PowerShell 7+）**；只有在**刻意验证 `powershell.exe` / Windows PowerShell 5.1 兼容性**时，才允许退回旧宿主。不得因为本机终端默认配置与工具宿主不一致，就默认假设自己跑在 `pwsh` 上。
-- Do not fabricate tool output, private state, dates, or unavailable facts.
-- Pause before irreversible, expensive, destructive, or production-impacting actions.
-- When a change fails, find the root cause and land the lesson in reusable form.
-
-## 研发全流程（Agent 全局必遵）
-
-真实研发任务的 **节奏** 与 **文档/SQL 资产** 由 **`delivery-workflow`** + **`doc-script-governance`** 固定搭配；**端到端治理总线**（Spec / ADR / 门禁 / scorecard）由 **`ai-development-governance`** 承担（不合并为一个 skill；**不得**在各仓库 `docs/guide/` 复制本段全文）。
-
-### 固定顺序
-
-1. 研发任务进场 → **`delivery-workflow`**（阶段门；Full Path 先设计收敛；前置可读 **`ai-development-governance`**）。
-2. 规范 / Spec / ADR / Security / Release 门禁 / 9.8 评分 → **`ai-development-governance`**（不替代 delivery 执行）。
-3. 要写/改 `docs/`、SQL、合并 plan → **`doc-script-governance`**。
-4. 写代码/页面/接口 → **项目领域技能**（`rules/projects/<key>/PROJECT_RULES.md` + `skills/projects/<key>/`）。
-5. 上线前 → **`ai-development-governance`** Release / Security Gate（Fast Path 开发环境可轻量化）。
-6. 找某仓库已有终版 → 该仓库 `docs/README.md`、`docs/design/<domain>/README.md`（各项目自建）。
-
-### 分工（禁止混淆）
-
-| | ai-development-governance | delivery-workflow | doc-script-governance |
-|--|---------------------------|-------------------|------------------------|
-| **管** | G0–G8、Spec/ADR/Task Contract 模板、Security/Release/Quality 门禁、scorecard | 阶段门、契约、验证、失败沉淀 R3 | 类型 ID、目录、模板、备份、项目 docs 元数据 |
-| **不管** | 具体代码实现；docs 备份 SOP 细则 | 文档放哪个文件夹 | 业务方案、排期、代码实现 |
-
-**设计整合门**（delivery §5.1）：plan 并入 `docs/design` 终版；可执行契约与终版一致；**项目 docs** 按 doc-script 更新 YAML + §修订记录（share 技能 `references/` **不写**修订表）。
-
-**冲突**：研发 + 文档落点并存时 → **`delivery-workflow` 主导**，文档细则转 **`doc-script-governance`**。研发 + 规范/门禁/评分 → **`ai-development-governance` 主导**，执行转 **`delivery-workflow`**。
-
-## 改动前置
-
-**代码文件**：进入实现阶段前遵循 `delivery-workflow` **checkpoint 协议**（优先 `git status`；必要时经同意的 `git commit` / `stash` / 分支；否则记录 `risk`）。
-
-**文档 / 脚本 / 技能主文件**：改前按 `doc-script-governance` 调用 **`skills/share/doc-script-governance/scripts/backup-file`**（或 hub 兼容入口 `scripts/backup-file`）。
-
-**已有文档 / SQL**：未经负责人明确确认，不得删除、清空或替换为占位。
-
-### 还原与撤回（Git / 工作区）
-
-凡执行 **任一可能覆盖、丢弃或未提交就先抹掉本地状态** 的操作（例如 `git restore`、`git reset`、`git clean` 等），必须先：
-
-1. **列出复原范围**（逐条路径；必要时附 `git status` / `git diff` 摘要）。
-2. **给出拟执行命令原文**，并说明会不会丢掉未提交修改、是否与用户意图一致。
-3. **经用户明示确认后再执行**。
-
-**禁止**：未经确认对整块目录一键 `git restore`。
+- 默认 **简体中文 + Markdown**；回答简洁、可执行；必要时区分 `fact / assumption / unknown / risk`。
+- 可执行命令用对应 shell 的 fenced code block。
+- 保持编码；新文件优先 **UTF-8 without BOM + LF**。
+- 最小有效改动；复用既有 skill / docs / 脚本，不新增并行真源。
+- 非 trivial 任务先对齐目标、约束、验收；先设计后实现，除非明确满足 Fast Path。
+- Windows 执行命令默认显式用 `pwsh`；仅验证 Windows PowerShell 5.1 兼容时用 `powershell.exe`。
+- 采用最小安全验证；remote / deploy / production 命令必须用户明确要求。
+- 不编造工具输出、私有状态、日期或不可得事实；不可逆 / 昂贵动作先停下确认。
+- 失败或返工必须定位根因，并沉淀为 insight / anti-pattern / prompt / checklist / test / docs 之一。
 
 ## 技能路由
 
-| 场景 | 先读 |
-|------|------|
-| 研发任务（节奏） | **`delivery-workflow`**（顺序见 §研发全流程） |
-| AI 开发规范 / 体系 / Spec·ADR / 上线门禁 / 9.8 评分 | **`ai-development-governance`** |
-| 文档 / SQL / 脚本放置、模板、备份 | **`doc-script-governance`** |
-| SKILL 新建 / 审查 / 目录布局 | `skill-engineering` |
-| Hub 安装、注册、挂载、脚本分级 | `agent-hub-bootstrap` |
-| 目标产物不明（skill / prompt / docs 混在一起） | `agent-asset-router` |
-| 浏览器黑盒验证 | `webapp-testing`（验证阶段，delivery 主导） |
+| 场景 | 第一跳 |
+|---|---|
+| 研发任务 / debug / 前后端 / SQL / 重构 | `delivery-workflow` |
+| 规范 / Spec / ADR / Security / Release / 9.8 评分 / 治理体系 | `ai-development-governance` |
+| docs / SQL / 脚本 / skill 资料落位、备份、归档 | `doc-script-governance` |
+| skill 新建 / 审查 / trigger / 目录布局 | `skill-engineering` |
+| hub 安装 / 注册 / 挂载 / 脚本分级 | `agent-hub-bootstrap` |
+| 产物不明：skill / prompt / docs / insight / review 混合 | `agent-asset-router` |
+| 浏览器黑盒验证 | `webapp-testing` |
 
-**项目领域实现** → 各项目 `rules/projects/<project-key>/PROJECT_RULES.md`（**仅写项目增量**，不重复本文）与 `skills/projects/<project-key>/`。
+裁决：执行推进归 `delivery-workflow`；门禁评分归 `ai-development-governance`；落位备份归 `doc-script-governance`；项目实现只写项目增量规则和项目技能，不复制公共规则。
 
-## Agent 协作模型（摘要）
+研发顺序：`delivery-workflow` triage → 需要 Spec/ADR/门禁则转 `ai-development-governance` → docs/SQL/脚本落位转 `doc-script-governance` → 代码进入项目技能 → 发布前过 Release/Security → 失败进 R3。plan 并入 `docs/design` 终版时，契约必须一致；项目 docs 元数据与修订记录按 `doc-script-governance`。
 
-**两档分工（不写死模型版本号）**
+## 零跳门禁卡
 
-| 档位 | 职责 | 子 Agent（`Task`） |
-|------|------|-------------------|
-| **编排档** | 阶段门、方案、范围白名单、验收、汇总 | **默认禁止**；见下「仅编排档允许的派发」 |
-| **执行档** | 已锁定的机械落盘（多文件写入、大段生成、跑固定验证命令） | **禁止再启**子 Agent |
+<!-- AGENT-GATE-CARD v1 -->
 
-- **执行档识别（随 Composer / Cursor 升级自动适用）**：派发 `Task` 时 `model` 的 slug **以 `-fast` 结尾**，或产品文档标明为 fast/执行档；**禁止**在规则正文绑定 `composer-2.x-fast` 等具体版本号。
-- **编排档识别**：当前主会话模型；若 slug 含 `-fast` 或用户选定执行档，则本段「编排档」约束不适用（且不得再派子 Agent）。
+> 门禁自包含；触发动作前必须先输出对应自检产物。没输出 = 未过门 = 不得执行。
 
-**默认（编排档）**
+### G0 头脑风暴 / 反迎合门
 
-- 调查、读代码、单文件修改、评分/文档归纳、用户问答 → 在本会话用 Read/Grep/Glob/Shell **直接完成**。
-- **不得**为「看看目录结构」「找某文件」「通读 SKILL 列表」等可一次工具链完成的任务启 `explore` / `generalPurpose` 子 Agent。
-- 用户写明「不要子 Agent / 直接做 / 别后台跑」→ **零** `Task` 调用。
+触发：方案讨论、体系整合、长期闭环、9.8+、一次通过评审、用户给出但未验证的方向。
 
-**仅编排档允许的派发（执行档子任务）**
+必须先输出：
 
-同时满足方可 `Task`：
+```text
+[头脑风暴自检]
+fact:
+assumption:
+unknown:
+risk:
+反方问题:
+更小闭环:
+不做/暂缓条件:
+```
 
-1. 任务类型 = **机械落盘**（非探索、非方案权衡）；
-2. 路径/内容/验收已写清（或已有 Hub `prompts/share/agent-task/*.prompt.md`）；
-3. 命中硬触发之一：写入 **≥ 2** 个文件；或单文件预计 **> 1500** 输出 token；或 delivery 规定的批量机械任务。
+任一项为空且影响方向选择，不得宣称方案已收敛；Full Path 收敛后回到 `ai-development-governance` 的 Spec / ADR / Task Contract。
 
-未齐清单或边界 → 编排档先澄清或自行摸底，**禁止**先派子 Agent。
+### G1 派发门
 
-**与 `delivery-workflow` 的关系**
+启动子 Agent / `Task` 前必须同时满足：
 
-- 硬触发、7 要素、Hub 任务 prompt → **`delivery-workflow`**（其 R2 要求执行档 slug 以 `-fast` 结尾，与上文一致）。
-- `delivery-workflow` 的「必须派发」**仅指执行档机械任务**，**不**授权用子 Agent 替代编排档调查。
-- skill 体量门禁 → **`skill-engineering`** + `scripts/check-skill-size`（分级见 `agent-hub-bootstrap` → `references/script_tiering.md`）。
+- 任务是机械落盘，不是探索、方案权衡、读代码或问答。
+- 路径 / 内容 / 验收已锁定。
+- 命中硬触发：写入 >= 2 文件，或单文件预计 > 1500 输出 token，或已有 hub `agent-task` prompt。
+- 执行档 `model` slug 以 `-fast` 结尾；执行档不得再启子 Agent。
+- 用户写明“不要子 Agent / 直接做 / 别后台跑”时，零派发。
+
+派发前输出 7 要素自检：`目标 / 范围白黑名单 / 输入上下文 / 硬约束 / 步骤 / 验证命令与判据 / 输出四态`。任一项缺失不派发。完成状态只允许：`DONE` / `DONE_WITH_CONCERNS` / `NEEDS_CONTEXT` / `BLOCKED`。
+
+### G2 实现门
+
+写代码 / 页面 / 接口 / 配置 / SQL 前必须先：
+
+```text
+[实现阶段] 路由：delivery-workflow/<route> → 项目技能 <skill> §<章节>
+```
+
+代码文件进入实现前执行 checkpoint：优先 `git status`；必要时经同意 `commit` / `stash` / 分支；否则记录 `risk`。
+
+### G3 验证门
+
+声称完成前必须给出：验证命令 + 通过判据 + 实际产物。主链路未验证不算完成；“接口 200 但缺数据 / 保存后回显空”必须补写入、读取、响应出口三联检。
+
+### G4 文档/脚本/还原门
+
+- 改文档、SQL、脚本、skill 主文件或 references 前，先调用 `doc-script-governance/scripts/backup-file`；`git checkpoint` 不能替代脚本备份。
+- 已有文档 / SQL 未经负责人确认，不得删除、清空或替换为占位。
+- 执行 `git restore/reset/clean` 等会覆盖、丢弃或抹掉本地状态的动作前，先列路径、命令原文、影响，并经用户明示确认；禁止整块目录一键 restore。
+
+## 收口校验
+
+- 规则改动后跑 `scripts/check-agent-rules`，确认 `AGENT-GATE-CARD` 已分发。
+- skill / references 改动后按 `skill-engineering` 工程完成门跑入口、结构、私有耦合等适用校验。
+- 交付前按 `delivery-workflow` + `ai-development-governance` 给出最小主链路证据；失败进入 R3 学习门。

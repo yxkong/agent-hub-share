@@ -52,6 +52,9 @@ $userSkillRoots = @(
     Join-Path $userProfile '.cursor\skills'
     Join-Path $userProfile '.codex\skills'
     Join-Path $userProfile '.agents\skills'
+    Join-Path $userProfile '.gemini\antigravity\skills'
+    Join-Path $userProfile '.gemini\config\skills'
+    Join-Path $userProfile '.antigravity\skills'
 )
 
 $shareSkillNames = [System.IO.Directory]::GetDirectories($shareRoot) | ForEach-Object {
@@ -193,8 +196,8 @@ if (-not $SkipProfile -and -not $DryRun) {
 # ---------------------------------------------------------------------------
 Write-Host "=== Summary ===" -ForegroundColor Cyan
 Write-Host "  Hub            : $agentsRoot"
-Write-Host "  Share skills   : $($shareSkillNames.Count) -> ~/.claude/skills, ~/.cursor/skills, ~/.codex/skills, ~/.agents/skills"
-Write-Host "  Media skills   : $($mediaSkillNames.Count) -> ~/.claude/skills, ~/.cursor/skills, ~/.codex/skills, ~/.agents/skills"
+Write-Host "  Share skills   : $($shareSkillNames.Count) -> ~/.claude/skills, ~/.cursor/skills, ~/.codex/skills, ~/.agents/skills, ~/.gemini/config/skills, ~/.antigravity/skills"
+Write-Host "  Media skills   : $($mediaSkillNames.Count) -> ~/.claude/skills, ~/.cursor/skills, ~/.codex/skills, ~/.agents/skills, ~/.gemini/config/skills, ~/.antigravity/skills"
 Write-Host "  Next step      : cd <your-project> && & `"$agentsRoot\scripts\register-project.ps1`""
 Write-Host ""
 Write-Host "=== Done ===" -ForegroundColor Green

@@ -47,19 +47,36 @@
 - 排障任务默认保持原交互 / 行为 / 架构语义，只定位断点和补证据；不得为修复缺数据、缺轨迹或回显异常而绕过原链路
 - 每个新闭环开始前遵循 **checkpoint 协议**（见 [delivery-workflow/SKILL.md](../SKILL.md) 的 `阶段门速记` / `Gate 3 实现推进`）：`git status`、允许时的最小范围基线或经同意的提交；不允许时记录 `risk`；**不**把「无条件 commit」当硬动作，**也不**在脏工作区上无意识跨闭环推进
 - **派子 Agent 时**：调用 `Task` 工具的 `model` 必须为执行档（slug **以 `-fast` 结尾**，禁止写死 `composer-2.x-fast`），`prompt` 须按 [subagent_prompt_template.md](subagent_prompt_template.md) 7 要素组织，派发前完成模板 §4 自检清单
+- **异步任务登记**：凡启动后台子 Agent、后台 shell、异步验证或长任务，必须在当前轮维护一个简短 pending ledger（任务名 / 目标 / 预期产物 / 是否阻塞最终完成）。存在阻塞型 pending 时，回复只能标 `IN_PROGRESS` / `PARTIAL_DONE`，禁止使用“全部完成 / 已完成所有计划”等最终措辞。
 
 **Gate 4 — 验证完成**
 
 - 主链路验证通过后，按序检查：主链路 → 关键失败链路 → 文档/SQL/配置落点
+- **主链证据矩阵**：Full Path 或跨模块任务必须按 [mainline_evidence_matrix.md](gates/mainline_evidence_matrix.md) 输出 static / contract / runtime / user-visible / release / limitation 六类证据；若只能提供 static evidence，最终只能表述为“静态检查通过，运行链路未验证”，不得宣称完整完成。
 - 验证前先点名最容易漏测的边界 / 失败 / 回归用例，并选择最小安全检查
 - 交付前用反方视角复核契约错位、权限/租户、状态同步、保存后回显、缺数据链路
+- **异步归并门**：若本轮启动过子 Agent / 后台命令 / 异步任务，最终完成前必须完成 integration pass：
+  1. 所有阻塞型任务均已返回，或明确标为 `BLOCKED / NOT_RUN / OUT_OF_SCOPE`；
+  2. 多任务结果已交叉核对（前后端 API 路径、Controller 端点、SQL 脚本、菜单路径、验证命令）；
+  3. 子任务的 `CONCERNS` 已进入最终风险/局限，不得被主模型总结吞掉；
+  4. 未满足以上三项时，只能输出阶段性进度，不得声明交付完成。
 - 若涉及 **保存后回显 / 详情缺字段**：必须完成 `references/missing_data_debug_triad.md` 三联检（保存 → 查询 → 响应出口），再声明验证完成
-- 三项全满足时声明本轮交付完成，否则继续补充
+- 三项全满足时声明本轮 Gate 4 通过，否则继续补充
 
-**Gate 5 — 失败沉淀**
+**Gate 5 — 复盘落盘**
 
-- 出现失败/回滚/返工时，先定位类型（需求理解 / 设计漏项 / 契约不清 / 切分不当 / 验证不足）
-- **🔴 R3 三路分流 + 治理缺口回填**（无豁免）：
+- Gate 4 通过后**默认**执行，用户**无需**口述 closeout 口令
+- 读序：`delivery_replay.md` → `replay_body_template.md`（6 个账本 + `gate5-v2` 契约）→ closeout prompt → 落盘 → `check-replay-structure.ps1`
+- 写入 `$AGENTS_HUB_ROOT/docs/resource/replay/<task_id>.md`（含 `replay_contract: gate5-v2`）并更新 `$AGENTS_HUB_ROOT/docs/resource/INDEX.md`；业务工程 `docs/resource/` 禁止作为 Gate 5 落盘点
+- 产物供后续 Agent 分析、extractor 的 `source_anchor`；**不是** TechInsightVault 洞察
+- Full Path / 跨模块 / 交付闭环：**必须**落盘；Fast Path trivial 可无文件，回复内迷你复盘即可
+- 对用户只汇报 task_id、outcome、主要 limitation（≤3 行）
+
+**Gate 6 — 失败沉淀**
+
+- 出现失败/回滚/返工时，先定位类型（需求理解 / 设计漏项 / 契约不清 / 切分不当 / 验证不足 / **premature completion：异步任务未归并就宣称完成**）
+- 先按 [r3_handoff_contract.md](gates/r3_handoff_contract.md) 输出 handoff packet；Gate 6 只做路由与交接，不复制目标技能准入规则
+- **🔴 R3 三路分流 + 治理缺口回填**（无豁免；在 Gate 5 复盘之后，仅当失败/返工时）：
   - **认知洞察 / 经验**（给人看）→ `project-insight-extractor`
   - **Agent 反模式 / 触发误判 / 代码反模式**（给 Agent 用）→ 回填到对应 SKILL.md 或 `references/anti_patterns*.md`
   - **高质量复用 prompt**（含子 Agent prompt）→ `prompt-engineering` 沉淀为 `prompts/share/agent-task/*.prompt.md`

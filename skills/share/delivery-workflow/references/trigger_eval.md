@@ -15,6 +15,7 @@
 | **交付与可观测性** | 「你压根都没有改」「验收没过」「子 Agent 漂移了」 | Full Path：优先补足范围白名单 + 验证命令 + R3 沉淀 |
 | **方案设计/探索** | 「怎么设计 X」「有没有更好的方案」「这个架构合理吗」「如何做最合理」 | Full Path Gate 2（发散→收敛） |
 | 上线/交付前自检 | 「上线前检查」「帮我 review 一下」「提交前确认」 | checklist |
+| **研发体系审计与验证** | 「审计我的研发体系」「做一次闭环验证」「复核 release evidence / Task Replay / Skill Health」「脚本化治理是否闭环」 | rd-audit |
 
 **流程元问题（也触发）**：
 
@@ -25,11 +26,13 @@
 - 「这个功能怎么拆成最小可验证单元？」
 - 「需求理解完了，接下来怎么推进？」
 - 「接口 200 但缺数据 / 报错 / 功能不符合预期 / 如何定位根因？」（→ `debug_workflow.md`）
+- 「研发体系是否闭环？」「证据闭环是否够？」「技能健康信号怎么验证？」「release evidence 要不要单独 runbook？」（→ `gates/ai_rd_closure_audit.md`）
 
 ## should-not-trigger
 
 - 「帮我从这个项目提炼一个 skill」（→ `skill-engineering`）
 - 「帮我审查这个 SKILL.md」（→ `skill-engineering`）
 - 「文档放哪个目录？」（→ `doc-script-governance`）
+- 「给这段交付写事实复盘」但不审计体系（→ Gate 5 replay，不走 `rd-audit`）
 
 说明：具体接口 / 页面实现仍 should-trigger `delivery-workflow` 做流程门与范围约束；进入实现阶段后，具体代码落地转项目领域技能。

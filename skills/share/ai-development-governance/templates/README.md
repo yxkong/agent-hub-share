@@ -6,4 +6,6 @@
 | [TEMPLATE_ADR.md](TEMPLATE_ADR.md) | 架构决策记录 | `docs/design/<domain>/ADR-*.md` |
 | [TEMPLATE_TASK_CONTRACT.md](TEMPLATE_TASK_CONTRACT.md) | 最小可验证任务契约 | `docs/plan/<domain>/` 或技能 `references/meta/*_contract.md` |
 
+头脑风暴 / 方案收敛过程稿使用 `doc-script-governance/templates/TEMPLATE_BRAINSTORM_CONVERGENCE.md`，落 `docs/plan/<domain>/`；收敛后再进入本目录的 Spec / ADR / Task Contract 模板。
+
 复制到项目后按 `doc-script-governance` 补 YAML 与 §修订记录。

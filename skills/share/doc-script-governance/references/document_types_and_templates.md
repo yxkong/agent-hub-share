@@ -35,6 +35,7 @@ flowchart LR
 | 类型 ID | 中文名 | **唯一目录（项目内）** | 文件名模式 | `status` | 模板 |
 |---------|--------|------------------------|------------|----------|------|
 | `DESIGN` | 终版设计 | `docs/design/<domain>/` | `<TOPIC>_DESIGN.md` | `canonical` | [TEMPLATE_DESIGN_CANONICAL.md](../templates/TEMPLATE_DESIGN_CANONICAL.md) |
+| `BRAINSTORM` | 头脑风暴/方案收敛 | `docs/plan/<domain>/` | `<TOPIC>_BRAINSTORM.md` | `in_progress`→`done`/`superseded`/`blocked` | [TEMPLATE_BRAINSTORM_CONVERGENCE.md](../templates/TEMPLATE_BRAINSTORM_CONVERGENCE.md) |
 | `PLAN` | 执行计划 | `docs/plan/<domain>/` | `<TOPIC>_PLAN.md` | `in_progress`→`done` | [TEMPLATE_PLAN_EXECUTION.md](../templates/TEMPLATE_PLAN_EXECUTION.md) |
 | `REFACTOR` | 重构计划 | `docs/plan/<domain>/` | `<TOPIC>_REFACTOR_PLAN.md` | `in_progress`→`done` | [TEMPLATE_REFACTOR_PLAN.md](../templates/TEMPLATE_REFACTOR_PLAN.md) |
 | `IMPLEMENTATION` | 实现说明 | `docs/implementation/<lang>/<domain>/` | `<TOPIC>_IMPLEMENTATION.md` | `canonical` | [TEMPLATE_IMPLEMENTATION.md](../templates/TEMPLATE_IMPLEMENTATION.md) |
@@ -53,6 +54,7 @@ flowchart LR
 | 类型 | 何时创建 | 完成后 |
 |------|----------|--------|
 | `DESIGN` | 设计收敛门 | `canonical`；过程稿 `superseded` |
+| `BRAINSTORM` | 头脑风暴 / 方案发散 / 反迎合检查 | 收敛为 Spec / ADR / Task Contract；完成后 `done` 或 `superseded` |
 | `PLAN` / `REFACTOR` | 拆任务 / 结构性改动 | `done`；回写 DESIGN §实现状态 |
 | `IMPLEMENTATION` | 代码结构稳定 | 链 DESIGN |
 | `REVIEW` | 验证收口 | 列阻断/遗留 |

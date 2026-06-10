@@ -108,6 +108,11 @@ summary: 技能工程中重复出现问题的模式抽象库。与主技能一�
 - 规则：备份必须调用标准脚本；若 `AGENTS_HUB_ROOT` 未配置，优先修复环境变量，而不是降级为手工命令
 - 计数：1
 
+[BACKUP_POLICY_DRIFT] **备份策略脚本与实现漂移**
+- 触发条件：`backup-file.*` 行为、脚本注释、`check-backup-policy.*` 期望不一致；或在 Windows PowerShell 5.1 下使用不兼容参数导致校验脚本反复报错。
+- 规则：改备份脚本或备份契约时必须同步 wrapper、检查脚本、文档说明，并跑 `check-backup-policy`；输出应包含 `BACKUP_POLICY=ok`。
+- 计数：1
+
 [TEMPLATES_UNDER_REFERENCES] **空白模板放在 references/templates**
 - 触发条件：技能将可复制的 `TEMPLATE_*` 放在 `references/templates/` 而非技能根 `templates/`，与 `skill-engineering` 及 `skill_directory_layout` 不一致，导致路径与 `doc-script-governance` 双心智
 - 规则：空白模板一律迁到根 `templates/`；`references/` 只放规则 md；`references/templates/` 仅留跳转 README；见 `layout/skill_directory_layout.md`

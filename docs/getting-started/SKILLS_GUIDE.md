@@ -90,11 +90,11 @@
 
 ### 3. `ai-development-governance` — AI 研发治理总线
 
-**介绍**：从需求到发布的**治理语言**：Feature Spec、ADR、任务契约、质量/安全/发布/回滚门禁、9.8 评分卡。
+**介绍**：从需求到发布的**治理语言**：Feature Spec、ADR、任务契约、G0–G8 阶段门、质量/安全/发布/回滚/可观测门禁、9.8 评分卡。
 
-**作用**：定「要做到什么程度才能合并/上线」；与 `delivery-workflow` 分工——治理定标准，delivery 定节奏。
+**作用**：定「要做到什么程度才能合并/上线」；与 `delivery-workflow` 分工——治理定标准，delivery 定节奏。Full Path 可叠加 `context_persistence_gate.md`（过程区归档与反迎合）；跨项目契约见 `references/gates/project_contract_gate.md`。
 
-**何时用**：新功能要 Spec、架构要 ADR、上线前要门禁清单、要做发布前评分。
+**何时用**：新功能要 Spec、架构要 ADR、上线前要门禁清单、要做发布前评分、跨仓/共享 DB·API 要对齐契约。
 
 **示例**：「这个需求写一份 Feature Spec 和任务契约」→ governance 模板 + delivery 执行。
 
@@ -114,23 +114,23 @@
 
 ### 5. `delivery-workflow` — 研发交付工作流
 
-**介绍**：**几乎所有研发任务**的默认入口：需求理解 → 设计收敛 → 最小实现 → 验证收口 → 失败沉淀；含 Fast/Full Path、前后端/SQL 子路由、调试三联检。
+**介绍**：**几乎所有研发任务**的默认入口：需求理解 → 设计收敛 → 最小实现 → 验证收口 → **复盘落盘** → 失败沉淀；含 Fast/Full Path、前后端/SQL 子路由、调试三联检、**主链证据矩阵**（Gate 4）、**hub replay 复盘**（Gate 5）、**R3 handoff**（Gate 6）。
 
-**作用**：控制 Agent 别跳步、别大范围乱改；失败要沉淀可复用教训。
+**作用**：控制 Agent 别跳步、别用「规则写了」冒充「任务完成」；Full Path 必须区分 static/contract/runtime/user-visible/release/limitation 证据；返工按 R3 路由到 insight / 反模式 / prompt。
 
-**何时用**：新功能、修 Bug、重构、联调、数据迁移、接口「成功但没数据」。
+**何时用**：新功能、修 Bug、重构、联调、数据迁移、接口「成功但没数据」；用户说「研发体系审计 / 证据闭环 / release evidence / Task Replay」时走 **`rd-audit`** 路由（见 `references/gates/ai_rd_closure_audit.md`）。
 
-**示例**：「这个需求先做什么后做什么？」→ delivery-workflow。
+**示例**：「这个需求先做什么后做什么？」→ delivery-workflow；「帮我审计这套 AI 研发体系是否真闭环？」→ `rd-audit`。
 
 ---
 
 ### 6. `doc-script-governance` — 文档与 SQL 治理
 
-**介绍**：规定 `docs/`、dev/online SQL、技能资料的**目录、命名、模板、改前备份**。
+**介绍**：规定 `docs/`、dev/online SQL、技能资料的**目录、命名、模板、改前备份**；含 G0 头脑风暴收敛模板（`TEMPLATE_BRAINSTORM_CONVERGENCE.md`）。
 
-**作用**：`backup-file`、文档类型 ID、设计文档终版落点；与 delivery 的设计整合门衔接。
+**作用**：`backup-file`、文档类型 ID、设计文档终版落点；与 delivery / governance 的设计整合门、AGENT-GATE-CARD G4 备份门衔接。
 
-**何时用**：review 文档放哪、合并 plan 进 design、改 SKILL/README 前备份、SQL 分层。
+**何时用**：review 文档放哪、合并 plan 进 design、改 SKILL/README 前备份、SQL 分层、方案讨论要先输出 fact/assumption/risk 再收敛。
 
 **示例**：「这个技能 README 改前要怎么备份？」→ doc-script-governance。
 

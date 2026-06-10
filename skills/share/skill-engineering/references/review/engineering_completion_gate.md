@@ -62,6 +62,14 @@
 
 **与 §1、§2 的关系**：必须在 §1、§2 均已通过后再跑 §3（避免在入口或 references 拓扑仍违规时白算行数）。
 
+### 3.5 备份策略脚本校验（改备份脚本/备份契约时）
+
+当本次改动涉及 `backup-file.*`、`check-backup-policy.*`、备份目录规则、`bak/yyyyMM/<安全目录名>/` 契约，必须补跑：
+
+- Windows：`& "$env:AGENTS_HUB_ROOT\scripts\check-backup-policy.ps1"`
+
+**通过标准**：输出 `BACKUP_POLICY=ok` 且脚本 exit 0。若脚本不可跑，只能标 `unknown / risk`，不得宣称备份治理闭环完成。
+
 ### 4. 挂载（create / extract）
 
 真实源已在 hub 后，执行 `install-hub` 或 `publish-skill`（见 `agent-hub-bootstrap`），保证 **用户级或项目级** 挂载入口存在且符号链接 / junction 有效。

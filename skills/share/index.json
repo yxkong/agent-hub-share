@@ -30,7 +30,7 @@
       "name": "delivery-workflow",
       "dir": "delivery-workflow",
       "path": "skills/share/delivery-workflow",
-      "description": "面向 AI 真实研发交付的通用 workflow 技能（delivery workflow, stage gate, Fast Path, debug, fullstack）。**任何研发任务到达时自动触发**：新增功能、接口开发、Bug 修复、重构优化、前后端联动、SQL/数据迁移。按阶段门推进：需求理解→设计收敛→最小实现→验证收口→失败沉淀；含路由规则、Fast/Full Path 分级、「接口成功但缺数据」三联检。不负责提炼 skill 或研发 SOP；那属于 skill-engineering。"
+      "description": "面向 AI 真实研发交付的通用 workflow 技能（delivery workflow, stage gate, Fast Path, debug, fullstack）。**任何研发任务到达时自动触发**：新增功能、接口开发、Bug 修复、重构优化、前后端联动、SQL/数据迁移。按阶段门推进：需求理解→设计收敛→最小实现→验证收口→复盘落盘→失败沉淀；含路由规则、Fast/Full Path 分级、「接口成功但缺数据」三联检。Gate 5 复盘只写入 `$AGENTS_HUB_ROOT/docs/resource/replay/` 供后续 Agent 分析，禁止写业务工程 `docs/resource/`；洞察/prompt 沉淀分别走 project-insight-extractor / prompt-engineering。不负责提炼 skill 或研发 SOP；那属于 skill-engineering。"
     },
     {
       "name": "doc-script-governance",

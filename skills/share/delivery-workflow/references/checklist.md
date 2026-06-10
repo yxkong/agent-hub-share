@@ -35,6 +35,7 @@
 ## 验证前
 
 - [ ] 主链路已完成
+- [ ] Full Path / 跨模块任务已填写主链证据矩阵：static / contract / runtime / user-visible / release / limitation
 - [ ] 关键失败链路和边界链路已考虑
 - [ ] 只做了当前需求范围内的最小必要改动
 - [ ] 若存在「接口成功但缺字段 / 保存后回显空」：已按 `missing_data_debug_triad.md` 检查 **写入 → 读取 → HTTP 响应出口** 三层，而非只改单点代码
@@ -53,6 +54,9 @@
 ## 结束后
 
 - [ ] 已完成最小可验证检查
+- [ ] Gate 5：已读 `replay_body_template.md`（6 个账本 + `gate5-v2` 契约）+ closeout prompt，Path Guard 通过，落盘 `$AGENTS_HUB_ROOT/docs/resource/replay/`、`check-replay-structure.ps1=ok`、更新 `$AGENTS_HUB_ROOT/docs/resource/INDEX.md`（见 `gates/delivery_replay.md`）
+- [ ] 交付总结没有把 `static only`、`contract only`、`DDL only` 或未运行验证的能力表述为完整实现
 - [ ] 已说明主链路之外最容易漏测的边界 / 失败 / 回归用例
-- [ ] 如有失败或返工，已定位根因属于需求、设计、契约、切分还是验证问题
-- [ ] 可复用经验已沉淀为规则、测试、脚本、清单或文档
+- [ ] 如有失败或返工，Gate 6 已定位根因属于需求、设计、契约、切分还是验证问题
+- [ ] 如有 R3 候选，已按 `gates/r3_handoff_contract.md` 输出 handoff packet（含 `source_replay`、`candidate_route`、`target_skill`、`stop_condition`）
+- [ ] 可复用经验只做 R3 路由交接；是否写 insight / prompt / bad smell 由目标技能自己的准入规则决定

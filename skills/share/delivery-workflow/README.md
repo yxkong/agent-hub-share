@@ -10,6 +10,7 @@
 
 | 版本 | 日期 | 修订要点 |
 |------|------|----------|
+| 1.3.0 | 2026-06-10 | 增加 `rd-audit` 研发体系审计与闭环验证路由，接入审计 gate 与 share prompt |
 | 1.1.0 | 2026-06-04 | 同步真实协作算子 P0、行为模式变更确认、trigger/eval 口径与 R1/R3 边界 |
 | 1.0.0 | 2026-05-21 | 初版：delivery 节奏总线、Fast/Full Path、R1/R2/R3 与 references 分层 |
 
@@ -71,6 +72,7 @@
 | `P0` | `references/backend_workflow.md` | 后端实现 |
 | `P0` | `references/fullstack_workflow.md` | 前后端联动 |
 | `P0` | `references/checklist.md` | 上线前自检 |
+| `P0` | `references/gates/ai_rd_closure_audit.md` | 研发体系审计与闭环验证 |
 | `P0` | `references/ai_execution_protocol.md` | 阶段门、推压处理、R1/R3 |
 | `P0` | `references/real_collaboration_operators.md` | 真实协作算子与行为模式变更确认 |
 | `P1` | `references/ai_context_protocol.md` | 上下文注入、任务切分、偏离检测 |

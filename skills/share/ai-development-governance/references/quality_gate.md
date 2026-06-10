@@ -37,9 +37,11 @@
 ### AI 开发专项
 
 - [ ] 没有超 Task Contract 范围改文件
+- [ ] 跨项目任务已执行 Project Contract Gate，且共享 DB/API/前端回显未只改单端
 - [ ] 没有绕过项目架构或依赖方向
 - [ ] 没有凭空新增未对齐的模式
 - [ ] 没有跳过验证命令就宣称完成
+- [ ] Full Path 已按主链证据矩阵区分 static / contract / runtime / user-visible / release / limitation
 - [ ] 若「接口 200 但缺数据」：已按 `delivery-workflow/references/missing_data_debug_triad.md` 三层排查
 
 ## Fast Path

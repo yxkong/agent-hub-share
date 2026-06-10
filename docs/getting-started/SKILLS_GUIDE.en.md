@@ -73,9 +73,9 @@ Installs this repo into IDE skill dirs, repairs links, publishes skills. SOP for
 
 ### 3. `ai-development-governance`
 
-Governance vocabulary: Feature Spec, ADR, task contract, quality/security/release/rollback gates, scorecard. Sets **bars**; `delivery-workflow` sets **rhythm**.
+Governance vocabulary: Feature Spec, ADR, task contract, G0–G8 gates, quality/security/release/rollback/observability gates, scorecard. Sets **bars**; `delivery-workflow` sets **rhythm**. Full Path may add `context_persistence_gate.md`; cross-project contracts → `references/gates/project_contract_gate.md`.
 
-**When**: Spec/ADR needed, pre-release gate checklist, scoring before ship.
+**When**: Spec/ADR needed, pre-release gate checklist, scoring before ship, shared DB/API alignment across repos.
 
 ---
 
@@ -89,19 +89,19 @@ Business-layer safety: content, UX abuse, SMS rate limits, anti-spam—not IAM/t
 
 ### 5. `delivery-workflow`
 
-Default for almost all dev work: understand → design → minimal implement → verify → learn. Fast/Full Path, FE/BE/SQL routes, debug triad.
+Default for almost all dev work: understand → design → minimal implement → verify → **replay archive** → learn. Fast/Full Path, FE/BE/SQL routes, debug triad, **mainline evidence matrix** (Gate 4), **hub replay** (Gate 5), **R3 handoff** (Gate 6).
 
-**When**: Features, bugs, refactors, integration, “API OK but no data”.
+**When**: Features, bugs, refactors, integration, “API OK but no data”. Keywords like “rd audit / evidence closure / release evidence / Task Replay” → **`rd-audit`** route (`references/gates/ai_rd_closure_audit.md`).
 
-**Example cue**: “What should we do first for this request?”
+**Example cue**: “What should we do first?” or “Audit whether this AI dev system is truly closed-loop.”
 
 ---
 
 ### 6. `doc-script-governance`
 
-Where `docs/` and SQL live, templates, **backup-file** before edits. Ties to delivery’s design integration gate.
+Where `docs/` and SQL live, templates, **backup-file** before edits; includes G0 brainstorm convergence template. Aligns with AGENT-GATE-CARD G4 backup gate.
 
-**When**: Doc placement, merging plans into design canon, SQL dev/online split.
+**When**: Doc placement, merging plans into design canon, SQL dev/online split, brainstorm tasks needing fact/assumption/risk before convergence.
 
 **Example cue**: “How do I backup this skill README before editing?”
 

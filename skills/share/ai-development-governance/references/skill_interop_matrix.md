@@ -14,6 +14,18 @@
 | L5 验证闭环 | TDD 测试先行；浏览器黑盒验证 | `tdd-workflow`、`webapp-testing` |
 | L6 项目领域 | 具体前后端 / 平台实现 | 项目 dev skills |
 
+## 横向增强层
+
+持久上下文与多视角反证只作为横向增强，不改变七层主导关系：
+
+| 能力 | 吸收方式 | 禁止 |
+|------|------|------|
+| 持久上下文 | Full Path 过程区、任务状态、archive 与真源回灌 | 把过程区当长期唯一真源 |
+| 多视角反证 | 目标 / 工程 / 体验 / 评审 / 验证 / 发布 / 复盘视角 | 用视角名替代证据，或默认派发子 Agent |
+| 反迎合头脑风暴 | 先暴露 fact / assumption / unknown / risk，再收敛方案 | 直接包装用户方案为最佳实践 |
+
+细则见 [context_persistence_gate.md](context_persistence_gate.md)。
+
 ## 按阶段协作
 
 | 阶段 | 主 skill | 辅 skill | 典型产物 |
@@ -32,6 +44,7 @@
 | skill 优化 | `skill-engineering` | `doc-script-governance`、`skill-scorecard` | SKILL.md / references |
 | 发布 G7 | `ai-development-governance` | `doc-script-governance` | release / rollback 文档 |
 | 失败 G8 | `delivery-workflow` R3 | `project-insight-extractor` / `prompt-engineering` / `skill-engineering` | insight / 反模式 / prompt |
+| 持久上下文 | `ai-development-governance` | `doc-script-governance`、`delivery-workflow` | 过程区状态、archive、真源回灌 |
 
 ## 冲突裁决
 
@@ -39,6 +52,8 @@
 |------|------|
 | 先读 governance 还是 delivery？ | **研发任务默认先进 `delivery-workflow` 做入口 triage**；问体系/规范/门禁/评分，或 triage 判定需要 Spec/ADR/Task Contract → governance |
 | Spec 放哪？ | 过程 `docs/plan/`；终版升格 `docs/design/` — **`doc-script-governance` 为准** |
+| 过程区和 docs/design 谁是真源？ | 过程区只记录本次变更；长期有效规则必须回灌 `docs/design/` 或 skill / prompt / insight |
+| 多视角反证和现有 skill 谁主导？ | 多视角只提供审查问题；执行仍归 `delivery-workflow`，门禁仍归 governance，落位仍归 doc-script |
 | 验证清单听谁的？ | 执行细节 `delivery-workflow/checklist`；门禁框架 `ai-development-governance/quality_gate` |
 | 失败沉淀去哪？ | R3 三路分流；治理缺口回填 `governance_checklist` |
 

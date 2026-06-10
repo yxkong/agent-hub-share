@@ -22,6 +22,9 @@ $userClaudeSkillsRoot = Join-Path $userProfile '.claude\skills'
 $userCursorSkillsRoot = Join-Path $userProfile '.cursor\skills'
 $userCodexSkillsRoot = Join-Path $userProfile '.codex\skills'
 $userAgentsSkillsRoot = Join-Path $userProfile '.agents\skills'
+$userGeminiSkillsRoot = Join-Path $userProfile '.gemini\antigravity\skills'
+$userGeminiConfigSkillsRoot = Join-Path $userProfile '.gemini\config\skills'
+$userAntigravitySkillsRoot = Join-Path $userProfile '.antigravity\skills'
 
 $resolvedProjectRoot = ''
 if ($Scope -eq 'category' -or $LinkProject -or $ProjectRoot) {
@@ -41,6 +44,7 @@ $projectClaudeSkillsRoot = ''
 $projectCursorSkillsRoot = ''
 $projectAgentsSkillsRoot = ''
 $projectGeminiSkillsRoot = ''
+$projectAntigravitySkillsRoot = ''
 if ($Scope -eq 'category' -or $LinkProject) {
     if (-not $resolvedProjectRoot) {
         throw 'Project links require -ProjectRoot, AGENTS_DEFAULT_PROJECT_ROOT, or running the script from the target workspace.'
@@ -49,6 +53,7 @@ if ($Scope -eq 'category' -or $LinkProject) {
     $projectCursorSkillsRoot = Join-Path $resolvedProjectRoot '.cursor\skills'
     $projectAgentsSkillsRoot = Join-Path $resolvedProjectRoot '.agents\skills'
     $projectGeminiSkillsRoot = Join-Path $resolvedProjectRoot '.gemini\skills'
+    $projectAntigravitySkillsRoot = Join-Path $resolvedProjectRoot '.antigravity\skills'
 }
 
 function Ensure-Junction {
@@ -122,6 +127,7 @@ if (-not (Test-Path -LiteralPath $skillFile)) {
 if ($LinkProject -or $Scope -eq 'category') {
     Ensure-Junction -LinkPath (Join-Path $projectClaudeSkillsRoot $SkillName) -TargetPath $skillRoot
     Ensure-Junction -LinkPath (Join-Path $projectCursorSkillsRoot $SkillName) -TargetPath $skillRoot
+    Ensure-Junction -LinkPath (Join-Path $projectAntigravitySkillsRoot $SkillName) -TargetPath $skillRoot
     if ($Scope -eq 'category') {
         Ensure-Junction -LinkPath (Join-Path $projectAgentsSkillsRoot $SkillName) -TargetPath $skillRoot
         Ensure-Junction -LinkPath (Join-Path $projectGeminiSkillsRoot $SkillName) -TargetPath $skillRoot
@@ -133,6 +139,9 @@ if ($LinkUsers -or $Scope -eq 'share' -or $Scope -eq 'media') {
     Ensure-Junction -LinkPath (Join-Path $userCursorSkillsRoot $SkillName) -TargetPath $skillRoot
     Ensure-Junction -LinkPath (Join-Path $userCodexSkillsRoot $SkillName) -TargetPath $skillRoot
     Ensure-Junction -LinkPath (Join-Path $userAgentsSkillsRoot $SkillName) -TargetPath $skillRoot
+    Ensure-Junction -LinkPath (Join-Path $userGeminiSkillsRoot $SkillName) -TargetPath $skillRoot
+    Ensure-Junction -LinkPath (Join-Path $userGeminiConfigSkillsRoot $SkillName) -TargetPath $skillRoot
+    Ensure-Junction -LinkPath (Join-Path $userAntigravitySkillsRoot $SkillName) -TargetPath $skillRoot
 }
 
 Write-Host "Hub root: $agentsRoot"

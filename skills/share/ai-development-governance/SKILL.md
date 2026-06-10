@@ -13,6 +13,7 @@ description: AI 研发治理总纲技能（AI development governance, spec, ADR,
 | `spec` | 真实研发需求尚未形成 Spec | `templates/TEMPLATE_FEATURE_SPEC.md`，然后转 `delivery-workflow` |
 | `adr` | 方案有多个选择或存在架构影响 | `templates/TEMPLATE_ADR.md` |
 | `task-contract` | 需要拆成最小可验证任务契约 | `templates/TEMPLATE_TASK_CONTRACT.md` |
+| `project-contract` | 跨项目、Java/Python 同步、共享 DB/API、项目技能一致性 | `references/gates/project_contract_gate.md` |
 | `security` | 涉及权限、租户、敏感数据、密钥 | `references/security_gate.md` |
 | `biz-safety` | 涉及 UGC、交互防刷、短信/通知 | `biz-safety-audit` 技能（content / interaction / sms 路由） |
 | `code-review` | AI 生成代码准备合并、交付前代码质量 | `references/code_review_gate.md` |
@@ -50,6 +51,7 @@ description: AI 研发治理总纲技能（AI development governance, spec, ADR,
 
 - 没有 Spec，不进入 Full Path 实现
 - 有接口、字段、SQL、权限、状态机变化，必须有 Task Contract
+- 跨项目、共享库、Java/Python 同步、前后端契约联动，必须过 Project Contract Gate
 - 有架构取舍，必须有 ADR
 - 涉及用户数据、权限、租户、密钥，必须过 Security Gate
 - 涉及 UGC、交互、短信/通知，必须过 `biz-safety-audit`
@@ -78,6 +80,7 @@ description: AI 研发治理总纲技能（AI development governance, spec, ADR,
 - `references/release_gate.md`
 - `references/rollback_gate.md`
 - `references/governance_checklist.md`
+- `references/gates/project_contract_gate.md`
 - `references/scorecard.md`
 - `references/skill_interop_matrix.md`
 

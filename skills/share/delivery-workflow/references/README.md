@@ -18,6 +18,7 @@
 | 真实协作算子：假设优先、不确定暴露、最小改动、反方复核、风险测试 | [real_collaboration_operators.md](real_collaboration_operators.md) |
 | 上线 / 交付自检 | [checklist.md](checklist.md) |
 | 缺数据三联检 | [missing_data_debug_triad.md](missing_data_debug_triad.md) |
+| 研发体系审计与闭环验证 | [gates/ai_rd_closure_audit.md](gates/ai_rd_closure_audit.md) + `prompt-share-agent-task-ai-rd-closure-audit` |
 | 子 Agent 7 要素模板与完成状态协议（已判定派发后） | [subagent_prompt_template.md](subagent_prompt_template.md) |
 | 完整 trigger / eval 样例 | [trigger_eval.md](trigger_eval.md) |
 | 给人看的快速说明 | [human_quickstart.md](human_quickstart.md) |
@@ -40,6 +41,7 @@
 | [frontend_workflow.md](frontend_workflow.md) | 前端路由最小设计产物与实现要点 |
 | [fullstack_workflow.md](fullstack_workflow.md) | 前后端联动与契约冻结 |
 | [real_collaboration_operators.md](real_collaboration_operators.md) | 真实协作算子：防盲改、防装懂、防过度设计、防漏验 |
+| [gates/ai_rd_closure_audit.md](gates/ai_rd_closure_audit.md) | 研发体系审计与闭环验证：入口真源、证据闭环、Release Evidence、Task Replay、Skill Health、脚本化治理 |
 
 ## P1 补充规则
 

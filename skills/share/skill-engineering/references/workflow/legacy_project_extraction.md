@@ -161,6 +161,18 @@
 
 如果回答仍然抽象，先回去补入口、主链路和切入点，不要先润色文档。
 
+### Step 6.5：补闭环承诺映射
+
+从存量项目提炼 skill 时，必须判断项目文档或代码是否已经承诺以下能力；命中则把对应闭环写入提炼结果，未命中则标 `out_of_scope`，不要虚构：
+
+| 承诺能力 | 提炼时必须落到哪里 |
+|---|---|
+| 交付验证 / 运行证据 | 最小验证方式需标证据等级：`static / contract / runtime / user-visible / release / limitation` |
+| 发布 / 回滚 / 观测 | 记录 `Release Evidence`：观察窗口、观察入口、回滚触发条件；若项目无发布面，标 `N/A` |
+| 失败学习 / 返工治理 | 记录 `Task Replay Lite`：触发输入、缺失证据、误判 gate、回填位置 |
+| 重复误触发 / SOP 失效 | 形成 `Skill Health Signal`，回填 bad smell / trigger eval / design principles |
+| 备份脚本 / 备份契约 | 验收命令包含 `check-backup-policy`（仅在命中备份相关能力时） |
+
 ## 可用标准
 
 只有满足下面条件，才允许把提炼结果作为后续开发 skill 使用：

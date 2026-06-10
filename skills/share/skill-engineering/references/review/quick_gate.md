@@ -18,6 +18,8 @@ summary: review 路由 P0 首读文件。用于 30 秒内判断问题类型、�
 - README / INDEX / 子目录 README 与 `SKILL.md` 形成并列入口
 - 承诺能力没有 active 文件支撑，或只存在于 `bak/`
 - share skill 含真实项目私有名、私有 URL、密钥、凭据或稳定项目路径耦合
+- 交付 / 上线 / 失败学习类 skill 宣称闭环，但没有主链证据矩阵、Release Evidence、Task Replay Lite 或等价证据
+- 备份脚本 / 备份契约类改动没有 `BACKUP_POLICY=ok` 证据
 
 ## 2. 四项可用性门
 
@@ -39,6 +41,7 @@ summary: review 路由 P0 首读文件。用于 30 秒内判断问题类型、�
 - references 有 P0 / P1 / P2 或等价优先级，不要求先读全部
 - 高风险 / 纪律类 skill 有无 skill 基线样本与带 skill 复测样本
 - 结构、评分、触发、模板和脚本均有一致性证据
+- 承诺交付/发布/失败学习时，证据等级已区分 `static / contract / runtime / user-visible / release / limitation`
 
 ## 4. 分流到详表
 

@@ -55,7 +55,7 @@ echo ""
 # ---------------------------------------------------------------------------
 # 1. Link shared skills to user-level directories
 # ---------------------------------------------------------------------------
-USER_SKILL_ROOTS="$USER_HOME/.claude/skills $USER_HOME/.cursor/skills $USER_HOME/.codex/skills $USER_HOME/.agents/skills"
+USER_SKILL_ROOTS="$USER_HOME/.claude/skills $USER_HOME/.cursor/skills $USER_HOME/.codex/skills $USER_HOME/.agents/skills $USER_HOME/.gemini/antigravity/skills $USER_HOME/.gemini/config/skills $USER_HOME/.antigravity/skills"
 
 SHARE_SKILL_NAMES=$(agent_skill_names_from_root "$SHARE_ROOT")
 MEDIA_SKILL_NAMES=$(agent_skill_names_from_root "$MEDIA_ROOT")
@@ -180,8 +180,8 @@ fi
 # ---------------------------------------------------------------------------
 echo "=== Summary ==="
 echo "  Hub           : $AGENTS_ROOT"
-echo "  Share skills  : $SHARE_SKILL_COUNT -> ~/.claude/skills, ~/.cursor/skills, ~/.codex/skills, ~/.agents/skills"
-echo "  Media skills  : $MEDIA_SKILL_COUNT -> ~/.claude/skills, ~/.cursor/skills, ~/.codex/skills, ~/.agents/skills"
+echo "  Share skills  : $SHARE_SKILL_COUNT -> ~/.claude/skills, ~/.cursor/skills, ~/.codex/skills, ~/.agents/skills, ~/.gemini/config/skills, ~/.antigravity/skills"
+echo "  Media skills  : $MEDIA_SKILL_COUNT -> ~/.claude/skills, ~/.cursor/skills, ~/.codex/skills, ~/.agents/skills, ~/.gemini/config/skills, ~/.antigravity/skills"
 echo "  Next step     : cd <your-project> && sh \"$AGENTS_ROOT/scripts/register-project.sh\""
 echo ""
 echo "=== Done ==="

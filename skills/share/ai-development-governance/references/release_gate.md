@@ -1,6 +1,6 @@
 # Release Gate（G7）
 
-> 上线 / 合并前必做。文档落位见 `doc-script-governance`；online SQL **禁止** Agent 直接写入。
+> 上线 / 合并前必做。文档落位见 `doc-script-governance`；online SQL **禁止** Agent 直接写入。本体系不新增独立 `release-ops-runbook`，发布前/发布后证据直接收敛在本文、`rollback_gate.md` 与 `observability_gate.md`。
 
 ## 触发条件
 
@@ -40,6 +40,13 @@
 - [ ] 响应时间 / 关键链路延迟
 - [ ] 关键业务指标
 - [ ] 日志含定位字段（traceId / userId / tenantId 等）
+
+### 发布后观察
+
+- [ ] 已写明观察窗口（如 15m / 30m / 1h，按项目风险确定）
+- [ ] 已写明观察入口（日志、指标、后台页面、业务报表、用户反馈渠道）
+- [ ] 已写明回滚触发条件，并与 `rollback_gate.md` 一致
+- [ ] 若本轮未实际部署，交付结论标 `release: NOT_RUN`，不得宣称上线完成
 
 ### 通知
 

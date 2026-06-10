@@ -24,26 +24,44 @@ if (-not (Test-Path $FilePath -PathType Leaf)) {
 
 $dir       = Split-Path $FilePath -Parent
 $filename  = Split-Path $FilePath -Leaf
+if ([string]::IsNullOrWhiteSpace($filename)) {
+  $filename = (Get-Item -LiteralPath $FilePath).Name
+}
+if ([string]::IsNullOrWhiteSpace($filename)) {
+  throw "Unable to resolve file name for backup target: $FilePath"
+}
 $stem      = [System.IO.Path]::GetFileNameWithoutExtension($filename)
 $ext       = [System.IO.Path]::GetExtension($filename)
 $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
 $month     = Get-Date -Format "yyyyMM"
 
 # 历史归档子目录：将 "." 换为 "_"，避免目录名为 SKILL.md 等与技能入口冲突
-$archiveSeg = ($filename -replace '\.', '_')
+$archiveSeg = ''
+foreach ($ch in $filename.ToCharArray()) {
+  if ($ch -eq '.') {
+    $archiveSeg += '_'
+  }
+  else {
+    $archiveSeg += $ch
+  }
+}
 
-$bakDir  = Join-Path $dir 'bak'
-$histDir = Join-Path (Join-Path $bakDir $month) $archiveSeg
+$bakDir   = Join-Path $dir 'bak'
+$histDir  = [System.IO.Path]::Combine($bakDir, $month, $archiveSeg)
 
 # Step 1: 即时备份（直接覆盖）
 New-Item -ItemType Directory -Force -Path $bakDir | Out-Null
-Copy-Item $FilePath -Destination (Join-Path $bakDir "_$filename") -Force
+$latestPath = Join-Path $bakDir "_$filename"
+Copy-Item $FilePath -Destination $latestPath -Force
 
 # Step 2: 历史归档（追加）
 New-Item -ItemType Directory -Force -Path $histDir | Out-Null
 $archiveName = "$stem-$timestamp$ext"
-Copy-Item $FilePath -Destination (Join-Path $histDir $archiveName) -Force
+$archivePath = Join-Path $histDir $archiveName
+Copy-Item $FilePath -Destination $archivePath -Force
 
-Write-Host "✓ 备份完成: $FilePath"
-Write-Host "  即时备份: $(Join-Path $bakDir "_$filename")"
-Write-Host "  历史归档: $(Join-Path $histDir $archiveName)"
+Write-Host "BACKUP_DONE: $FilePath"
+Write-Host "LATEST_BACKUP_PATH: $latestPath"
+Write-Host "ARCHIVE_BACKUP_PATH: $archivePath"
+Write-Output "LATEST_BACKUP=$latestPath"
+Write-Output "ARCHIVE_BACKUP=$archivePath"

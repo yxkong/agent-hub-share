@@ -17,7 +17,18 @@
 
 - [ ] Full Path 跨模块任务有 Task Contract 或 meta contract
 - [ ] 范围白名单 / 禁止改清单已列出
+- [ ] 跨项目 / 共享 DB / Java-Python / 前后端联动任务已过 [project_contract_gate.md](gates/project_contract_gate.md)
+- [ ] 若出现白名单外改动，已更新 Contract 或标为 blocked，未静默扩大范围
 - [ ] 子 Agent prompt 含 7 要素或 hub share prompt
+
+## 持久上下文与多视角反证（横向门）
+
+- [ ] Full Path 已有过程区或等价书面上下文，覆盖目标、范围、设计、任务和验收
+- [ ] 头脑风暴 / 方案收敛过程稿（若触发）已使用 `TEMPLATE_BRAINSTORM_CONVERGENCE.md` 或等价结构，并落 `docs/plan/<domain>/`
+- [ ] 过程区状态明确：`done` / `superseded` / `blocked`
+- [ ] 长期有效结论已回灌到 `docs/design/`、skill references、prompt 或 insight
+- [ ] 头脑风暴 / 体系方案已暴露 fact / assumption / unknown / risk，并给出反方问题与更小闭环
+- [ ] 多视角反证只作为问题集，已给出目标 / 工程 / 评审 / 验证等相关证据，未用视角名替代验证
 
 ## 实现（G4）
 
@@ -31,6 +42,29 @@
 - [ ] 见 [code_review_gate.md](code_review_gate.md) 代码审查（命名/架构符合度/错误处理/安全内建/可测试性）
 - [ ] Realism Gate 已过：已暴露 fact / assumption / unknown / risk / validation，未用专家式总结掩盖未验证事实
 - [ ] 已证明最小方案、重构必要性、边界测试与反方复核；不满足时回到 `delivery-workflow` 对应 Gate
+- [ ] 主链证据矩阵已填写；`static only` / `contract only` / `DDL only` 能力已降级表述
+- [ ] **能力声明边界表**已填写：每个交付能力标明 `Implemented / MVP Implemented / Contract Only / DDL Only / Not Implemented`，并列验证证据；禁止把 DDL-only、字段贯通、占位评分、未接运行时的配置项写成完整能力。
+
+### 能力声明边界表（G5 必填）
+
+用于防止 P0 / MVP 交付总结夸大能力边界。所有跨模块、AI 产品化、平台控制面、上线前汇报都必须填写：
+
+| 状态 | 含义 | 允许表述 | 禁止表述 |
+|---|---|---|---|
+| `Implemented` | 数据、接口、运行时、管理端、验证均闭环 | “已实现并通过 X 验证” | — |
+| `MVP Implemented` | 主链路可走通，但存在明确局限 | “MVP 已实现，局限是...” | “完整实现” |
+| `Contract Only` | 字段 / DTO / API 契约已贯通，但运行时能力未闭环 | “契约已预留/透传” | “能力已支持” |
+| `DDL Only` | 仅有表结构或菜单 SQL，无业务运行时 | “DDL 已落地，运行时待实现” | “已有限流/计费/策略生效” |
+| `Not Implemented` | 未落地 | “未实现 / out of scope” | “后续可用” |
+
+最小汇报格式：
+
+```markdown
+| 能力 | 状态 | 验证证据 | 局限 / 下一步 |
+|---|---|---|---|
+| API rate limit runtime enforcement | DDL Only | `ai_api_rate_limit_rule` DDL | 未接 QPS 运行时拦截 |
+| Eval rule scoring | MVP Implemented | run_case score + pass_rate + compile | 未接真实 LLM Judge |
+```
 
 ## 安全（G6，若触发）
 
@@ -40,6 +74,7 @@
 ## 发布与回滚（G7，若上线）
 
 - [ ] 见 [release_gate.md](release_gate.md) + [rollback_gate.md](rollback_gate.md)
+- [ ] Release Evidence 已填写：观察窗口、观察入口、回滚触发条件；若未部署则标 `release: NOT_RUN`
 
 ## 文档与资产（L3）
 
@@ -49,6 +84,8 @@
 ## 学习与评分（G8）
 
 - [ ] 若有失败：R3 三路分流已完成
+- [ ] 若发生返工：已做 Task Replay Lite（触发输入、缺失证据、误判 gate、回填位置）
+- [ ] 若同类返工重复出现：回填对应 skill 的 bad smell / trigger eval / scorecard 维度；本体系不新增独立技能健康度看板
 - [ ] [scorecard.md](scorecard.md) 自评 ≥ 98（Full Path）或关键维度无 P0
 
 ## 治理审计输出格式（供 Agent 汇报）

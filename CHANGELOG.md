@@ -4,6 +4,39 @@ All notable changes to the **public share export** are documented here.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.2.0] - 2026-06-10
+
+### Added
+
+- `delivery-workflow/references/gates/`：主链证据矩阵（`mainline_evidence_matrix.md`）、Gate 5 复盘落盘（`delivery_replay.md` + `replay_body_template.md`）、R3 失败 handoff（`r3_handoff_contract.md`）、研发体系审计入口（`ai_rd_closure_audit.md`）
+- `delivery-workflow` 新增 `rd-audit` 路由与 `real_collaboration_operators.md`（子 Agent 派发与协作红线）
+- `ai-development-governance/references/gates/project_contract_gate.md`（跨项目 / 共享 DB·API 契约门）
+- `ai-development-governance/references/context_persistence_gate.md`（Full Path 过程区、归档回灌与反迎合审查）
+- `doc-script-governance/templates/TEMPLATE_BRAINSTORM_CONVERGENCE.md`（G0 头脑风暴收敛模板）
+- `COMMON_AGENT_RULES.md` 嵌入 **AGENT-GATE-CARD v1**（G0–G4 零跳门禁卡：头脑风暴 / 派发 / 实现 / 验证 / 文档备份）
+
+### Changed
+
+- `delivery-workflow` 阶段门扩展为 Gate 1–6 + Audit：Gate 4 要求 Full Path 填写 static/contract/runtime/user-visible/release/limitation 证据；Gate 5 复盘落盘到 hub `docs/resource/replay/`；Gate 6 按 R3 handoff 路由 insight / 反模式 / prompt
+- `ai-development-governance`、`doc-script-governance`、`skill-engineering`、`skill-scorecard` 联动修订：证据口径、坏味道登记、trigger eval 与 scorecard 对齐
+- 公共规则与 share 技能 README / references 索引同步上述 gate 资产
+
+### Note
+
+- 研发体系审计（`rd-audit`）的执行 prompt 在 **private hub** `prompts/share/agent-task/` 维护，**不**随 public export 发布；public 侧以 gate 入口与读序为准。
+
+## [0.1.1] - 2026-06-03
+
+### Added
+
+- Share 技能 `biz-safety-audit`（UGC / 交互 / 短信等业务侧安全审计）
+- 入门文档双语拆分（`*.zh-CN.md` / `*.en.md`）；export 默认中文落盘为 `*.md`
+
+### Changed
+
+- `public-export.config.yaml` 与 CI 拆分 export / private-prompts 工作流
+- Share 技能 `codebase-architecture` 等在 private 真源维护；是否纳入 public 白名单见 manifest `share_whitelist`
+
 ## [0.1.0] - 2026-05-25
 
 ### Added

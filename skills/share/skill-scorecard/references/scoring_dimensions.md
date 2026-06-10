@@ -29,9 +29,9 @@
 |------|------|--------|
 | 路径与引用有效性 | **15** | 活跃路径、引用、真源/镜像、迁移后引用是否仍有效 |
 | 脚本与入口可用性 | **15** | 脚本是否存在、能运行、wrapper 与正文是否一致 |
-| 验证闭环 | **20** | 是否有验证方式、通过判据、失败收口 |
+| 验证闭环 | **20** | 是否有验证方式、通过判据、失败收口；交付类 skill 是否区分主链证据矩阵的 static / contract / runtime / user-visible / release / limitation |
 | 承诺能力覆盖 | **20** | skill/prompt 承诺的能力是否被真实内容与资产覆盖 |
-| 行为有效性 | **15** | skill 是否真的改变 Agent 默认行为；高风险/纪律类是否有基线与复测证据 |
+| 行为有效性 | **15** | skill 是否真的改变 Agent 默认行为；高风险/纪律类是否有基线与复测证据；重复返工是否形成 Skill Health Signal 并回填 |
 | 模板与派生资产同步 | **15** | prompt 模板、子 Agent 模板、示例、wrapper 是否仍跟当前规则同步 |
 
 合计：**100**
@@ -52,6 +52,7 @@
 - `executed` > `observed` > `static` > `unknown`
 - 兑现分若主要基于 `static`，结论应更保守
 - 若关键项为 `unknown`，门禁不得上升为 `可挂载`
+- 交付/治理类 skill 若声明 runtime、release、user-visible 能力，必须能映射到 `delivery-workflow/references/gates/mainline_evidence_matrix.md` 或等价证据；否则按 `static` 或 `unknown` 处理
 
 ## 门禁结论
 
@@ -77,6 +78,9 @@
 | 只有理念和模板，没有契约、SOP、验证 | **59** |
 | 只看了 `SKILL.md`，未盘点同目录 active 文件（排除 `bak/`）就给最终分 | **79** |
 | 高风险 / 纪律类 skill 无法证明行为改变，只能静态说明“应该会遵守” | **76** |
+| 交付/治理类 skill 缺主链证据矩阵或等价证据分层，却宣称闭环完成 | **78** |
+| 上线/发布相关 skill 缺 Release Evidence（观察窗口、观察入口、回滚触发条件） | **80** |
+| 失败/返工闭环只写“下次注意”，无 Task Replay Lite 或回填位置 | **82** |
 
 ## 质量分封顶规则
 

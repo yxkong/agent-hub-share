@@ -9,7 +9,7 @@ description: 文档、SQL、脚本与技能资料的治理技能（docs placemen
 
 | 任务类型 | 什么时候选它 | 先读什么 |
 |---|---|---|
-| `docs-placement` | docs 放哪、设计/实现/review/plan 如何拆 | 本文件 §目录模型 + `references/rules.md` |
+| `docs-placement` | docs 放哪、设计/实现/review/plan 如何拆；头脑风暴/方案收敛过程稿路径 | 本文件 §目录模型 + `references/rules.md` |
 | `backup` | 改文档、SQL、脚本、技能资料前需要备份 | 本文件 §备份 SOP |
 | `sql` | dev/online SQL 分层、开发终版包 | `references/rules.md` |
 | `audit` | 检查目录、命名、引用、编码、备份是否合规 | `references/checklist.md` |
@@ -35,6 +35,7 @@ description: 文档、SQL、脚本与技能资料的治理技能（docs placemen
 | Java / Python / Vue 等语言相关实现 | `docs/implementation/<language>/<domain>/` |
 | 技术 review / 审计 / 验收 / 风险清单 | `docs/review/<domain>/` |
 | 执行计划、友商任务单、回执模板 | `docs/plan/<domain>/` |
+| 头脑风暴、反迎合检查、方案收敛过程稿 | `docs/plan/<domain>/`（模板：`templates/TEMPLATE_BRAINSTORM_CONVERGENCE.md`） |
 | Feature Spec（过程） / Release Plan / Rollback Plan | `docs/plan/<domain>/` |
 | ADR | `docs/design/<domain>/ADR-*.md` |
 | 配置说明、开关说明、脱敏片段、使用说明 | `docs/config/` |
@@ -161,7 +162,7 @@ Agent 完成 docs/SQL/脚本治理后，可按此格式汇报（细节见 checkl
 
 完整正负例见 `references/trigger_eval.md`。主文件只保留记忆规则：
 
-- **should-trigger**：docs 放置、模板、命名、backup-file、dev/online SQL 分层、review 目录裁决
+- **should-trigger**：docs 放置、模板、命名、backup-file、dev/online SQL 分层、review 目录裁决、头脑风暴/方案收敛文档路径
 - **should-not-trigger**：业务方案、接口实现、代码修复、skill 结构审查、hub 挂载修复
 
 真实闭环样例见 `references/closure_example.md`。

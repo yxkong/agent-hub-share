@@ -69,6 +69,9 @@ summary: review 路由系统审查详表。每次系统修复或完整审查时�
 - [ ] ≥ 3 个高频场景有切入点
 - [ ] ≥ 1 个真实任务可验证（有输入、有预期输出、可检查结果）
 - [ ] 不确定内容有标注，未虚构规则
+- [ ] 若承诺研发交付 / 验证收口：已内建主链证据矩阵或等价证据分层（`static / contract / runtime / user-visible / release / limitation`）
+- [ ] 若承诺上线 / 发布 / 回滚：已内建 Release Evidence（观察窗口、观察入口、回滚触发条件）
+- [ ] 若承诺失败学习 / 返工治理：已内建 Task Replay Lite（触发输入、缺失证据、误判 gate、回填位置）
 
 ### 3.2 extract 路由专项（非 extract 路由可跳过）
 
@@ -154,6 +157,7 @@ summary: review 路由系统审查详表。每次系统修复或完整审查时�
 - [ ] 若此 skill 易被赶时间、沉没成本、速度偏好绕过：样本已加入 2~3 个组合压力
 - [ ] 已逐字记录至少 1 条真实合理化借口
 - [ ] 结论能说清问题在 description、正文结构、SOP 还是红线表达
+- [ ] 若出现重复返工、触发误判或 SOP 找不到入口：已形成 Skill Health Signal，并说明回填 bad smell / trigger eval / design principles 的位置
 
 ---
 
@@ -230,6 +234,7 @@ summary: review 路由系统审查详表。每次系统修复或完整审查时�
 - [ ] **重新读取最新文件**：最终结论前重新读当前文件，不复用上一轮缓存或旧 finding。
 - [ ] **全量文件清单**：列出本技能根 `SKILL.md`、references、相关脚本、模板、索引生成物、黄金样例；确认 review 覆盖了这些文件。
 - [ ] **脚本行为验证**：主路径脚本跑通；若新增审计/迁移/跳过类 flag，正向和该 flag 路径都至少验证一次。
+- [ ] **备份策略验证**：若涉及 `backup-file.*` / `check-backup-policy.*` / 备份目录契约，已跑出 `BACKUP_POLICY=ok`。
 - [ ] **跨平台入口一致**：PowerShell 与 POSIX wrapper 暴露同一能力、同一默认失败策略、同一参数语义；shell 参数分支确认有 `shift`，避免死循环。
 - [ ] **内部能力不可裸奔**：Python/Node/内部脚本新增能力时，必须通过标准 `.ps1` / `.sh` wrapper 暴露；文档不得要求用户绕到内部入口。
 - [ ] **文档承诺一致**：全局搜索旧关键词和旧规则；README、reference、模板、示例、脚本头注释与真实脚本行为一致。

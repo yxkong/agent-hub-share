@@ -34,6 +34,7 @@ flowchart LR
 | delivery-workflow 阶段 | 文档产出 | 放置目录 | 命名 | 完成后 |
 |------------------------|----------|----------|------|--------|
 | 1. 需求理解 | 可选调研纪要 | `docs/plan/<domain>/` 或 issue/纪要 | 可带日期 | 不当作长期真源 |
+| 1. 需求理解 / 2. 设计收敛 | **头脑风暴 / 方案收敛过程稿** | `docs/plan/<domain>/` | `*_BRAINSTORM.md` | 收敛为 Spec / ADR / Task Contract；完成后 `done` / `superseded` / `blocked` |
 | 2. 设计收敛 | **终版设计** | `docs/design/<domain>/` | `*_DESIGN.md`，**无** `_YYYYMMDD` | `status: canonical`；域 README 登记 |
 | 2. 设计收敛 | **Agent 契约**（可选） | 项目技能 `references/meta/*_contract.md` | `*_contract.md` | 与终版 §契约 一致 |
 | 2. 设计收敛 | 探索/对比稿 | `docs/plan/<domain>/` | 可带日期、`PLAN`/`DRAFT` | 并入终版后标 `done` 或 `superseded` |
@@ -111,6 +112,7 @@ canonical_entry: docs/design/ai/README.md
 | 类型 | 模式 | 日期后缀 |
 |------|------|----------|
 | 终版设计 | `<TOPIC>_DESIGN.md` | **禁止** |
+| 头脑风暴/方案收敛 | `<TOPIC>_BRAINSTORM.md` | 允许但不推荐 |
 | 过程/计划 | `<TOPIC>_PLAN.md`、`*_REFACTOR_PLAN.md`、友商 `*_TASK_*.md` | 允许 |
 | Review | `<TOPIC>_REVIEW_YYYYMMDD.md` | 允许 |
 | 迁移 SQL | `MIGRATION_<topic>_YYYYMMDD.sql` | 允许 |

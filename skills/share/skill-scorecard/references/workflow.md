@@ -48,6 +48,7 @@
 - `check-skill-structure`
 - `check-skill-size`
 - `check-share-skill-private-coupling`
+- `check-backup-policy`（涉及备份脚本或备份契约时）
 - `check-prompts`
 
 若不能跑，必须在结论里标 `unknown`，不要伪装成“已验证”。
@@ -61,6 +62,7 @@
 3. 若某项能力被大篇幅承诺，但只有 `static` 或 `unknown`，兑现分要明显下调
 4. 若对象是 share skill，还要单独看去项目化是否被真实兑现
 5. 若对象是高风险 / 纪律类 skill，单独判断是否有**无 skill 基线样本 + 带 skill 复测样本**；没有则行为有效性不得高分
+6. 若对象承诺研发交付、上线、质量门禁或失败学习，检查是否覆盖主链证据矩阵、Release Evidence、Task Replay Lite / Skill Health Signal；缺失时按 `scoring_dimensions.md` 封顶
 
 ## Step 6：逐维打分
 

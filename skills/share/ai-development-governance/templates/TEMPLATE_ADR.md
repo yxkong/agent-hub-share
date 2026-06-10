@@ -10,6 +10,8 @@ Proposed / Accepted / Superseded
 
 为什么需要这个决策？
 
+- 上游头脑风暴 / 方案收敛：
+
 ## 约束
 
 - 技术约束：

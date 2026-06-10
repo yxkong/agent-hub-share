@@ -11,8 +11,11 @@ AI 研发治理总线：定义从需求入口到失败沉淀的端到端阶段�
 - G0–G8 生命周期阶段门定义与准入门禁
 - Feature Spec / ADR / Task Contract 空白模板（根 `templates/`）
 - Security / Release / Rollback / Quality / Observability 专项门禁
+- Release Evidence（发布证据）收敛到 Release / Rollback / Observability Gate，不新增独立 runbook
 - 9.8+ 评分模型（scorecard）与治理自检清单
 - 跨 skill 协作矩阵
+- 持久上下文与多视角反证横向门（过程区、archive、真源回灌、反迎合检查）
+- Task Replay Lite 与 Skill Health Signal：失败/重复返工时回放任务证据并回填 scorecard / bad smell / trigger eval，不新增健康度看板
 
 ## 不负责 / 转交
 
@@ -31,6 +34,7 @@ AI 研发治理总线：定义从需求入口到失败沉淀的端到端阶段�
 - **空白模板**：[templates/](templates/)
 - **trigger / eval**：`references/trigger_eval.md`
 - **真实闭环样例**：`references/closure_example.md`
+- **跨项目契约门**：`references/gates/project_contract_gate.md`
 
 ## 真源与挂载
 
@@ -41,6 +45,8 @@ AI 研发治理总线：定义从需求入口到失败沉淀的端到端阶段�
 
 | 版本 | 日期 | 修订要点 |
 |------|------|----------|
+| 1.3.0 | 2026-06-10 | 增加主链证据、Project Contract、Release Evidence、Task Replay Lite / Skill Health Signal 轻量闭环；不新增 runbook/dashboard |
+| 1.2.0 | 2026-06-08 | 增强持久上下文闭环、多视角反证与反迎合检查 |
 | 1.1.0 | 2026-06-04 | 统一 G0 入口 triage、七层协作模型、Realism Gate 与行为模式变更阻断 |
 | 1.0.0 | 2026-05-21 | 初版：治理总线、G0–G8、scorecard、门禁与跨 skill 矩阵 |
 

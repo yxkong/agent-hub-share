@@ -29,6 +29,12 @@
 
 - [ ] 错误率 / 延迟阈值告警已配置或已登记待办
 
+### 观察窗口
+
+- [ ] Release Gate 已写明发布后观察窗口
+- [ ] 观察入口可由 Agent 或负责人实际打开/查询
+- [ ] 无法直接验证生产观测时，已标 `limitation`，不宣称 operational evidence
+
 ### 调试友好
 
 - [ ] 支持按 userId / tenantId / 业务单号定位
