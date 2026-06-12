@@ -42,13 +42,19 @@ done
 AGENTS_ROOT=$(agent_resolve_hub_root "$HUB_ROOT" "$SCRIPT_DIR")
 SKILLS_ROOT="$AGENTS_ROOT/skills"
 USER_HOME=${HOME:-}
+GEMINI_SKILL_PATHS_SCRIPT="$AGENTS_ROOT/skills/share/agent-hub-bootstrap/scripts/gemini-skill-paths.sh"
+if [ -f "$GEMINI_SKILL_PATHS_SCRIPT" ]; then
+  . "$GEMINI_SKILL_PATHS_SCRIPT"
+fi
 USER_CLAUDE_SKILLS_ROOT="$USER_HOME/.claude/skills"
 USER_CURSOR_SKILLS_ROOT="$USER_HOME/.cursor/skills"
 USER_CODEX_SKILLS_ROOT="$USER_HOME/.codex/skills"
 USER_AGENTS_SKILLS_ROOT="$USER_HOME/.agents/skills"
-USER_GEMINI_SKILLS_ROOT="$USER_HOME/.gemini/antigravity/skills"
-USER_GEMINI_CONFIG_SKILLS_ROOT="$USER_HOME/.gemini/config/skills"
-USER_ANTIGRAVITY_SKILLS_ROOT="$USER_HOME/.antigravity/skills"
+if command -v gemini_user_skill_root >/dev/null 2>&1; then
+  USER_GEMINI_SKILLS_ROOT=$(gemini_user_skill_root "$USER_HOME" gemini)
+else
+  USER_GEMINI_SKILLS_ROOT="$USER_HOME/.gemini/skills"
+fi
 
 RESOLVED_PROJECT_ROOT=''
 if [ "$SCOPE" = 'category' ] || [ "$LINK_PROJECT" = '1' ] || [ -n "$PROJECT_ROOT" ]; then
@@ -68,12 +74,14 @@ fi
 
 PROJECT_AGENT_SKILLS_ROOT=''
 PROJECT_CURSOR_SKILLS_ROOT=''
-PROJECT_ANTIGRAVITY_SKILLS_ROOT=''
 if [ "$SCOPE" = 'category' ] || [ "$LINK_PROJECT" = '1' ]; then
   [ -n "$RESOLVED_PROJECT_ROOT" ] || agent_fail 'Project links require --project-root, AGENTS_DEFAULT_PROJECT_ROOT, or running the script from the target workspace.'
-  PROJECT_AGENT_SKILLS_ROOT="$RESOLVED_PROJECT_ROOT/.agents/skills"
+  if command -v gemini_project_skill_root >/dev/null 2>&1; then
+    PROJECT_AGENT_SKILLS_ROOT=$(gemini_project_skill_root "$RESOLVED_PROJECT_ROOT")
+  else
+    PROJECT_AGENT_SKILLS_ROOT="$RESOLVED_PROJECT_ROOT/.agents/skills"
+  fi
   PROJECT_CURSOR_SKILLS_ROOT="$RESOLVED_PROJECT_ROOT/.cursor/skills"
-  PROJECT_ANTIGRAVITY_SKILLS_ROOT="$RESOLVED_PROJECT_ROOT/.antigravity/skills"
 fi
 
 ensure_skill_skeleton() {
@@ -116,7 +124,6 @@ fi
 if [ "$LINK_PROJECT" = '1' ] || [ "$SCOPE" = 'category' ]; then
   agent_ensure_symlink "$PROJECT_AGENT_SKILLS_ROOT/$SKILL_NAME" "$SKILL_ROOT"
   agent_ensure_symlink "$PROJECT_CURSOR_SKILLS_ROOT/$SKILL_NAME" "$SKILL_ROOT"
-  agent_ensure_symlink "$PROJECT_ANTIGRAVITY_SKILLS_ROOT/$SKILL_NAME" "$SKILL_ROOT"
 fi
 
 if [ "$LINK_USERS" = '1' ] || [ "$SCOPE" = 'share' ] || [ "$SCOPE" = 'media' ]; then
@@ -126,8 +133,6 @@ if [ "$LINK_USERS" = '1' ] || [ "$SCOPE" = 'share' ] || [ "$SCOPE" = 'media' ]; 
   agent_ensure_symlink "$USER_CODEX_SKILLS_ROOT/$SKILL_NAME" "$SKILL_ROOT"
   agent_ensure_symlink "$USER_AGENTS_SKILLS_ROOT/$SKILL_NAME" "$SKILL_ROOT"
   agent_ensure_symlink "$USER_GEMINI_SKILLS_ROOT/$SKILL_NAME" "$SKILL_ROOT"
-  agent_ensure_symlink "$USER_GEMINI_CONFIG_SKILLS_ROOT/$SKILL_NAME" "$SKILL_ROOT"
-  agent_ensure_symlink "$USER_ANTIGRAVITY_SKILLS_ROOT/$SKILL_NAME" "$SKILL_ROOT"
 fi
 
 echo "Hub root: $AGENTS_ROOT"

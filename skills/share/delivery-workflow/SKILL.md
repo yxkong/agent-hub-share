@@ -105,6 +105,7 @@ description: 面向 AI 真实研发交付的通用 workflow 技能（delivery wo
 - 验证至少覆盖主链路；Full Path 已按 `references/gates/mainline_evidence_matrix.md` 标出 static / contract / runtime / user-visible / release / limitation 证据；缺数据类问题完成三联检。
 - Full Path / 跨模块 / 交付闭环任务已在 Gate 5 复盘落盘到 `$AGENTS_HUB_ROOT/docs/resource/replay/`（或明确标 `不落盘` / `BLOCKED` 原因）。
 - 失败 / 返工已按 R3 分流到 insight / 反模式 / prompt（Gate 6）。
+- 收口前按 `references/behavior_audit.md` 过一遍偏航信号、反证问题、闭环证据与回灌动作。
 
 ## References 优先级
 
@@ -129,8 +130,11 @@ description: 面向 AI 真实研发交付的通用 workflow 技能（delivery wo
 - `references/ai_context_protocol.md`
 - `references/missing_data_debug_triad.md`
 - `references/subagent_prompt_template.md`（仅在本文件 §AI 执行红线已判定需要派发子 Agent 后读取）
+- `references/ai-native/subagent_review_protocol.md`（已决定派发且需要审查实现产物时）
+- `references/ai-native/plan_micro_step_contract.md`（Full Path 计划 / Task Contract 需要交给零上下文执行者时）
 - `references/trigger_eval.md`
 - `references/behavioral_evidence.md`
+- `references/behavior_audit.md`
 
 其余人读/维护索引文档通过协议降权，不在主文件重复枚举；见 `README.md` 与 `references/README.md`。
 

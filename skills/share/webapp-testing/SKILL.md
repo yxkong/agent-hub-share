@@ -118,6 +118,7 @@ description: 面向本地 Web 应用验证的共享技能。用于指导 AI 使�
 - 验证后必须留下可观察证据：截图、控制台/网络摘要、断言结果或失败复现步骤。
 - 黑盒证据不足以定位根因时，回到 `delivery-workflow` debug 路由，不在本技能内扩写实现方案。
 - 若仓库已有 E2E/Playwright/helper 脚本，优先复用并记录命令结果。
+- 收口前按 `references/behavior_audit.md` 反查只截图、漏 console/network、选择器猜测和可达性证据缺口。
 
 ## 与其他技能的关系
 

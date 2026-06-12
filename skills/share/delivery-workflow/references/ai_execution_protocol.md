@@ -28,6 +28,7 @@
 - **Full Path**（见 [delivery-workflow/SKILL.md](../SKILL.md)）：加载对应路由模板，以代码块输出最小设计草稿；已知项自动填充，未确认项标注 `?待确认`。在 **未满足 Fast Path** 时，**须**用户明确确认设计后再进入实现；若用户 **推压跳过**（见下），则一句话声明风险后遵从，并视为用户选择承担返工成本。
 - **Fast Path**（见 [delivery-workflow/SKILL.md](../SKILL.md)）：满足条件时，输出 **一段**最小设计摘要（目标 + 将改哪里 + 如何验收）即可进入实现，**不强制**完整设计模板或固定「确认」话术。
 - 默认先给最小有效方案；若提出重构、抽象、批量替换，必须先证明局部修改不足
+- 需要把计划或 Task Contract 交给零上下文执行者时，按 [ai-native/plan_micro_step_contract.md](ai-native/plan_micro_step_contract.md) 细化到 2-5 分钟微步；出现 `TODO`、泛化“适当处理”或“类似上一步”即视为计划未收敛
 - 若方案会改变交互模式 / 行为模式 / 架构风格 / 运行语义（如异步改同步、事件驱动改直连、DDD 分层改写、事务/状态机语义变化），必须先列出原模式、新模式、风险、验证和回滚，并等待用户确认；“直接写 / 先做再说”不等于确认行为变更，只有用户明确要求执行该行为变更时，声明风险后继续
 - 方案收敛前用反方视角检查最可能返工点，P0 风险未消除时不得进入实现
 - **用户推压**（直接写、先做再说、跳过设计）：先校验 Fast Path；满足则直接进入实现；不满足则一句话说明风险与跳过的节点后遵从用户意愿。
@@ -47,6 +48,7 @@
 - 排障任务默认保持原交互 / 行为 / 架构语义，只定位断点和补证据；不得为修复缺数据、缺轨迹或回显异常而绕过原链路
 - 每个新闭环开始前遵循 **checkpoint 协议**（见 [delivery-workflow/SKILL.md](../SKILL.md) 的 `阶段门速记` / `Gate 3 实现推进`）：`git status`、允许时的最小范围基线或经同意的提交；不允许时记录 `risk`；**不**把「无条件 commit」当硬动作，**也不**在脏工作区上无意识跨闭环推进
 - **派子 Agent 时**：调用 `Task` 工具的 `model` 必须为执行档（slug **以 `-fast` 结尾**，禁止写死 `composer-2.x-fast`），`prompt` 须按 [subagent_prompt_template.md](subagent_prompt_template.md) 7 要素组织，派发前完成模板 §4 自检清单
+- **子 Agent 审查时**：需要复核产物的任务按 [ai-native/subagent_review_protocol.md](ai-native/subagent_review_protocol.md) 先做规格合规审查，再做质量审查；审查上下文只给 artifact + contract，不继承主会话历史
 - **异步任务登记**：凡启动后台子 Agent、后台 shell、异步验证或长任务，必须在当前轮维护一个简短 pending ledger（任务名 / 目标 / 预期产物 / 是否阻塞最终完成）。存在阻塞型 pending 时，回复只能标 `IN_PROGRESS` / `PARTIAL_DONE`，禁止使用“全部完成 / 已完成所有计划”等最终措辞。
 
 **Gate 4 — 验证完成**

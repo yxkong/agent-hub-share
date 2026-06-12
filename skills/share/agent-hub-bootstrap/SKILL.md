@@ -26,8 +26,8 @@ description: 初始化、修复、发布和校验 agent hub 挂载（install-hub
 ## 真实源与挂载点
 
 - hub 内相对真源：`rules/common/`、`rules/projects/<project-key>/`、`skills/share/`、`skills/projects/<project-key>/`、`prompts/share/`、`prompts/projects/<project-key>/`（另有 `prompts/templates/`、`prompts/indexes/`；其它技能层由 maintainer hub 定义，见 `PROJECT_RULES.md`，**不在 public 文档列举**）
-- 用户级入口：`~/.claude/skills/`、`~/.cursor/skills/`、`~/.codex/skills/`（**本 public 包**：`install-hub` / **`init-project-agenting`** 默认挂载 `skills/share/*`）。
-- 工作区入口：**默认**在项目根仅链接 `skills/projects/<project-key>/*`，出现在 `.agents/skills/`、`.cursor/skills/`（以及 Claude Code 侧的 `.claude/skills/`）；不应把共享技能再重复接入工作区的 `.cursor/skills` / `.claude/skills`。若必须坚持「离线 / 仅存工作区」，可用 `-LinkShareToWorkspace` / `--link-share-to-workspace`。提示词仍经 `sync-prompts` 链到 `.agents/prompts/`、`.cursor/prompts/` 下的 `hub-share`、`hub-project`。
+- 用户级入口：`~/.claude/skills/`、`~/.cursor/skills/`、`~/.codex/skills/`、`~/.gemini/skills/`（**本 public 包**：`install-hub` / **`init-project-agenting`** 默认挂载 `skills/share/*`；`gemini` / `antigravity` / `反重力` 语义别名均收敛到 `~/.gemini/skills/`）。
+- 工作区入口：**默认**在项目根仅链接 `skills/projects/<project-key>/*`，出现在 `.agents/skills/`、`.cursor/skills/`（以及 Claude Code 侧的 `.claude/skills/`）；Gemini / Antigravity 项目级入口只使用 `.agents/skills/`，不写项目 `.gemini/skills` / `.antigravity/skills`。不应把共享技能再重复接入工作区的 `.cursor/skills` / `.claude/skills`。若必须坚持「离线 / 仅存工作区」，可用 `-LinkShareToWorkspace` / `--link-share-to-workspace`。提示词仍经 `sync-prompts` 链到 `.agents/prompts/`、`.cursor/prompts/` 下的 `hub-share`、`hub-project`。
 - 不要把真实 skill 长期维护在工作区入口目录里；提示词真实源同样在 hub，工作区仅链接。
 - 一个 skill 目录只能有一个根 `SKILL.md`（canonical 路径见 `skill-engineering/references/layout/skill_truth_source_contract.md`）；`bak/`、dated 快照中**禁止**保留名为 `SKILL.md` 的文件；`check-skill-entrypoints` 对违规 fail，`find-skills` 只列 canonical。
 
@@ -40,6 +40,7 @@ description: 初始化、修复、发布和校验 agent hub 挂载（install-hub
 | 已注册项目重新全量初始化 | `init-project-agenting.ps1` / `.sh` |
 | 只同步规则 | `sync-agent-rules.ps1` / `.sh` |
 | 只挂载技能 | `sync-shared-skills.ps1` / `.sh` |
+| 只同步 Gemini / Antigravity 用户级技能 | `skills/share/agent-hub-bootstrap/scripts/sync-gemini-skills.ps1` / `.sh` |
 | 同步提示词链接（hub → 工作区） | `sync-prompts.ps1` / `.sh` |
 | 校验 `*.prompt.md` 元数据与安全问题 | `check-prompts.ps1` / `.sh` |
 | 生成 `prompts/indexes/prompts.index.json` | `build-prompt-index.ps1` / `.sh` |
@@ -51,6 +52,7 @@ description: 初始化、修复、发布和校验 agent hub 挂载（install-hub
 | 修复历史备份中的重复入口 | `fix-skill-entrypoints.ps1` / `.sh` |
 
 - 脚本分级（L1 hub `scripts/` vs L2 技能 `scripts/`）：见 **`references/script_tiering.md`**；索引见 hub 根 **`scripts/README.md`**。
+- Gemini 专用路径真源在 L2：`skills/share/agent-hub-bootstrap/scripts/gemini-skill-paths.ps1` / `.sh`；L1 脚本只 dot-source，不在 `scripts/agent-hub-paths.*` 维护 Gemini 专用路径。
 - `publish-skill`：**默认**若 hub 中无该技能 `SKILL.md` 会直接失败，避免拼写错误时挂出 TODO 占位技能。
 
 - `check-skill-structure` 可重复传入 `--skill-root` / `-SkillRoot` 仅校验指定技能根目录；不传则按树全量扫描（审计/CI）。详见 `skill-engineering` → `references/engineering_completion_gate.md` §2。
@@ -81,7 +83,7 @@ description: 初始化、修复、发布和校验 agent hub 挂载（install-hub
 `install-hub` = 零参数安装（hub 路径从脚本自身位置自动推导）；若 `~/.cursor/skills/<name>` 等处已是**真实目录**（含 `SKILL.md`）而非指向 hub 的链接，默认**跳过并整体失败退出**（避免误报 Done）；需迁移时可显式传入 **`-ReplaceRealDirs` / `--replace-real-dirs`**（**会删除**该目录后再建链，破坏性操作）。
 
 1. 遍历 `skills/share/` 下所有有 `SKILL.md` 的目录（public 包；maintainer hub 可另有额外层，见 `PROJECT_RULES.md`）
-2. 软链 / Junction 到 `~/.claude/skills/`、`~/.cursor/skills/`、`~/.codex/skills/`
+2. 软链 / Junction 到 `~/.claude/skills/`、`~/.cursor/skills/`、`~/.codex/skills/`、`~/.gemini/skills/`；不再写 `~/.gemini/antigravity/skills`、`~/.gemini/config/skills`、`~/.antigravity/skills`
 3. 同步全局规则到 `~/.claude/CLAUDE.md`、`~/.codex/AGENTS.md`
 4. 把 `AGENTS_HUB_ROOT` 写入 shell profile（`--skip-profile` 跳过）
 5. 支持 `--dry-run` / `-DryRun` 预览

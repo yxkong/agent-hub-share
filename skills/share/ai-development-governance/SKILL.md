@@ -69,6 +69,7 @@ description: AI 研发治理总纲技能（AI development governance, spec, ADR,
 - 进入具体实现时必须转 `delivery-workflow`；本技能不直接写代码。
 - 涉及测试先行、红绿重构或质量内建时，可转 `tdd-workflow` 补测试节奏，再回 `delivery-workflow` 推进实现。
 - 失败、返工、回滚必须进入 Learning Gate，并与 `delivery-workflow` R3 对齐。
+- 收口前按 `references/governance/behavior_audit.md` 反查治理偏航、反证问题、闭环证据与回灌动作。
 
 ## References 优先级
 
@@ -91,6 +92,7 @@ description: AI 研发治理总纲技能（AI development governance, spec, ADR,
 - `references/risk_review_matrix.md`
 - `references/trigger_eval.md`
 - `references/closure_example.md`
+- `references/governance/behavior_audit.md`
 - `templates/TEMPLATE_FEATURE_SPEC.md`
 - `templates/TEMPLATE_ADR.md`
 - `templates/TEMPLATE_TASK_CONTRACT.md`

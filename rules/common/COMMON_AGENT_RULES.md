@@ -10,6 +10,7 @@
 - 最小有效改动；复用既有 skill / docs / 脚本，不新增并行真源。
 - 非 trivial 任务先对齐目标、约束、验收；先设计后实现，除非明确满足 Fast Path。
 - Windows 执行命令默认显式用 `pwsh`；仅验证 Windows PowerShell 5.1 兼容时用 `powershell.exe`。
+- 复杂 PowerShell 逻辑禁止塞进 `pwsh -Command "..."`（do not inline）：只要含 `$变量`、`foreach`、scriptblock、hashtable、here-string 或多段管道，就必须落到 `.ps1` 后用 `-File` 调用；PowerShell 场景不用 `tail/head/grep/find` 管道，改用 `Select-Object` 或显式 `bash -lc`。
 - 采用最小安全验证；remote / deploy / production 命令必须用户明确要求。
 - 不编造工具输出、私有状态、日期或不可得事实；不可逆 / 昂贵动作先停下确认。
 - 失败或返工必须定位根因，并沉淀为 insight / anti-pattern / prompt / checklist / test / docs 之一。
@@ -67,6 +68,8 @@ risk:
 
 派发前输出 7 要素自检：`目标 / 范围白黑名单 / 输入上下文 / 硬约束 / 步骤 / 验证命令与判据 / 输出四态`。任一项缺失不派发。完成状态只允许：`DONE` / `DONE_WITH_CONCERNS` / `NEEDS_CONTEXT` / `BLOCKED`。
 
+派发前先按 `delivery-workflow/references/subagent_prompt_template.md` 做五维评估；并行子 Agent 必须有互斥文件所有权清单，禁止两个写者共享文件。
+
 ### G2 实现门
 
 写代码 / 页面 / 接口 / 配置 / SQL 前必须先：
@@ -91,4 +94,7 @@ risk:
 
 - 规则改动后跑 `scripts/check-agent-rules`，确认 `AGENT-GATE-CARD` 已分发。
 - skill / references 改动后按 `skill-engineering` 工程完成门跑入口、结构、私有耦合等适用校验。
+- commands 改动后跑 `scripts/sync-commands` 与 `scripts/check-commands`，确认三端入口无漂移。
+- plugin manifest / dist 改动后跑 `scripts/build-plugin` 与 `scripts/check-plugin`，确认装配层不成为第二真源。
+- 体系级改造收口跑 `scripts/check-hub-all`，一键覆盖规则、命令、插件、prompt、skill 结构、行为审计、shell quoting 与编码门禁。
 - 交付前按 `delivery-workflow` + `ai-development-governance` 给出最小主链路证据；失败进入 R3 学习门。

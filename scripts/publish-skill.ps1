@@ -18,13 +18,20 @@ $ErrorActionPreference = 'Stop'
 $agentsRoot = Resolve-AgentHubRoot -HubRoot $HubRoot -ScriptRoot $PSScriptRoot
 $skillsRoot = Join-Path $agentsRoot 'skills'
 $userProfile = $env:USERPROFILE
+$geminiSkillPathsScript = Join-Path $agentsRoot 'skills\share\agent-hub-bootstrap\scripts\gemini-skill-paths.ps1'
+if (Test-Path -LiteralPath $geminiSkillPathsScript) {
+    . $geminiSkillPathsScript
+}
 $userClaudeSkillsRoot = Join-Path $userProfile '.claude\skills'
 $userCursorSkillsRoot = Join-Path $userProfile '.cursor\skills'
 $userCodexSkillsRoot = Join-Path $userProfile '.codex\skills'
 $userAgentsSkillsRoot = Join-Path $userProfile '.agents\skills'
-$userGeminiSkillsRoot = Join-Path $userProfile '.gemini\antigravity\skills'
-$userGeminiConfigSkillsRoot = Join-Path $userProfile '.gemini\config\skills'
-$userAntigravitySkillsRoot = Join-Path $userProfile '.antigravity\skills'
+$userGeminiSkillsRoot = if (Get-Command Get-GeminiUserSkillRoot -ErrorAction SilentlyContinue) {
+    Get-GeminiUserSkillRoot -UserHome $userProfile -Alias 'gemini'
+}
+else {
+    Join-Path $userProfile '.gemini\skills'
+}
 
 $resolvedProjectRoot = ''
 if ($Scope -eq 'category' -or $LinkProject -or $ProjectRoot) {
@@ -43,17 +50,18 @@ if ($Scope -eq 'category') {
 $projectClaudeSkillsRoot = ''
 $projectCursorSkillsRoot = ''
 $projectAgentsSkillsRoot = ''
-$projectGeminiSkillsRoot = ''
-$projectAntigravitySkillsRoot = ''
 if ($Scope -eq 'category' -or $LinkProject) {
     if (-not $resolvedProjectRoot) {
         throw 'Project links require -ProjectRoot, AGENTS_DEFAULT_PROJECT_ROOT, or running the script from the target workspace.'
     }
     $projectClaudeSkillsRoot = Join-Path $resolvedProjectRoot '.claude\skills'
     $projectCursorSkillsRoot = Join-Path $resolvedProjectRoot '.cursor\skills'
-    $projectAgentsSkillsRoot = Join-Path $resolvedProjectRoot '.agents\skills'
-    $projectGeminiSkillsRoot = Join-Path $resolvedProjectRoot '.gemini\skills'
-    $projectAntigravitySkillsRoot = Join-Path $resolvedProjectRoot '.antigravity\skills'
+    $projectAgentsSkillsRoot = if (Get-Command Get-GeminiProjectSkillRoot -ErrorAction SilentlyContinue) {
+        Get-GeminiProjectSkillRoot -ProjectRoot $resolvedProjectRoot
+    }
+    else {
+        Join-Path $resolvedProjectRoot '.agents\skills'
+    }
 }
 
 function Ensure-Junction {
@@ -127,11 +135,7 @@ if (-not (Test-Path -LiteralPath $skillFile)) {
 if ($LinkProject -or $Scope -eq 'category') {
     Ensure-Junction -LinkPath (Join-Path $projectClaudeSkillsRoot $SkillName) -TargetPath $skillRoot
     Ensure-Junction -LinkPath (Join-Path $projectCursorSkillsRoot $SkillName) -TargetPath $skillRoot
-    Ensure-Junction -LinkPath (Join-Path $projectAntigravitySkillsRoot $SkillName) -TargetPath $skillRoot
-    if ($Scope -eq 'category') {
-        Ensure-Junction -LinkPath (Join-Path $projectAgentsSkillsRoot $SkillName) -TargetPath $skillRoot
-        Ensure-Junction -LinkPath (Join-Path $projectGeminiSkillsRoot $SkillName) -TargetPath $skillRoot
-    }
+    Ensure-Junction -LinkPath (Join-Path $projectAgentsSkillsRoot $SkillName) -TargetPath $skillRoot
 }
 
 if ($LinkUsers -or $Scope -eq 'share' -or $Scope -eq 'media') {
@@ -140,8 +144,6 @@ if ($LinkUsers -or $Scope -eq 'share' -or $Scope -eq 'media') {
     Ensure-Junction -LinkPath (Join-Path $userCodexSkillsRoot $SkillName) -TargetPath $skillRoot
     Ensure-Junction -LinkPath (Join-Path $userAgentsSkillsRoot $SkillName) -TargetPath $skillRoot
     Ensure-Junction -LinkPath (Join-Path $userGeminiSkillsRoot $SkillName) -TargetPath $skillRoot
-    Ensure-Junction -LinkPath (Join-Path $userGeminiConfigSkillsRoot $SkillName) -TargetPath $skillRoot
-    Ensure-Junction -LinkPath (Join-Path $userAntigravitySkillsRoot $SkillName) -TargetPath $skillRoot
 }
 
 Write-Host "Hub root: $agentsRoot"

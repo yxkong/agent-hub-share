@@ -4,6 +4,22 @@ All notable changes to the **public share export** are documented here.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+
+- Command layer：`commands/share/{spec,plan,build,test,review,ship}.md`，并通过 `sync-commands` / `check-commands` 分发与校验 Cursor、Claude、Codex 入口。
+- Plugin layer：`plugins/ai-rd-governance`、`plugins/skill-factory` manifest，以及 `build-plugin` / `check-plugin` / `scripts/python/build_plugin.py`，用于自有 dist 装配与 drift 检测。
+- Project capability cards：Java/Python/API/observability 与前端 API/accessibility 能力卡，绑定项目事实与六类证据。
+- Behavior audit：5 个核心 share skill 增加“偏航信号 / 反证问题 / 闭环证据 / 回灌动作”，并新增 `check-behavior-audit.ps1`。
+- L3 Hook minimal：Cursor `afterFileEdit` 备份提醒与 Claude Code `PreToolUse` Task 派发提醒。
+- Closure hardening：`check-hub-all` 一键终验、`check-hooks` Hook 配置校验、WSL/bash wrapper fallback，以及已注册外部工作区的规则、命令、Hook 分发校验。
+- Shell quoting guard：新增 `check-shell-quoting`，并在公共规则与脚本索引中禁止复杂 `pwsh -Command` 内联脚本块，改用 `.ps1` + `-File`；新增 `agent-pwsh-bridge.sh` 统一 `.sh` wrapper 到 PowerShell 的参数与 WSL 路径桥接。
+
+### Fixed
+
+- 修复外部项目前端技能 references 跨语义子目录链接结构违规，并归档外部工程根下历史 zip 包。
+
 ## [0.2.0] - 2026-06-10
 
 ### Added

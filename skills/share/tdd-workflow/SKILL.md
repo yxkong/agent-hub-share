@@ -44,6 +44,7 @@ description: 测试驱动开发共享技能（TDD, test-first, red-green-refacto
 | Evidence | 命令、结果、覆盖范围、剩余风险 |
 
 若无法创建或运行测试，标 `unknown` / `blocked`，不要伪装成已 TDD。
+收口前按 `references/behavior_audit.md` 反查伪 TDD、happy path 偏航、证据缺口与回灌动作。
 
 ## References 优先级
 
@@ -52,6 +53,7 @@ description: 测试驱动开发共享技能（TDD, test-first, red-green-refacto
 - `references/workflow.md`
 - `references/trigger_eval.md`
 - `references/closure_example.md`
+- `references/behavior_audit.md`
 
 其余索引文档仅维护用，不作 Agent 入口。
 

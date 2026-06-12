@@ -20,6 +20,8 @@
 | 缺数据三联检 | [missing_data_debug_triad.md](missing_data_debug_triad.md) |
 | 研发体系审计与闭环验证 | [gates/ai_rd_closure_audit.md](gates/ai_rd_closure_audit.md) + `prompt-share-agent-task-ai-rd-closure-audit` |
 | 子 Agent 7 要素模板与完成状态协议（已判定派发后） | [subagent_prompt_template.md](subagent_prompt_template.md) |
+| 子 Agent 两阶段审查协议（已决定派发且需要复核产物时） | [ai-native/subagent_review_protocol.md](ai-native/subagent_review_protocol.md) |
+| Full Path 计划微步契约（零上下文执行者） | [ai-native/plan_micro_step_contract.md](ai-native/plan_micro_step_contract.md) |
 | 完整 trigger / eval 样例 | [trigger_eval.md](trigger_eval.md) |
 | 给人看的快速说明 | [human_quickstart.md](human_quickstart.md) |
 
@@ -50,6 +52,8 @@
 | [ai_context_protocol.md](ai_context_protocol.md) | 命中 `ai-native` 路由，或需要上下文包、偏离检测、会话接力时 |
 | [missing_data_debug_triad.md](missing_data_debug_triad.md) | 出现“接口成功但缺字段 / 保存后回显空”时 |
 | [subagent_prompt_template.md](subagent_prompt_template.md) | `SKILL.md` §AI 执行红线已判定需要派发子 Agent 后 |
+| [ai-native/subagent_review_protocol.md](ai-native/subagent_review_protocol.md) | 已决定派发子 Agent，且产物需要规格合规 / 质量两阶段审查时 |
+| [ai-native/plan_micro_step_contract.md](ai-native/plan_micro_step_contract.md) | Full Path 计划、Task Contract 或批量落盘任务需要交给零上下文执行者时 |
 | [trigger_eval.md](trigger_eval.md) | 调整触发边界、回归 should-trigger / should-not-trigger 时 |
 | [behavioral_evidence.md](behavioral_evidence.md) | 交付顺序、子 Agent 判定与收口方式的行为证据样例 |
 

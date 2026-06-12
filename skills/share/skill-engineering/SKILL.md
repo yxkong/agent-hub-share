@@ -61,6 +61,7 @@ description: 创建、提炼、审查、重构和优化 AI Skill（skill creatio
 - `references/review/behavioral_eval.md`（`create` / `review` / `refine-trigger`：高风险、纪律执行类 skill 的行为验证）
 - `references/review/behavioral_evidence.md`（高风险、纪律执行类 skill 的基线 / 复测样例）
 - `references/review/engineering_completion_gate.md`（收尾单一真源 §1–§5）
+- `references/behavior_audit.md`（行为审计四件套）
 - `references/eval/trigger_eval.md`（本技能 trigger 回归）
 
 **P2（仅复杂场景）**
@@ -97,6 +98,7 @@ description: 创建、提炼、审查、重构和优化 AI Skill（skill creatio
 - create / extract / review / refine-trigger 结束前已检查坏味道并按需沉淀。
 - hub 内技能改动已过工程完成门适用步骤。
 - 高风险 / 纪律类 skill 的行为有效性已给出基线/复测证据或标 `unknown`。
+- 收口前按 `references/behavior_audit.md` 反查主文件膨胀、入口漂移、验证缺口与回灌动作。
 
 ### 其他禁止项
 

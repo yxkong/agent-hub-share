@@ -10,7 +10,7 @@
 #
 # What it does:
 #   1. Auto-detect hub root (script lives inside hub/scripts/)
-#   2. Link all shared skills -> ~/.claude/skills/, ~/.cursor/skills/, ~/.codex/skills/, ~/.agents/skills/
+#   2. Link all shared skills -> ~/.claude/skills/, ~/.cursor/skills/, ~/.codex/skills/, ~/.agents/skills/, ~/.gemini/skills/
 #   3. Sync global rules    -> ~/.claude/CLAUDE.md, ~/.codex/AGENTS.md
 #   4. Set AGENTS_HUB_ROOT in current PowerShell profile (optional, -SkipProfile to skip)
 #   5. Print a summary
@@ -32,6 +32,16 @@ $agentsRoot  = Resolve-AgentHubRoot -ScriptRoot $PSScriptRoot
 $userProfile = $env:USERPROFILE
 $shareRoot   = Join-Path $agentsRoot 'skills\share'
 $mediaRoot   = Join-Path $agentsRoot 'skills\media'
+$geminiSkillPathsScript = Join-Path $agentsRoot 'skills\share\agent-hub-bootstrap\scripts\gemini-skill-paths.ps1'
+if (Test-Path -LiteralPath $geminiSkillPathsScript) {
+    . $geminiSkillPathsScript
+}
+$userGeminiSkillsRoot = if (Get-Command Get-GeminiUserSkillRoot -ErrorAction SilentlyContinue) {
+    Get-GeminiUserSkillRoot -UserHome $userProfile -Alias 'gemini'
+}
+else {
+    Join-Path $userProfile '.gemini\skills'
+}
 $entrypointCheckScript = Join-Path $PSScriptRoot 'check-skill-entrypoints.ps1'
 if (Test-Path -LiteralPath $entrypointCheckScript) {
     & $entrypointCheckScript -HubRoot $agentsRoot
@@ -52,9 +62,7 @@ $userSkillRoots = @(
     Join-Path $userProfile '.cursor\skills'
     Join-Path $userProfile '.codex\skills'
     Join-Path $userProfile '.agents\skills'
-    Join-Path $userProfile '.gemini\antigravity\skills'
-    Join-Path $userProfile '.gemini\config\skills'
-    Join-Path $userProfile '.antigravity\skills'
+    $userGeminiSkillsRoot
 )
 
 $shareSkillNames = [System.IO.Directory]::GetDirectories($shareRoot) | ForEach-Object {
@@ -196,8 +204,8 @@ if (-not $SkipProfile -and -not $DryRun) {
 # ---------------------------------------------------------------------------
 Write-Host "=== Summary ===" -ForegroundColor Cyan
 Write-Host "  Hub            : $agentsRoot"
-Write-Host "  Share skills   : $($shareSkillNames.Count) -> ~/.claude/skills, ~/.cursor/skills, ~/.codex/skills, ~/.agents/skills, ~/.gemini/config/skills, ~/.antigravity/skills"
-Write-Host "  Media skills   : $($mediaSkillNames.Count) -> ~/.claude/skills, ~/.cursor/skills, ~/.codex/skills, ~/.agents/skills, ~/.gemini/config/skills, ~/.antigravity/skills"
+Write-Host "  Share skills   : $($shareSkillNames.Count) -> ~/.claude/skills, ~/.cursor/skills, ~/.codex/skills, ~/.agents/skills, ~/.gemini/skills"
+Write-Host "  Media skills   : $($mediaSkillNames.Count) -> ~/.claude/skills, ~/.cursor/skills, ~/.codex/skills, ~/.agents/skills, ~/.gemini/skills"
 Write-Host "  Next step      : cd <your-project> && & `"$agentsRoot\scripts\register-project.ps1`""
 Write-Host ""
 Write-Host "=== Done ===" -ForegroundColor Green

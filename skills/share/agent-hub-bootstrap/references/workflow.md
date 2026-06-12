@@ -33,7 +33,7 @@ sh "$AGENTS_HUB_ROOT/scripts/install-hub.sh" --dry-run
 ```
 
 **效果：**
-- 共享技能软链到 `~/.claude/skills/`、`~/.cursor/skills/`、`~/.codex/skills/`
+- 共享技能软链到 `~/.claude/skills/`、`~/.cursor/skills/`、`~/.codex/skills/`、`~/.gemini/skills/`
 - 全局规则同步到 `~/.claude/CLAUDE.md`、`~/.codex/AGENTS.md`
 - `AGENTS_HUB_ROOT` 自动写入 shell profile（永久生效）
 
@@ -150,7 +150,7 @@ sh "$AGENTS_HUB_ROOT/scripts/init-project-agenting.sh" \
 
 默认会在规则与技能同步后执行 `sync-prompts`（链上 `prompts/share` 与 `prompts/projects/<key>`）。若仅需规则/技能、暂时不需要提示词链接，可加 `--skip-prompts`（PowerShell：`-SkipPrompts`）。
 
-**技能挂载（默认）：** `skills/share/*` 仅刷新 **`~/.claude/skills`、`~/.cursor/skills`、`~/.codex/skills`** 等用户级入口；**`skills/projects/<key>/*`** 挂载到工作区 **`.agents/skills/`、`.cursor/skills/`、`.claude/skills/`**（项目技能镜像，非真源）。若需要像以前那样把共享也挂进仓库 `.cursor/skills`/`.claude/skills`，请显式传入 **`-LinkShareToWorkspace`** / **`--link-share-to-workspace`**（`register-project` / `init-project-agenting` 均支持）。
+**技能挂载（默认）：** `skills/share/*` 仅刷新 **`~/.claude/skills`、`~/.cursor/skills`、`~/.codex/skills`、`~/.gemini/skills`** 等用户级入口；Gemini / Antigravity / 反重力语义别名均指向 `~/.gemini/skills`，不再写 `~/.gemini/antigravity/skills`、`~/.gemini/config/skills`、`~/.antigravity/skills`。**`skills/projects/<key>/*`** 挂载到工作区 **`.agents/skills/`、`.cursor/skills/`、`.claude/skills/`**（项目技能镜像，非真源）；Gemini 项目级入口只认 `.agents/skills/`，不写项目 `.gemini/skills` / `.antigravity/skills`。若需要像以前那样把共享也挂进仓库 `.cursor/skills`/`.claude/skills`，请显式传入 **`-LinkShareToWorkspace`** / **`--link-share-to-workspace`**（`register-project` / `init-project-agenting` 均支持）。
 
 ## 4. 只做部分动作
 
@@ -192,6 +192,22 @@ sh "$AGENTS_HUB_ROOT/scripts/sync-shared-skills.sh" \
   --project-key my-project \
   --link-project-skills \
   --categories  share
+```
+
+### 只同步 Gemini / Antigravity 用户级技能
+
+Gemini 专用路径规则在本技能 L2 脚本内维护，`gemini`、`antigravity`、`反重力` 都收敛到 `~/.gemini/skills/`。
+
+Windows:
+
+```powershell
+& "$env:AGENTS_HUB_ROOT\skills\share\agent-hub-bootstrap\scripts\sync-gemini-skills.ps1"
+```
+
+Linux / macOS:
+
+```bash
+sh "$AGENTS_HUB_ROOT/skills/share/agent-hub-bootstrap/scripts/sync-gemini-skills.sh"
 ```
 
 ### 只挂项目技能

@@ -8,6 +8,7 @@ param(
     [switch]$SkipProjectSkills,
     [switch]$SkipUserTargets,
     [switch]$SkipPrompts,
+    [switch]$SkipCommands,
     [switch]$LinkUserSkills,
     [switch]$LinkShareToWorkspace,
     [string[]]$ShareSkillNames,
@@ -115,6 +116,19 @@ if (-not $SkipProjectSkills) {
 if (-not $SkipPrompts) {
     $syncPromptsScript = Join-Path $PSScriptRoot 'sync-prompts.ps1'
     & $syncPromptsScript -HubRoot $agentsRoot -ProjectRoot $resolvedProjectRoot -ProjectKey $resolvedProjectKey
+}
+
+if (-not $SkipCommands) {
+    $syncCommandsScript = Join-Path $PSScriptRoot 'sync-commands.ps1'
+    $commandArgs = @{
+        HubRoot = $agentsRoot
+        ProjectRoot = $resolvedProjectRoot
+        ProjectKey = $resolvedProjectKey
+    }
+    if ($SkipUserTargets) {
+        $commandArgs.SkipUserTargets = $true
+    }
+    & $syncCommandsScript @commandArgs
 }
 
 Write-Host "Initialized workspace: $resolvedProjectRoot"

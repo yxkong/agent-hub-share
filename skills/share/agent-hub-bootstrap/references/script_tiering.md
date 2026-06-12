@@ -26,11 +26,11 @@
 | 类别 | 脚本（`.ps1` / `.sh` 成对） |
 |------|------------------------------|
 | 安装与注册 | `install-hub`、`register-project`、`init-project-agenting` |
-| 挂载与发布 | `publish-skill`、`sync-shared-skills`、`sync-agent-rules`、`sync-prompts` |
-| 校验与索引 | `check-skill-links`、`check-skill-entrypoints`、`check-skill-structure`、`check-skill-size`、`check-prompts`、`build-prompt-index`、`build-tech-insight-index`、`check-utf8-no-bom` |
+| 挂载与发布 | `publish-skill`、`sync-shared-skills`、`sync-agent-rules`、`sync-prompts`、`sync-commands`、`build-plugin`、`check-plugin` |
+| 校验与索引 | `check-skill-links`、`check-skill-entrypoints`、`check-skill-structure`、`check-skill-size`、`check-prompts`、`check-commands`、`check-hooks`、`check-shell-quoting`、`check-behavior-audit`、`check-hub-all`、`build-prompt-index`、`build-tech-insight-index`、`check-utf8-no-bom` |
 | 发现与安装 | `find-skills`、`install-skill-from-registry` |
-| 共享库 | `agent-hub-paths`、`ensure-hub-python`、`list-scripts`、`install-git-hooks` |
-| Python 包 | `scripts/python/hub_build_indices.py`、`scripts/python/mysql_schema_diff/`（跨项目 DBA 工具，非单 skill） |
+| 共享库 | `agent-hub-paths`、`agent-pwsh-bridge.sh`、`ensure-hub-python`、`list-scripts`、`install-git-hooks` |
+| Python 包 | `scripts/python/hub_build_indices.py`、`scripts/python/build_plugin.py`、`scripts/python/mysql_schema_diff/`（跨项目 DBA 工具，非单 skill） |
 
 完整索引见 hub 根 **`scripts/README.md`**。
 
@@ -41,6 +41,7 @@
 | 技能 | 脚本 | 说明 |
 |------|------|------|
 | `doc-script-governance` | `backup-file`、`audit-doc-script-governance` | 文档/SQL/技能资料备份与治理自检 |
+| `agent-hub-bootstrap` | `gemini-skill-paths`、`sync-gemini-skills` | Gemini / Antigravity 技能目录别名与用户级同步，唯一写入目标为 `~/.gemini/skills` |
 | `<backend-domain-skill>`（示例） | `gen-ddd`、`gen-ddd-from-table.py` | 项目 DDD 脚手架（技能名见 PROJECT_RULES） |
 | 其他 share/project skill | 按需 | 仅当工具**只属于该 skill** 时创建 |
 

@@ -10,7 +10,7 @@
 #
 # What it does:
 #   1. Auto-detect hub root (script lives inside hub/scripts/)
-#   2. Link all shared skills -> ~/.claude/skills/, ~/.cursor/skills/, ~/.codex/skills/, ~/.agents/skills/
+#   2. Link all shared skills -> ~/.claude/skills/, ~/.cursor/skills/, ~/.codex/skills/, ~/.agents/skills/, ~/.gemini/skills/
 #   3. Sync global rules    -> ~/.claude/CLAUDE.md, ~/.codex/AGENTS.md
 #   4. Append AGENTS_HUB_ROOT to shell profile (skip with --skip-profile)
 #   5. Print a summary
@@ -41,6 +41,13 @@ AGENTS_ROOT=$(agent_resolve_hub_root '' "$SCRIPT_DIR")
 USER_HOME="${HOME:-$USERPROFILE}"
 SHARE_ROOT="$AGENTS_ROOT/skills/share"
 MEDIA_ROOT="$AGENTS_ROOT/skills/media"
+GEMINI_SKILL_PATHS_SCRIPT="$AGENTS_ROOT/skills/share/agent-hub-bootstrap/scripts/gemini-skill-paths.sh"
+if [ -f "$GEMINI_SKILL_PATHS_SCRIPT" ]; then
+  . "$GEMINI_SKILL_PATHS_SCRIPT"
+  USER_GEMINI_SKILLS_ROOT=$(gemini_user_skill_root "$USER_HOME" gemini)
+else
+  USER_GEMINI_SKILLS_ROOT="$USER_HOME/.gemini/skills"
+fi
 if [ -f "$SCRIPT_DIR/check-skill-entrypoints.sh" ]; then
   sh "$SCRIPT_DIR/check-skill-entrypoints.sh" --hub-root "$AGENTS_ROOT"
 fi
@@ -55,7 +62,7 @@ echo ""
 # ---------------------------------------------------------------------------
 # 1. Link shared skills to user-level directories
 # ---------------------------------------------------------------------------
-USER_SKILL_ROOTS="$USER_HOME/.claude/skills $USER_HOME/.cursor/skills $USER_HOME/.codex/skills $USER_HOME/.agents/skills $USER_HOME/.gemini/antigravity/skills $USER_HOME/.gemini/config/skills $USER_HOME/.antigravity/skills"
+USER_SKILL_ROOTS="$USER_HOME/.claude/skills $USER_HOME/.cursor/skills $USER_HOME/.codex/skills $USER_HOME/.agents/skills $USER_GEMINI_SKILLS_ROOT"
 
 SHARE_SKILL_NAMES=$(agent_skill_names_from_root "$SHARE_ROOT")
 MEDIA_SKILL_NAMES=$(agent_skill_names_from_root "$MEDIA_ROOT")
@@ -180,8 +187,8 @@ fi
 # ---------------------------------------------------------------------------
 echo "=== Summary ==="
 echo "  Hub           : $AGENTS_ROOT"
-echo "  Share skills  : $SHARE_SKILL_COUNT -> ~/.claude/skills, ~/.cursor/skills, ~/.codex/skills, ~/.agents/skills, ~/.gemini/config/skills, ~/.antigravity/skills"
-echo "  Media skills  : $MEDIA_SKILL_COUNT -> ~/.claude/skills, ~/.cursor/skills, ~/.codex/skills, ~/.agents/skills, ~/.gemini/config/skills, ~/.antigravity/skills"
+echo "  Share skills  : $SHARE_SKILL_COUNT -> ~/.claude/skills, ~/.cursor/skills, ~/.codex/skills, ~/.agents/skills, ~/.gemini/skills"
+echo "  Media skills  : $MEDIA_SKILL_COUNT -> ~/.claude/skills, ~/.cursor/skills, ~/.codex/skills, ~/.agents/skills, ~/.gemini/skills"
 echo "  Next step     : cd <your-project> && sh \"$AGENTS_ROOT/scripts/register-project.sh\""
 echo ""
 echo "=== Done ==="
