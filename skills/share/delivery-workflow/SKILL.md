@@ -13,6 +13,7 @@ description: 面向 AI 真实研发交付的通用 workflow 技能（delivery wo
 | `frontend` | 页面、组件、UI、表单、弹窗、前端交互 | `references/frontend_workflow.md`（P0） |
 | `backend` | 接口、SQL、数据库、后端服务、权限、状态机 | `references/backend_workflow.md`（P0） |
 | `fullstack` | 前后端联动、字段未定、接口契约未冻结 | `references/fullstack_workflow.md`（P0） |
+| `reference-first` | 跨模块重构、全仓迁移、样板工程、给其他模型派发前 | `references/gates/reference_implementation_gate.md`（P0） |
 | `tdd` | 用户明确要求先写测试、补回归用例、红绿重构 | `tdd-workflow` |
 | `checklist` | 上线前、交付前、自检、review 前 | `references/checklist.md`（P0） |
 | `rd-audit` | 研发体系审计、闭环验证、证据复核、技能健康 / release evidence / replay 复核 | `references/gates/ai_rd_closure_audit.md`（P0） + share audit prompt |
@@ -62,7 +63,7 @@ description: 面向 AI 真实研发交付的通用 workflow 技能（delivery wo
 | `Fast Path` | 单文件或单点小改；不改接口/数据结构；不跨模块；验证清楚；失败成本低 | 写一段最小设计摘要后直接实现 |
 | `Full Path` | 需求有歧义；涉及接口/字段契约；前后端联动；SQL/配置/权限/状态机；影响多模块或返工成本高 | 先收敛目标、边界、契约、风险、验证路径，再进入实现 |
 
-具体模板与推压处理见 `references/ai_execution_protocol.md` 与各路由 `*_workflow.md`。
+具体模板与推压处理见 `references/ai_execution_protocol.md` 与各路由 `*_workflow.md`。跨模块重构、全仓迁移、样板工程或给其他模型派发前，必须先读 `references/gates/reference_implementation_gate.md`。
 
 ## AI 执行红线
 
@@ -75,6 +76,8 @@ description: 面向 AI 真实研发交付的通用 workflow 技能（delivery wo
 **硬触发**：写入 **≥ 2** 个文件；或单文件预计 **> 1500** 输出 token；或已有 share `agent-task` prompt 的批量机械任务。
 
 未命中硬触发、或属调查 / 方案 / 单文件小改 → 主模型在本会话直接执行，**禁止**为偷懒派子 Agent。
+
+**样板先行门**：跨模块重构、全仓迁移、统一标准、最终版架构或给 Gemini/子 Agent 派发前，必须先产出参考样板、范围白黑名单、分层落点、验证命令和停止条件；未完成样板验证不得批量执行。执行细则见 `references/gates/reference_implementation_gate.md`。
 
 ## R1 / R2 / R3
 
@@ -120,6 +123,7 @@ description: 面向 AI 真实研发交付的通用 workflow 技能（delivery wo
 - `references/gates/delivery_replay.md`
 - `references/gates/r3_handoff_contract.md`
 - `references/gates/ai_rd_closure_audit.md`
+- `references/gates/reference_implementation_gate.md`
 - `prompts/share/agent-task/prompt-share-agent-task-delivery-closeout-summary.prompt.md`（Gate 5 执行模板）
 - `prompts/share/agent-task/prompt-share-agent-task-ai-rd-closure-audit.prompt.md`（研发体系审计执行模板）
 - `references/ai_execution_protocol.md`
