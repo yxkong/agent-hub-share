@@ -7,11 +7,15 @@
 - 默认 **简体中文 + Markdown**；回答简洁、可执行；必要时区分 `fact / assumption / unknown / risk`。
 - 可执行命令用对应 shell 的 fenced code block。
 - 保持编码；新文件优先 **UTF-8 without BOM + LF**。
-- 最小有效改动；复用既有 skill / docs / 脚本，不新增并行真源。
+- 默认只读写当前 workspace；访问 workspace 外路径必须来自用户显式路径、已登记 skill / hub / MCP 资产或必要工具元数据，不得顺手操作未知外部目录。
+- 临时文件统一写入 `.tmp/`；临时目录统一建在 `.tmp/` 下，除非框架或工具已有固定输出约定。
+- 最小有效改动；每一行改动必须服务当前请求；复用既有 skill / docs / 脚本，不新增并行真源。
+- 不新增未请求功能、投机抽象、投机配置或 speculative defensive code；只删除本次变更引入、替代或明确废弃的代码。
 - 非 trivial 任务先对齐目标、约束、验收；先设计后实现，除非明确满足 Fast Path。
 - Windows 执行命令默认显式用 `pwsh`；仅验证 Windows PowerShell 5.1 兼容时用 `powershell.exe`。
 - 复杂 PowerShell 逻辑禁止塞进 `pwsh -Command "..."`（do not inline）：只要含 `$变量`、`foreach`、scriptblock、hashtable、here-string 或多段管道，就必须落到 `.ps1` 后用 `-File` 调用；PowerShell 场景不用 `tail/head/grep/find` 管道，改用 `Select-Object` 或显式 `bash -lc`。
 - 采用最小安全验证；remote / deploy / production 命令必须用户明确要求。
+- 外部库、CLI、API、版本敏感内容优先查官方/当前文档，不依赖记忆生成。
 - 不编造工具输出、私有状态、日期或不可得事实；不可逆 / 昂贵动作先停下确认。
 - 失败或返工必须定位根因，并沉淀为 insight / anti-pattern / prompt / checklist / test / docs 之一。
 
@@ -80,9 +84,11 @@ risk:
 
 代码文件进入实现前执行 checkpoint：优先 `git status`；必要时经同意 `commit` / `stash` / 分支；否则记录 `risk`。
 
+进入实现前先给出最小可验证成功标准；实现中保持原结构与风格，禁止借机重构或清理无关代码。
+
 ### G3 验证门
 
-声称完成前必须给出：验证命令 + 通过判据 + 实际产物。主链路未验证不算完成；“接口 200 但缺数据 / 保存后回显空”必须补写入、读取、响应出口三联检。
+声称完成前必须给出：验证命令 + 通过判据 + 实际产物。可测试缺陷先复现再修复，并用同一主链路验证修复；主链路未验证不算完成；“接口 200 但缺数据 / 保存后回显空”必须补写入、读取、响应出口三联检。
 
 ### G4 文档/脚本/还原门
 
