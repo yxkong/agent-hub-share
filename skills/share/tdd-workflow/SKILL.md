@@ -14,7 +14,7 @@ description: 测试驱动开发共享技能（TDD, test-first, red-green-refacto
 | `component` | 前端组件状态、交互、渲染分支 | `references/workflow.md` |
 | `legacy-safe` | 老代码缺测试，需要先补安全网再改 | `references/workflow.md` |
 
-规则：本技能只管测试先行节奏；真实需求推进仍由 `delivery-workflow` 主导，具体实现仍回项目领域技能。
+规则：本技能只管测试先行节奏；负责行为证据与回归保护，不替代目标契约、ADR、当前事实查证或风险反证。真实需求推进仍由 `delivery-workflow` 主导，具体实现仍回项目领域技能。
 
 ## 作用边界
 
@@ -33,6 +33,7 @@ description: 测试驱动开发共享技能（TDD, test-first, red-green-refacto
 - **最小绿灯**：只写让当前测试通过的最小实现。
 - **重构不改行为**：绿灯后再清理结构，重构前后测试结果一致。
 - **证据优先**：输出测试命令、失败摘要、通过摘要和未覆盖风险。
+- **契约对齐**：Red 用例必须追溯到 Spec / Task Contract / bug 复现之一，不能凭空扩大需求。
 
 ## 闭环门
 

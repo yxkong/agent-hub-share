@@ -92,6 +92,11 @@ summary: 技能工程中重复出现问题的模式抽象库。与主技能一�
 - 规则：迁入 `references/handbook/`；SKILL §2 标 Tier；旧路径 stub；review 默认先 `quick_gate.md`，系统修复再进 checklist；见 `review/router_handbook_gate.md`
 - 计数：2 | 状态：已提升 → design_principles.md §六
 
+[REDIRECT_STUB_NO_VALUE] **无外部引用的中转索引仍保留**
+- 触发条件：SKILL 已能直达 active reference，旧 `modes/*.md` 或 redirect stub 只重复阅读顺序、无外部依赖
+- 规则：删除中转文件并从 INDEX 移除；把必要顺序与裁决直接写入 SKILL 路由，勿为 stub 而 stub
+- 计数：2 | 状态：已提升 → design_principles.md §六
+
 ---
 
 ## 📋 待提升草案（仅计数 < 2）
@@ -138,11 +143,6 @@ summary: 技能工程中重复出现问题的模式抽象库。与主技能一�
 - 规则：要么补 SKILL 一行 + INDEX `in_route=是`；要么迁入 handbook/P2 并标注「禁止通读」；禁止长期 orphan
 - 计数：1
 
-[REDIRECT_STUB_NO_VALUE] **无外部引用的 redirect stub 仍保留**
-- 触发条件：handbook 已有正本且 SKILL 直链 handbook，旧路径 stub 仅「多一行维护」、无外部引用
-- 规则：**删除** stub + 从 INDEX 移除 redirect 行；勿为 stub 而 stub
-- 计数：1
-
 ---
 
 ## 使用说明
@@ -171,4 +171,4 @@ summary: 技能工程中重复出现问题的模式抽象库。与主技能一�
 
 按需检索设计原则正文时，用下列 ID 对齐 `design_principles.md §六`：
 
-`MAIN_FILE_BLOAT` · `SUBSKILL_MERGE_INCOMPLETE` · `REFS_DEPTH_VIOLATION` · `BAK_SKILLMD_DISCOVERABLE` · `VALUE_GATE_MISSING` · `PRODUCT_REVIEW_INCREMENTAL_TRAP` · `DOC_SCRIPT_CONTRACT_DRIFT` · `HIDDEN_SCRIPT_MODE` · `MACHINE_INDEX_ID_FABRICATION` · `CROSS_PLATFORM_WRAPPER_DRIFT` · `MULTI_ROUTER_PARALLEL` · `HANDBOOK_NO_TIER`
+`MAIN_FILE_BLOAT` · `SUBSKILL_MERGE_INCOMPLETE` · `REFS_DEPTH_VIOLATION` · `BAK_SKILLMD_DISCOVERABLE` · `VALUE_GATE_MISSING` · `PRODUCT_REVIEW_INCREMENTAL_TRAP` · `DOC_SCRIPT_CONTRACT_DRIFT` · `HIDDEN_SCRIPT_MODE` · `MACHINE_INDEX_ID_FABRICATION` · `CROSS_PLATFORM_WRAPPER_DRIFT` · `MULTI_ROUTER_PARALLEL` · `HANDBOOK_NO_TIER` · `REDIRECT_STUB_NO_VALUE`

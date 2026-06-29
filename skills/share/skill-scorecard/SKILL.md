@@ -21,6 +21,7 @@ description: 以双 100 分制审查 AI skill、prompt、references、scripts �
 
 - 给 `SKILL.md`、`README.md`、`references/`、`scripts/`、`templates/`、相关 prompt 资产做结构化评分
 - 识别触发不准、契约不全、SOP 空泛、验证缺失、脚本错层、路径失效、share 私有耦合、Release Evidence / Task Replay Lite / Skill Health Signal 缺口
+- 识别真实任务优化证据缺口：baseline rollout、reflection、bounded edit、held-out validation 是否存在
 - 输出 findings-first 的评分报告，包含**质量分（100）**、**兑现分（100）**、**门禁结论**与证据等级
 - 为后续修复提供 P0 / P1 / P2 整改建议
 
@@ -43,9 +44,10 @@ description: 以双 100 分制审查 AI skill、prompt、references、scripts �
 4. **闭环优先**：缺验证、缺执行、缺路径更新、脚本不可用、只有 static 证据却宣称完成时，优先扣“闭环分”，不要只夸文档写得好。
 5. **脚本放置按 L1/L2 判断**：只服务一个 skill 的脚本默认应在技能目录；跨技能或独立运维入口才应在 hub `scripts/`。
 6. **share 去项目化必查**：share skill 若硬编码项目名、私有路径、内网 URL、真实模块前缀，应降分并标为可迁移性问题。
-7. **active 全包口径**：评分对象是整个技能包；必须盘点同目录 active 文件，排除 `bak/`，不能只看 `SKILL.md`。
-8. **行为与首读要单独看**：高风险 / 纪律类 skill 要看是否真的改变 Agent 行为；所有 skill 都要看触发后能否 30 秒内找到首读入口。
-9. **96+ 反通胀**：没有 `executed/observed` 证据、校准样例对齐和行为复测时，不得把“写得好”评成标杆分。
+7. **share 证据归因**：当前运行环境装配、项目技能、账号/仓库私有事实只能作为组合系统证据；不得直接计入 shared skill 本体兑现分。
+8. **active 全包口径**：评分对象是整个技能包；必须盘点同目录 active 文件，排除 `bak/`，不能只看 `SKILL.md`。
+9. **行为与首读要单独看**：高风险 / 纪律类 skill 要看是否真的改变 Agent 行为；所有 skill 都要看触发后能否 30 秒内找到首读入口。
+10. **96+ 反通胀**：没有 `executed/observed` 证据、校准样例对齐、行为复测和必要的 held-out 验证时，不得把“写得好”评成标杆分。
 
 ## 证据优先级
 
@@ -56,6 +58,7 @@ description: 以双 100 分制审查 AI skill、prompt、references、scripts �
 - 已盘点 active 全包资产，且排除 `bak/`。
 - 已按质量分、兑现分、门禁结论三层输出。
 - 96+ 或“标杆”结论已对齐 `references/calibration_examples.md`，不能只靠静态好感。
+- 若对象经历过“优化 skill”，已检查 `skill-optimization` 的 rollout / reflection / held-out 证据。
 - 评分后若需要修复正文，转 `skill-engineering`；若需要挂载发布，转 `agent-hub-bootstrap`。
 
 ## 最小评分流程
@@ -96,6 +99,7 @@ description: 以双 100 分制审查 AI skill、prompt、references、scripts �
 | 技能 | 何时转交 |
 |------|----------|
 | `skill-engineering` | 评分后决定重构/新建/抽取 skill |
+| `skill-optimization` | 评分后需要基于真实任务证据迭代优化 skill |
 | `prompt-engineering` | 评分对象变成 `*.prompt.md` 正文生产与 eval 落盘 |
 | `agent-hub-bootstrap` | 需要挂载、发布、同步、校验入口 |
 | `delivery-workflow` | 目标变成真实研发交付，而不是审计资产 |

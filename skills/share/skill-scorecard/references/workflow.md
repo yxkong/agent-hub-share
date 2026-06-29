@@ -61,8 +61,10 @@
 2. 给每项能力标证据等级：`executed / observed / static / unknown`
 3. 若某项能力被大篇幅承诺，但只有 `static` 或 `unknown`，兑现分要明显下调
 4. 若对象是 share skill，还要单独看去项目化是否被真实兑现
-5. 若对象是高风险 / 纪律类 skill，单独判断是否有**无 skill 基线样本 + 带 skill 复测样本**；没有则行为有效性不得高分
-6. 若对象承诺研发交付、上线、质量门禁或失败学习，检查是否覆盖主链证据矩阵、Release Evidence、Task Replay Lite / Skill Health Signal；缺失时按 `scoring_dimensions.md` 封顶
+5. 若对象是 share skill，必须把证据拆成 `share capability / project specialization / runtime assembly`；后两者不得直接计入 shared skill 本体兑现分
+6. 若对象是高风险 / 纪律类 skill，单独判断是否有**无 skill 基线样本 + 带 skill 复测样本**；没有则行为有效性不得高分
+7. 若对象声明经过真实任务优化，检查是否有 baseline rollout、reflection、bounded edit、held-out validation；缺失时按 `scoring_dimensions.md` 封顶
+8. 若对象承诺研发交付、上线、质量门禁或失败学习，检查是否覆盖主链证据矩阵、Release Evidence、Task Replay Lite / Skill Health Signal；缺失时按 `scoring_dimensions.md` 封顶
 
 ## Step 6：逐维打分
 

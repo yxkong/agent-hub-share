@@ -14,6 +14,8 @@ description: 面向 AI 真实研发交付的通用 workflow 技能（delivery wo
 | `backend` | 接口、SQL、数据库、后端服务、权限、状态机 | `references/backend_workflow.md`（P0） |
 | `fullstack` | 前后端联动、字段未定、接口契约未冻结 | `references/fullstack_workflow.md`（P0） |
 | `reference-first` | 跨模块重构、全仓迁移、样板工程、给其他模型派发前 | `references/gates/reference_implementation_gate.md`（P0） |
+| `fact-check` | 外部库、CLI、API、平台规则、版本敏感实现 | 官方/当前文档 + `references/gates/reference_implementation_gate.md` |
+| `risk-proof` | 非平凡方案取舍、影响面不确定、用户方向未经验证 | `ai-development-governance/references/risk_review_matrix.md` + `code_review_gate.md` |
 | `tdd` | 用户明确要求先写测试、补回归用例、红绿重构 | `tdd-workflow` |
 | `checklist` | 上线前、交付前、自检、review 前 | `references/checklist.md`（P0） |
 | `rd-audit` | 研发体系审计、闭环验证、证据复核、技能健康 / release evidence / replay 复核 | `references/gates/ai_rd_closure_audit.md`（P0） + share audit prompt |
@@ -53,6 +55,9 @@ description: 面向 AI 真实研发交付的通用 workflow 技能（delivery wo
 - **Fast Path 默认**：单点小改、契约不变、验证明确时直接实现；Full Path 是例外
 - **Full Path 先发散后收敛**：需求歧义、跨端、接口/字段/SQL/权限/状态机改动时先设计
 - **主链路优先**：先完成最小闭环，再补失败链路和边角
+- **当前事实查证**：版本敏感或外部依赖的实现必须以官方/当前文档为事实源，不凭记忆补 API
+- **风险反证**：高影响取舍先列反证、失败条件和更小闭环，再进入实现
+- **薄切片推进**：Full Path 拆成可验证的薄切片；每片完成后再扩展范围
 - **验证前置**：没有主链路证据，不算完成
 - **失败不白费**：返工必须进入 R3 沉淀
 
@@ -106,6 +111,7 @@ description: 面向 AI 真实研发交付的通用 workflow 技能（delivery wo
 - 需求已过 Gate 1 / 2，或明确属于 Fast Path。
 - 实现前已满足 R1；派发子 Agent 时已满足 R2。
 - 验证至少覆盖主链路；Full Path 已按 `references/gates/mainline_evidence_matrix.md` 标出 static / contract / runtime / user-visible / release / limitation 证据；缺数据类问题完成三联检。
+- 外部依赖、平台规则或版本敏感任务已给出当前事实来源；非平凡取舍已给出风险反证与停止条件。
 - Full Path / 跨模块 / 交付闭环任务已在 Gate 5 复盘落盘到 `$AGENTS_HUB_ROOT/docs/resource/replay/`（或明确标 `不落盘` / `BLOCKED` 原因）。
 - 失败 / 返工已按 R3 分流到 insight / 反模式 / prompt（Gate 6）。
 - 收口前按 `references/behavior_audit.md` 过一遍偏航信号、反证问题、闭环证据与回灌动作。

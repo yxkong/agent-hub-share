@@ -125,6 +125,7 @@
 | 多套路由并存 | `SKILL` + `README` + `INDEX` + 关键词表都可当 Agent 入口，路由漂移 | **仅** `SKILL.md` §2 为任务入口；meta 文件头 blockquote 禁止 Agent 入口；人类速查与 catalog 分离 |
 | handbook 与 rule card 同级 | 500+ 行规约/百科与 ≤150 行 SOP 同 tier，Agent 通读 token 爆炸 | 大文档进 `references/handbook/`（P2）；SKILL 标注「按需检索、禁止通读」；旧路径留 stub |
 | Review 误开 handbook | review/重构默认打开反模式/规约全文，或跳过 `quick_gate.md` 直接吞系统详表 | 默认先 `review/quick_gate.md` 判阻断与下一步；系统修复再进 checklist；handbook 仅 J-xxx/章节检索 |
+| 无价值中转索引 | SKILL 已能直达 active reference，仍保留 `modes/*.md` 或 redirect stub 让 Agent 多读一层，并产生路由漂移 | 无外部依赖时删除中转文件及 INDEX 条目；把必要顺序和裁决直接放进 SKILL 路由 |
 | 搬迁丢正文 | Move 后 handbook 被 stub 覆盖或 git 编码损坏 | 先 backup → 迁正文 → 写 stub → grep 交叉引用；验证 handbook 文件大小与首段标题 |
 | bak 内可发现 SKILL.md | dated 快照或 `bak/**` 仍保留 `SKILL.md` 文件名，污染 discovery/review/Agent 触发 | **禁止** skill 树下非 canonical 路径出现 `SKILL.md`；备份用 `_SKILL.md` / `SKILL-<stamp>.md` / `SKILL_md/`；`check-skill-entrypoints` 必须 fail；`find-skills` 只列 canonical |
 | 挂载入口当真源 | 在 `.cursor/skills/` 等工作区入口改正文，与 hub 漂移 | 正文只改 hub 真源；挂载仅经 `agent-hub-bootstrap` 脚本；见 `skill_truth_source_contract.md` |

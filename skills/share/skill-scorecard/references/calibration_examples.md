@@ -10,6 +10,8 @@
 - README 是维护章程，references 是细则；三者没有并列入口或重复真源
 - 至少 3 个不同类型真实任务有 `executed` / `observed` 证据
 - 高风险 / 纪律类 skill 有无 skill 基线样本与带 skill 复测样本
+- 经历优化的 skill 有 baseline rollout、reflection、bounded edit 与 held-out validation 记录
+- share skill 的 96+ 证据来自可迁移动作规则和通用验证，不把项目技能、账号资料或当前运行环境装配成功算成本体能力
 - 校验脚本、触发样例、模板与派生资产一致，且无私有耦合
 
 典型结论：`可挂载`，且可以作为同类 skill 模板。
@@ -54,6 +56,7 @@
 - 关键路径、脚本或入口失效
 - 承诺能力没有 active 文件支撑
 - share 资产硬编码真实项目私有信息
+- share 能力结论依赖项目技能、账号资料或当前运行环境装配结果
 - 缺契约、缺 SOP、缺验证闭环
 
 典型结论：`暂缓使用`。

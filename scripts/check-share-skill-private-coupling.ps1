@@ -55,7 +55,7 @@ function Test-SharePrivateCoupling {
             Reason = 'share skill must not refer to the private source repository; public-facing assets should use agent-hub-share or <hub-root>'
         },
         @{
-            Regex  = 'wechat-article-writing|skills/media/'
+            Regex  = 'wechat-article-workflow|skills/media/'
             Reason = 'share skill must not expose non-export skill paths; use <private-media-skill> or maintainer hub docs'
         }
     )

@@ -112,7 +112,7 @@ check_references_tree() {
     case "$base" in
       bak) continue ;;
     esac
-    if find "$sub" -mindepth 1 -type d 2>/dev/null | head -n 1 | grep -q .; then
+    if find "$sub" -mindepth 1 -type d ! -path "$sub/bak" ! -path "$sub/bak/*" 2>/dev/null | head -n 1 | grep -q .; then
       record_violation "$sub" "references 语义子目录下不允许再嵌套目录（仅一层子目录 + 其下 *.md）"
     fi
     n=0

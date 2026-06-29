@@ -79,8 +79,8 @@ check_one_skill() {
       first_match=$(grep -Eio 'ai-hub-private|yxkong/ai-hub-private' "$f" 2>/dev/null | head -n 1)
       record_violation "$f" "share skill 不得引用 private 源仓；public 语境请改为 agent-hub-share 或 <hub-root> first_match=${first_match}"
     fi
-    if grep -Eiq 'wechat-article-writing|skills/media/' "$f" 2>/dev/null; then
-      first_match=$(grep -Eio 'wechat-article-writing|skills/media/' "$f" 2>/dev/null | head -n 1)
+    if grep -Eiq 'wechat-article-workflow|skills/media/' "$f" 2>/dev/null; then
+      first_match=$(grep -Eio 'wechat-article-workflow|skills/media/' "$f" 2>/dev/null | head -n 1)
       record_violation "$f" "share skill 不得暴露 maintainer hub 未 export 的技能路径；请改为 <private-media-skill> 或 maintainer hub 文档 first_match=${first_match}"
     fi
   done <<EOF

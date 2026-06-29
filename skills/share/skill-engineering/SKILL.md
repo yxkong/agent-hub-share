@@ -13,12 +13,13 @@ description: 创建、提炼、审查、重构和优化 AI Skill（skill creatio
 | `extract` | 要从存量代码 / 文档 / 老项目提炼 skill | `references/workflow/legacy_project_extraction.md` |
 | `review` | 现有 skill 结构重、边界乱、难触发或难用 | `references/review/quick_gate.md`；系统修复再读 `references/review/checklist.md` + `references/review/router_handbook_gate.md`；高风险再读 `references/review/behavioral_eval.md` |
 | `refine-trigger` | description / trigger / eval 不准，或要确认 skill 是否真的改变行为 | `references/review/eval_playbook.md`；若是高风险 / 纪律类 skill，再读 `references/review/behavioral_eval.md` |
+| `optimize-skill` | 需要基于真实任务 rollout 迭代优化现有 skill | 转 `skill-optimization` |
 
 规则：一次只走一条主路由；**先读路由前必读，再读对应 P0**；如果问题是"研发任务怎么推进"，立即转 `delivery-workflow`。
 
 ## 作用边界
 
-**覆盖**：创建 / 提炼 / 审查 / 重构技能；优化 description / trigger / eval；识别坏味道并沉淀规则。
+**覆盖**：创建 / 提炼 / 审查 / 重构技能；优化 description / trigger / eval；识别坏味道并沉淀规则；把真实任务证据优化转交 `skill-optimization`。
 
 **不覆盖**：推进真实业务需求开发；代替领域技能实现业务代码。
 
@@ -32,6 +33,7 @@ description: 创建、提炼、审查、重构和优化 AI Skill（skill creatio
 - **最小可驱动产物**：`extract` 时先产最小包（边界 + 主链路 + 高频切入点 + 最小 SOP + 最小验证），稳定后再升档。
 - **高风险 / 纪律类证据门**：若 skill 容易被时间压力、沉没成本、速度偏好或“就这一次”合理化绕过，`create` / `review` / `refine-trigger` 至少要有 1 条无 skill 基线样本 + 1 条带 skill 复测样本；做不到时明确标 `unknown`，不得宣称“已证明改变行为”。
 - **完成门**：真实入口可定位、主链路可复述、≥ 3 个高频场景有切入点、≥ 1 个真实任务可验证，四项未满不算可用。
+- **shared 通用性门**：`skills/share` 只承载跨项目可迁移动作规则；当前运行环境装配成功、项目技能能力、账号/仓库私有事实不能计入 shared 本体能力，细则见 `references/layout/share_portability_contract.md`。
 - **冲突处理**：文档与代码冲突优先代码；多实现并存优先当前主调用链；找不到主链路不允许虚构。
 - **开发可驱动性优先**：先问能否让 AI 更快找到入口、减少误改漏改返工；结构再完整，两问答不了"是"也不合格。
 - **工程门禁**：hub 内 skill 有改动时收尾须按 `references/review/engineering_completion_gate.md` 执行 **§1–§5**（或该文档声明的适用子集）；涉及备份脚本/备份契约时补跑 `check-backup-policy`，不得以零散命令替代。
@@ -54,6 +56,7 @@ description: 创建、提炼、审查、重构和优化 AI Skill（skill creatio
 
 - `references/layout/skill_directory_layout.md`（**create** / 改目录：根 `templates/` + references 深度 ≤15）
 - `references/layout/skill_truth_source_contract.md`（**create** / **review**：canonical 真源、bak 排除、挂载入口非真源）
+- `references/layout/share_portability_contract.md`（**create** / **review**：shared 通用性、私有层分工、证据归因）
 - `references/workflow/extraction_prompt_template.md`（extract/create 三阶段 Prompt）
 - `references/governance/output_levels.md` / `references/review/full_mode_checklist.md`
 - `references/layout/project_elements.md`
@@ -138,3 +141,4 @@ description: 创建、提炼、审查、重构和优化 AI Skill（skill creatio
 | `doc-script-governance` | 文档/SQL 放置、备份、skill 目录治理 |
 | `agent-hub-bootstrap` | hub 安装、挂载、`publish-skill` |
 | 领域技能 | 落地业务代码 |
+| `skill-optimization` | 基于真实任务 rollout / held-out 验证迭代优化现有 skill 时 |

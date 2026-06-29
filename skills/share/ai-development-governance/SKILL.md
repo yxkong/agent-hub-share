@@ -10,6 +10,7 @@ description: AI 研发治理总纲技能（AI development governance, spec, ADR,
 | 任务类型 | 什么时候选它 | 先读什么 |
 |------|------|------|
 | `lifecycle` | 用户问 AI 开发规范、体系、总纲、如何达到高质量 | `references/lifecycle_map.md` |
+| `method-enhance` | 用户问 AI 开发范式、shared 研发体系是否吸收外部优秀方法 | `references/governance/development_method_enhancement.md` |
 | `spec` | 真实研发需求尚未形成 Spec | `templates/TEMPLATE_FEATURE_SPEC.md`，然后转 `delivery-workflow` |
 | `adr` | 方案有多个选择或存在架构影响 | `templates/TEMPLATE_ADR.md` |
 | `task-contract` | 需要拆成最小可验证任务契约 | `templates/TEMPLATE_TASK_CONTRACT.md` |
@@ -46,6 +47,7 @@ description: AI 研发治理总纲技能（AI development governance, spec, ADR,
 - **门禁独立存在**：Security / Release / Quality 不因赶进度被吞进执行细节
 - **Fast Path 可轻量，不可失控**：可简化治理产物，不可跳过必要门禁
 - **执行归 delivery，治理归本技能**：避免一份技能同时承担“怎么做”和“先过哪些门”
+- **知识转动作**：外部优秀方法只沉淀为目标契约、当前事实查证、风险反证、测试证据、薄切片交付与失败回灌，不把术语变成运行负担
 
 ## 强制门禁
 
@@ -66,6 +68,7 @@ description: AI 研发治理总纲技能（AI development governance, spec, ADR,
 ## 闭环门
 
 - 治理产物必须落到 Spec / ADR / Task Contract / Security / Release / Quality / Learning 的明确一类。
+- 用户要求 AI 开发范式或 shared 研发体系评估时，先按 `references/governance/development_method_enhancement.md` 判断缺口，再决定是否转 `delivery-workflow`、`tdd-workflow` 或 `skill-engineering`。
 - 进入具体实现时必须转 `delivery-workflow`；本技能不直接写代码。
 - 涉及测试先行、红绿重构或质量内建时，可转 `tdd-workflow` 补测试节奏，再回 `delivery-workflow` 推进实现。
 - 失败、返工、回滚必须进入 Learning Gate，并与 `delivery-workflow` R3 对齐。
@@ -93,6 +96,7 @@ description: AI 研发治理总纲技能（AI development governance, spec, ADR,
 - `references/trigger_eval.md`
 - `references/closure_example.md`
 - `references/governance/behavior_audit.md`
+- `references/governance/development_method_enhancement.md`
 - `templates/TEMPLATE_FEATURE_SPEC.md`
 - `templates/TEMPLATE_ADR.md`
 - `templates/TEMPLATE_TASK_CONTRACT.md`
@@ -103,7 +107,7 @@ description: AI 研发治理总纲技能（AI development governance, spec, ADR,
 
 完整正负例见 `references/trigger_eval.md`。主文件只保留记忆规则：
 
-- **should-trigger**：AI 开发规范/体系/总纲、治理阶段门、上线前门禁、Security / Release / Quality / Code Review、评分成熟度、跨 skill 协作顺序、业务安全审计路由
+- **should-trigger**：AI 开发规范/体系/总纲、AI 开发范式、治理阶段门、上线前门禁、Security / Release / Quality / Code Review、评分成熟度、跨 skill 协作顺序、业务安全审计路由
 - **should-not-trigger**：具体接口实现、文档放置、SKILL 审查、已满足 Fast Path 的单点执行问题
 
 ## 与其他技能关系
