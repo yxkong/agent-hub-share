@@ -2,7 +2,7 @@
 param(
     [Parameter(Mandatory = $true)]
     [string]$SkillName,
-    [ValidateSet('share', 'category', 'media')]
+    [ValidateSet('share', 'category', 'media', 'tooling', 'research')]
     [string]$Scope = 'category',
     [string]$HubRoot = '',
     [string]$Category = '',
@@ -26,11 +26,11 @@ $userClaudeSkillsRoot = Join-Path $userProfile '.claude\skills'
 $userCursorSkillsRoot = Join-Path $userProfile '.cursor\skills'
 $userCodexSkillsRoot = Join-Path $userProfile '.codex\skills'
 $userAgentsSkillsRoot = Join-Path $userProfile '.agents\skills'
-$userGeminiSkillsRoot = if (Get-Command Get-GeminiUserSkillRoot -ErrorAction SilentlyContinue) {
-    Get-GeminiUserSkillRoot -UserHome $userProfile -Alias 'gemini'
+$userGeminiSkillRoots = if (Get-Command Get-GeminiUserSkillRoots -ErrorAction SilentlyContinue) {
+    @(Get-GeminiUserSkillRoots -UserHome $userProfile)
 }
 else {
-    Join-Path $userProfile '.gemini\skills'
+    @((Join-Path $userProfile '.gemini\skills'), (Join-Path $userProfile '.gemini\config\skills'))
 }
 
 $resolvedProjectRoot = ''
@@ -119,6 +119,12 @@ $scopeRoot = if ($Scope -eq 'share') {
 elseif ($Scope -eq 'media') {
     Join-Path $skillsRoot 'media'
 }
+elseif ($Scope -eq 'tooling') {
+    Join-Path $skillsRoot 'tooling'
+}
+elseif ($Scope -eq 'research') {
+    Join-Path $skillsRoot 'research'
+}
 else {
     Join-Path $skillsRoot $resolvedCategory
 }
@@ -138,12 +144,14 @@ if ($LinkProject -or $Scope -eq 'category') {
     Ensure-Junction -LinkPath (Join-Path $projectAgentsSkillsRoot $SkillName) -TargetPath $skillRoot
 }
 
-if ($LinkUsers -or $Scope -eq 'share' -or $Scope -eq 'media') {
+if ($LinkUsers) {
     Ensure-Junction -LinkPath (Join-Path $userClaudeSkillsRoot $SkillName) -TargetPath $skillRoot
     Ensure-Junction -LinkPath (Join-Path $userCursorSkillsRoot $SkillName) -TargetPath $skillRoot
     Ensure-Junction -LinkPath (Join-Path $userCodexSkillsRoot $SkillName) -TargetPath $skillRoot
     Ensure-Junction -LinkPath (Join-Path $userAgentsSkillsRoot $SkillName) -TargetPath $skillRoot
-    Ensure-Junction -LinkPath (Join-Path $userGeminiSkillsRoot $SkillName) -TargetPath $skillRoot
+    foreach ($root in $userGeminiSkillRoots) {
+        Ensure-Junction -LinkPath (Join-Path $root $SkillName) -TargetPath $skillRoot
+    }
 }
 
 Write-Host "Hub root: $agentsRoot"

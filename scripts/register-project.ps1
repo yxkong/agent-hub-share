@@ -15,11 +15,14 @@ param(
     [string]$HubRoot       = '',
     [string]$ProjectRoot   = '',
     [string]$ProjectKey    = '',
+    [ValidateSet('engineering', 'media', 'generic', 'mixed', 'hub')]
+    [string]$ProjectType   = '',
     [switch]$SkipRules,
     [switch]$SkipSharedSkills,
     [switch]$SkipProjectSkills,
     [switch]$SkipUserTargets,
     [switch]$SkipPrompts,
+    [switch]$EnablePrompts,
     [switch]$LinkUserSkills,
     [switch]$LinkShareToWorkspace,
     [switch]$DryRun
@@ -47,6 +50,7 @@ Write-Host "=== register-project ===" -ForegroundColor Cyan
 Write-Host "  Hub root      : $agentsRoot"
 Write-Host "  Project root  : $resolvedProjectRoot"
 Write-Host "  Project key   : $resolvedProjectKey"
+if ($ProjectType) { Write-Host "  Project type  : $ProjectType" }
 if ($DryRun) { Write-Host "  [DRY-RUN - no files will be written]" -ForegroundColor Yellow }
 Write-Host ""
 
@@ -58,6 +62,7 @@ $hubProjectSkillsDir  = Join-Path $agentsRoot "skills\projects\$resolvedProjectK
 $hubProjectPromptsDir = Join-Path $agentsRoot "prompts\projects\$resolvedProjectKey"
 $promptsReadme        = Join-Path $hubProjectPromptsDir 'README.md'
 $rulesFile            = Join-Path $hubProjectRulesDir 'PROJECT_RULES.md'
+$projectYaml          = Join-Path $hubProjectRulesDir 'project.yaml'
 
 if (-not (Test-Path -LiteralPath $hubProjectRulesDir)) {
     Write-Host "[scaffold] Creating hub rules dir: $hubProjectRulesDir"
@@ -66,12 +71,70 @@ if (-not (Test-Path -LiteralPath $hubProjectRulesDir)) {
 
 # PROJECT_RULES.md is not auto-scaffolded; add it manually when the project has incremental rules.
 
+if ($ProjectType) {
+    if (-not (Test-Path -LiteralPath $projectYaml)) {
+        Write-Host "[scaffold] Creating project type metadata: $projectYaml"
+        $defaultWorkflow = if ($ProjectType -eq 'engineering') {
+            'delivery-workflow'
+        }
+        elseif ($ProjectType -eq 'hub') {
+            'agent-hub-bootstrap'
+        }
+        else {
+            'none'
+        }
+        $defaultPromptsEnabled = if ($ProjectType -eq 'media') { 'false' } else { 'true' }
+        $projectYamlBody = @(
+            "project_key: $resolvedProjectKey",
+            "project_type: $ProjectType",
+            "default_workflow: $defaultWorkflow",
+            'project_skill: unknown',
+            "prompts_enabled: $defaultPromptsEnabled",
+            ''
+        ) -join "`n"
+        if ($DryRun) {
+            Write-Host "[scaffold]   (dry-run) would write project_type: $ProjectType"
+        }
+        else {
+            Ensure-AgentDirectory -Path $hubProjectRulesDir
+            Write-AgentUtf8NoBomFile -Path $projectYaml -Content $projectYamlBody
+        }
+    }
+    else {
+        Write-Host "[scaffold] project.yaml already exists, skipping scaffold."
+    }
+}
+else {
+    Write-Host "[scaffold] project_type not provided; project.yaml will not be created. Missing type falls back to generic."
+}
+
+if ($SkipPrompts -and $EnablePrompts) { throw 'Use only one of -SkipPrompts or -EnablePrompts.' }
+$promptsEnabled = if ($EnablePrompts) {
+    $true
+}
+elseif ($SkipPrompts) {
+    $false
+}
+elseif (Test-Path -LiteralPath $projectYaml) {
+    $line = [System.IO.File]::ReadLines($projectYaml, [System.Text.Encoding]::UTF8) |
+        Where-Object { $_ -match '^\s*prompts_enabled\s*:' } |
+        Select-Object -First 1
+    if ($line) {
+        $value = (($line -split ':', 2)[1]).Trim().ToLowerInvariant()
+        $value -notin @('false', '0', 'no', 'off')
+    }
+    else { $true }
+}
+else {
+    $ProjectType -ne 'media'
+}
+
 if (-not (Test-Path -LiteralPath $hubProjectSkillsDir)) {
     Write-Host "[scaffold] Creating hub skills dir: $hubProjectSkillsDir"
     if (-not $DryRun) { New-Item -ItemType Directory -Path $hubProjectSkillsDir -Force | Out-Null }
 }
 
-if (-not (Test-Path -LiteralPath $hubProjectPromptsDir)) {
+if ($promptsEnabled -and -not (Test-Path -LiteralPath $hubProjectPromptsDir)) {
     Write-Host "[scaffold] Creating hub project prompts dir: $hubProjectPromptsDir"
     if ($DryRun) {
         Write-Host "[scaffold]   (dry-run) would create directory: $hubProjectPromptsDir"
@@ -81,7 +144,7 @@ if (-not (Test-Path -LiteralPath $hubProjectPromptsDir)) {
     }
 }
 
-if (-not (Test-Path -LiteralPath $promptsReadme)) {
+if ($promptsEnabled -and -not (Test-Path -LiteralPath $promptsReadme)) {
     Write-Host "[scaffold] Creating project prompts README skeleton"
     $readmeLines = @(
         "# $resolvedProjectKey project prompts",
@@ -105,7 +168,7 @@ if (-not (Test-Path -LiteralPath $promptsReadme)) {
         Write-AgentUtf8NoBomFile -Path $promptsReadme -Content $readmeBody
     }
     Write-Host "[scaffold]   -> $promptsReadme"
-} else {
+} elseif ($promptsEnabled) {
     Write-Host "[scaffold] project prompts README already exists, skipping scaffold."
 }
 
@@ -113,18 +176,18 @@ $projectSkillsReadme = Join-Path $hubProjectSkillsDir 'README.md'
 if (-not (Test-Path -LiteralPath $projectSkillsReadme)) {
     Write-Host "[scaffold] Creating project skills README skeleton"
     $psReadmeLines = @(
-        "# $resolvedProjectKey 项目技能",
+        "# $resolvedProjectKey Project Skills",
         '',
-        "> **真源**：hub 内 skills/projects/$resolvedProjectKey/",
-        '> **Agent 全局规则** → 各仓库 `AGENTS.md`',
+        "> **Source**: hub skills/projects/$resolvedProjectKey/",
+        '> **Agent Global Rules** -> AGENTS.md in each repo',
         '',
-        '## 领域技能',
+        '## Domain Skills',
         '',
-        '| 技能 | 用途 |',
+        '| Skill | Purpose |',
         '|------|------|',
         '| TODO | TODO |',
         '',
-        '## 本仓库 docs 域索引（可选）',
+        '## Docs Domain Index (Optional)',
         '',
         '<repo>/docs/guide/DOCS_GOVERNANCE.md',
         ''
@@ -149,8 +212,6 @@ Write-Host ""
 # ---------------------------------------------------------------------------
 $userProfile = $env:USERPROFILE
 $userTargets = @{
-    'Claude CLAUDE.md'    = Join-Path $userProfile '.claude\CLAUDE.md'
-    'Codex AGENTS.md'     = Join-Path $userProfile '.codex\AGENTS.md'
     'Claude skills/'      = Join-Path $userProfile '.claude\skills'
     'Cursor skills/'      = Join-Path $userProfile '.cursor\skills'
     'Codex skills/'       = Join-Path $userProfile '.codex\skills'
@@ -169,7 +230,7 @@ foreach ($label in $userTargets.Keys | Sort-Object) {
 
 if ($anyMissing) {
     Write-Host ""
-    Write-Host "  Tip: new machine should run hub install-hub first; register-project/sync-user targets refresh automatically for shared skills." -ForegroundColor Yellow
+    Write-Host "  Tip: new machine should run hub install-hub first; project rules are synced per workspace, not user-level AGENTS/CLAUDE." -ForegroundColor Yellow
 }
 Write-Host ""
 
@@ -206,11 +267,13 @@ if (-not $DryRun) {
         ProjectRoot = $resolvedProjectRoot
         ProjectKey  = $resolvedProjectKey
     }
+    if ($ProjectType)        { $initArgs.ProjectType        = $ProjectType }
     if ($SkipRules)         { $initArgs.SkipRules         = $true }
     if ($SkipSharedSkills)  { $initArgs.SkipSharedSkills  = $true }
     if ($SkipProjectSkills) { $initArgs.SkipProjectSkills = $true }
     if ($SkipUserTargets)   { $initArgs.SkipUserTargets   = $true }
     if ($SkipPrompts)       { $initArgs.SkipPrompts       = $true }
+    if ($EnablePrompts)     { $initArgs.EnablePrompts     = $true }
     if ($LinkUserSkills)    { $initArgs.LinkUserSkills     = $true }
     if ($LinkShareToWorkspace) { $initArgs.LinkShareToWorkspace = $true }
 
@@ -221,7 +284,7 @@ if (-not $DryRun) {
 # ---------------------------------------------------------------------------
 # 5. Hub prompts gate (full hub scan + index refresh)
 # ---------------------------------------------------------------------------
-if (-not $DryRun -and -not $SkipPrompts) {
+if (-not $DryRun -and $promptsEnabled) {
     Write-Host "=== Running check-prompts ===" -ForegroundColor Cyan
     $checkPromptsScript = Join-Path $PSScriptRoot 'check-prompts.ps1'
     & $checkPromptsScript -HubRoot $agentsRoot
@@ -247,6 +310,7 @@ if (-not $DryRun) {
 Write-Host ""
 Write-Host "=== Done ===" -ForegroundColor Green
 Write-Host "  Hub PROJECT_RULES : $rulesFile"
+if ($ProjectType) { Write-Host "  Hub project.yaml  : $projectYaml" }
 if (-not $SkipPrompts) {
     Write-Host "  Hub prompts       : $hubProjectPromptsDir"
     Write-Host "  Prompt index      : $(Join-Path $agentsRoot 'prompts\indexes\prompts.index.json')"
@@ -257,4 +321,4 @@ if (-not $SkipPrompts) {
         Write-Host "  WS .cursor link   : $wCursor -> $hubProjectPromptsDir"
     }
 }
-Write-Host "  Next step         : edit PROJECT_RULES.md + skills/projects/$resolvedProjectKey/README.md; optional <repo>/docs/guide/DOCS_GOVERNANCE.md; then sync-agent-rules.ps1"
+Write-Host "  Next step         : edit project.yaml / PROJECT_RULES.md + skills/projects/$resolvedProjectKey/README.md; optional <repo>/docs/guide/DOCS_GOVERNANCE.md; then sync-agent-rules.ps1"

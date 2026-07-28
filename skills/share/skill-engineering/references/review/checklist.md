@@ -1,6 +1,6 @@
 ---
 title: Skill 审查清单
-updated: 2026-05-28
+updated: 2026-07-16
 summary: review 路由系统审查详表。每次系统修复或完整审查时逐节检查；首读入口是 quick_gate.md；收尾须过工程完成门；主文件行数按非空行计数，发现问题记录到 bad_smell_registry.md；高风险 / 纪律类 skill 需补行为验证。
 ---
 
@@ -27,6 +27,8 @@ summary: review 路由系统审查详表。每次系统修复或完整审查时�
 - [ ] 目录符合 `layout/skill_directory_layout.md`（根 `templates/`、无 `references/templates/TEMPLATE_*`）
 - [ ] 根目录存在 `README.md`（规范见 `layout/skill_root_readme.md`）
 - [ ] README 明确声明自己是维护章程，不是运行入口
+- [ ] README §修订记录按倒序维护，最新版本在上；同日多次修订时，后发生的修订放更上方
+- [ ] README 中会影响 Agent 行为、验收或生成结果的规则，已同步到 `SKILL.md`、active references、模板或校验脚本；README-only 不计入技能管控能力
 - [ ] **核心用途** 清晰，与 `SKILL.md` frontmatter `description` 语义一致
 - [ ] **设计理解 / 设计哲学** 已写出，说明为什么这个 skill 要独立存在
 - [ ] **分层原则 / 结构约定** 已写出，明确 README / SKILL / references 分工

@@ -1,5 +1,5 @@
 # install-hub.ps1
-# One-shot hub installer: links shared skills and global rules to user-level directories.
+# One-shot hub installer: links shared skills to user-level directories.
 # No parameters needed - hub root is auto-detected from the script's own location.
 #
 # Usage (from anywhere, no env var required):
@@ -10,8 +10,8 @@
 #
 # What it does:
 #   1. Auto-detect hub root (script lives inside hub/scripts/)
-#   2. Link all shared skills -> ~/.claude/skills/, ~/.cursor/skills/, ~/.codex/skills/, ~/.agents/skills/, ~/.gemini/skills/
-#   3. Sync global rules    -> ~/.claude/CLAUDE.md, ~/.codex/AGENTS.md
+#   2. Link registry generic/global skills -> host user roots, including ~/.gemini/skills/ and ~/.gemini/config/skills/
+#   3. Persist AGENTS_HUB_ROOT in shell profile
 #   4. Set AGENTS_HUB_ROOT in current PowerShell profile (optional, -SkipProfile to skip)
 #   5. Print a summary
 # Optional: -ReplaceRealDirs removes user-level real skill dirs (that contain SKILL.md) before linking (destructive).
@@ -32,15 +32,16 @@ $agentsRoot  = Resolve-AgentHubRoot -ScriptRoot $PSScriptRoot
 $userProfile = $env:USERPROFILE
 $shareRoot   = Join-Path $agentsRoot 'skills\share'
 $mediaRoot   = Join-Path $agentsRoot 'skills\media'
+$pythonBin   = Resolve-AgentPython3Interpreter
 $geminiSkillPathsScript = Join-Path $agentsRoot 'skills\share\agent-hub-bootstrap\scripts\gemini-skill-paths.ps1'
 if (Test-Path -LiteralPath $geminiSkillPathsScript) {
     . $geminiSkillPathsScript
 }
-$userGeminiSkillsRoot = if (Get-Command Get-GeminiUserSkillRoot -ErrorAction SilentlyContinue) {
-    Get-GeminiUserSkillRoot -UserHome $userProfile -Alias 'gemini'
+$userGeminiSkillRoots = if (Get-Command Get-GeminiUserSkillRoots -ErrorAction SilentlyContinue) {
+    @(Get-GeminiUserSkillRoots -UserHome $userProfile)
 }
 else {
-    Join-Path $userProfile '.gemini\skills'
+    @((Join-Path $userProfile '.gemini\skills'), (Join-Path $userProfile '.gemini\config\skills'))
 }
 $entrypointCheckScript = Join-Path $PSScriptRoot 'check-skill-entrypoints.ps1'
 if (Test-Path -LiteralPath $entrypointCheckScript) {
@@ -62,25 +63,41 @@ $userSkillRoots = @(
     Join-Path $userProfile '.cursor\skills'
     Join-Path $userProfile '.codex\skills'
     Join-Path $userProfile '.agents\skills'
-    $userGeminiSkillsRoot
-)
+) + $userGeminiSkillRoots
 
-$shareSkillNames = [System.IO.Directory]::GetDirectories($shareRoot) | ForEach-Object {
-    $name = Split-Path $_ -Leaf
-    if (Test-Path (Join-Path $_ 'SKILL.md')) { $name }
-}
-$mediaSkillNames = @()
-if (Test-Path -LiteralPath $mediaRoot) {
-    $mediaSkillNames = [System.IO.Directory]::GetDirectories($mediaRoot) | ForEach-Object {
-        $name = Split-Path $_ -Leaf
-        if (Test-Path (Join-Path $_ 'SKILL.md')) { $name }
+$agentHubPy = Join-Path $PSScriptRoot 'agent_hub.py'
+$shareSkillNames = @(& $pythonBin $agentHubPy list-skills --hub-root $agentsRoot --project-type generic --layer share | Where-Object { $_ })
+$mediaSkillNames = @(& $pythonBin $agentHubPy list-skills --hub-root $agentsRoot --project-type generic --layer media | Where-Object { $_ })
+$selectedUserSkillNames = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+foreach ($name in @($shareSkillNames) + @($mediaSkillNames)) { [void]$selectedUserSkillNames.Add($name) }
+$managedSkillsPrefix = [System.IO.Path]::GetFullPath((Join-Path $agentsRoot 'skills')).TrimEnd('\') + '\'
+
+function Remove-StaleManagedUserSkillLinks {
+    param([Parameter(Mandatory = $true)][string]$SkillRoot)
+    if (-not (Test-Path -LiteralPath $SkillRoot)) { return }
+    foreach ($item in @(Get-ChildItem -LiteralPath $SkillRoot -Directory -Force)) {
+        $isReparse = ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0
+        if (-not $isReparse) { continue }
+        $target = if ($item.Target -is [System.Array]) { [string]$item.Target[0] } else { [string]$item.Target }
+        if (-not $target) { continue }
+        $targetFull = [System.IO.Path]::GetFullPath($target)
+        if (-not $targetFull.StartsWith($managedSkillsPrefix, [System.StringComparison]::OrdinalIgnoreCase)) { continue }
+        if ($selectedUserSkillNames.Contains($item.Name)) { continue }
+        if ($DryRun) {
+            Write-Host ("  [DRY-RUN] Remove stale managed skill: {0} -> {1}" -f $item.FullName, $targetFull)
+        }
+        else {
+            [System.IO.Directory]::Delete($item.FullName)
+            Write-Host ("  [REMOVED] {0} -> {1}" -f $item.FullName, $targetFull) -ForegroundColor DarkYellow
+        }
     }
 }
 
-Write-Host "=== Linking shared skills ===" -ForegroundColor Cyan
+Write-Host "=== Linking global skills ===" -ForegroundColor Cyan
 $installHubBlocked = 0
 foreach ($skillRoot in $userSkillRoots) {
     if (-not $DryRun) { Ensure-AgentDirectory -Path $skillRoot }
+    Remove-StaleManagedUserSkillLinks -SkillRoot $skillRoot
 
     foreach ($name in $shareSkillNames) {
         $linkPath   = Join-Path $skillRoot $name
@@ -162,16 +179,11 @@ if ($installHubBlocked -gt 0 -and -not $DryRun) {
 }
 
 # ---------------------------------------------------------------------------
-# 2. Sync global rules to user-level files
+# 2. User-level rules are intentionally not synced
 # ---------------------------------------------------------------------------
 if (-not $SkipRules) {
-    Write-Host "=== Syncing global rules ===" -ForegroundColor Cyan
-    if (-not $DryRun) {
-        $syncRulesScript = Join-Path $PSScriptRoot 'sync-agent-rules.ps1'
-        & $syncRulesScript -HubRoot $agentsRoot -SkipUserTargets:$false
-    } else {
-        Write-Host "  [DRY-RUN] Would run sync-agent-rules.ps1 -SkipUserTargets:`$false"
-    }
+    Write-Host "=== User-level rules ===" -ForegroundColor Cyan
+    Write-Host "  Skipped: user-level AGENTS.md / CLAUDE.md are deprecated; project rules are synced per workspace." -ForegroundColor Yellow
     Write-Host ""
 }
 
@@ -204,8 +216,8 @@ if (-not $SkipProfile -and -not $DryRun) {
 # ---------------------------------------------------------------------------
 Write-Host "=== Summary ===" -ForegroundColor Cyan
 Write-Host "  Hub            : $agentsRoot"
-Write-Host "  Share skills   : $($shareSkillNames.Count) -> ~/.claude/skills, ~/.cursor/skills, ~/.codex/skills, ~/.agents/skills, ~/.gemini/skills"
-Write-Host "  Media skills   : $($mediaSkillNames.Count) -> ~/.claude/skills, ~/.cursor/skills, ~/.codex/skills, ~/.agents/skills, ~/.gemini/skills"
+Write-Host "  Global share skills : $($shareSkillNames.Count) -> user roots including Gemini CLI ~/.gemini/skills and Antigravity ~/.gemini/config/skills"
+Write-Host "  Global media skills : $($mediaSkillNames.Count) -> user roots including Gemini CLI ~/.gemini/skills and Antigravity ~/.gemini/config/skills"
 Write-Host "  Next step      : cd <your-project> && & `"$agentsRoot\scripts\register-project.ps1`""
 Write-Host ""
 Write-Host "=== Done ===" -ForegroundColor Green

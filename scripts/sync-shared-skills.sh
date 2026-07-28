@@ -70,6 +70,8 @@ fi
 SKILLS_ROOT="$AGENTS_ROOT/skills"
 SHARE_ROOT="$SKILLS_ROOT/share"
 MEDIA_ROOT="$SKILLS_ROOT/media"
+TOOLING_ROOT="$SKILLS_ROOT/tooling"
+RESEARCH_ROOT="$SKILLS_ROOT/research"
 CATEGORY_ROOT=''
 if [ -n "$RESOLVED_DEFAULT_CATEGORY" ]; then
   CATEGORY_ROOT="$SKILLS_ROOT/$RESOLVED_DEFAULT_CATEGORY"
@@ -161,29 +163,84 @@ if [ "$LINK_PROJECT_SKILLS" = '1' ]; then
 fi
 
 if [ "$LINK_USER_SKILLS" = '1' ]; then
-  for name in $(resolve_names "$SKILL_NAMES" "$SHARE_ROOT"); do
-    link_user_args="--skill-name $name --hub-root $AGENTS_ROOT --scope share --link-users"
-    if [ -n "$RESOLVED_DEFAULT_CATEGORY" ]; then
-      link_user_args="$link_user_args --category $RESOLVED_DEFAULT_CATEGORY"
-    fi
-    if [ -n "$RESOLVED_REPO_ROOT" ]; then
-      link_user_args="$link_user_args --project-root $RESOLVED_REPO_ROOT"
-    fi
-    # shellcheck disable=SC2086
-    sh "$CENTRAL_SCRIPT" $link_user_args
-  done
+  PROCESS_SHARE=1
+  PROCESS_MEDIA=1
+  PROCESS_TOOLING=1
+  PROCESS_RESEARCH=1
+  if [ -n "$CATEGORIES" ]; then
+    PROCESS_SHARE=0
+    PROCESS_MEDIA=0
+    PROCESS_TOOLING=0
+    PROCESS_RESEARCH=0
+    case ",$CATEGORIES," in
+      *,share,*) PROCESS_SHARE=1 ;;
+    esac
+    case ",$CATEGORIES," in
+      *,media,*) PROCESS_MEDIA=1 ;;
+    esac
+    case ",$CATEGORIES," in
+      *,tooling,*) PROCESS_TOOLING=1 ;;
+    esac
+    case ",$CATEGORIES," in
+      *,research,*) PROCESS_RESEARCH=1 ;;
+    esac
+  fi
 
-  for name in $(resolve_names "$SKILL_NAMES" "$MEDIA_ROOT"); do
-    link_user_args="--skill-name $name --hub-root $AGENTS_ROOT --scope media --link-users"
-    if [ -n "$RESOLVED_DEFAULT_CATEGORY" ]; then
-      link_user_args="$link_user_args --category $RESOLVED_DEFAULT_CATEGORY"
-    fi
-    if [ -n "$RESOLVED_REPO_ROOT" ]; then
-      link_user_args="$link_user_args --project-root $RESOLVED_REPO_ROOT"
-    fi
-    # shellcheck disable=SC2086
-    sh "$CENTRAL_SCRIPT" $link_user_args
-  done
+  if [ "$PROCESS_SHARE" = '1' ]; then
+    for name in $(resolve_names "$SKILL_NAMES" "$SHARE_ROOT"); do
+      link_user_args="--skill-name $name --hub-root $AGENTS_ROOT --scope share --link-users"
+      if [ -n "$RESOLVED_DEFAULT_CATEGORY" ]; then
+        link_user_args="$link_user_args --category $RESOLVED_DEFAULT_CATEGORY"
+      fi
+      if [ -n "$RESOLVED_REPO_ROOT" ]; then
+        link_user_args="$link_user_args --project-root $RESOLVED_REPO_ROOT"
+      fi
+      # shellcheck disable=SC2086
+      sh "$CENTRAL_SCRIPT" $link_user_args
+    done
+  fi
+
+  if [ "$PROCESS_MEDIA" = '1' ]; then
+    for name in $(resolve_names "$SKILL_NAMES" "$MEDIA_ROOT"); do
+      link_user_args="--skill-name $name --hub-root $AGENTS_ROOT --scope media --link-users"
+      if [ -n "$RESOLVED_DEFAULT_CATEGORY" ]; then
+        link_user_args="$link_user_args --category $RESOLVED_DEFAULT_CATEGORY"
+      fi
+      if [ -n "$RESOLVED_REPO_ROOT" ]; then
+        link_user_args="$link_user_args --project-root $RESOLVED_REPO_ROOT"
+      fi
+      # shellcheck disable=SC2086
+      sh "$CENTRAL_SCRIPT" $link_user_args
+    done
+  fi
+
+  if [ "$PROCESS_TOOLING" = '1' ]; then
+    for name in $(resolve_names "$SKILL_NAMES" "$TOOLING_ROOT"); do
+      link_user_args="--skill-name $name --hub-root $AGENTS_ROOT --scope tooling --link-users"
+      if [ -n "$RESOLVED_DEFAULT_CATEGORY" ]; then
+        link_user_args="$link_user_args --category $RESOLVED_DEFAULT_CATEGORY"
+      fi
+      if [ -n "$RESOLVED_REPO_ROOT" ]; then
+        link_user_args="$link_user_args --project-root $RESOLVED_REPO_ROOT"
+      fi
+      # shellcheck disable=SC2086
+      sh "$CENTRAL_SCRIPT" $link_user_args
+    done
+  fi
+
+  if [ "$PROCESS_RESEARCH" = '1' ]; then
+    for name in $(resolve_names "$SKILL_NAMES" "$RESEARCH_ROOT"); do
+      link_user_args="--skill-name $name --hub-root $AGENTS_ROOT --scope research --link-users"
+      if [ -n "$RESOLVED_DEFAULT_CATEGORY" ]; then
+        link_user_args="$link_user_args --category $RESOLVED_DEFAULT_CATEGORY"
+      fi
+      if [ -n "$RESOLVED_REPO_ROOT" ]; then
+        link_user_args="$link_user_args --project-root $RESOLVED_REPO_ROOT"
+      fi
+      # shellcheck disable=SC2086
+      sh "$CENTRAL_SCRIPT" $link_user_args
+    done
+  fi
 fi
 
 if [ "$PUBLISH_FROM_AGENT" != '1' ] && [ "$PROMOTE_TO_SHARE" != '1' ] && [ "$LINK_PROJECT_SKILLS" != '1' ] && [ "$LINK_USER_SKILLS" != '1' ]; then

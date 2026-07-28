@@ -1,0 +1,96 @@
+---
+title: <中文标题> SDD
+status: in_progress
+document_type: sdd
+spec_id: SPEC-<topic>
+spec_version: 1.0.0
+version: 1.0.0
+approval: draft
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+related:
+  - path: docs/design/<domain>/<TOPIC>_SPEC.md
+    role: source
+---
+
+# SDD: <中文标题>
+
+> **文档性质**：承接冻结 Spec 的软件设计契约。`approval: frozen` 前不得派生实现任务。
+
+## 修订记录
+
+| 版本 | 日期 | 修订要点 | 备份/引用 |
+|---|---|---|---|
+| 1.0.0 | YYYY-MM-DD | 初稿：承接 SPEC-<topic> 1.0.0 | — |
+
+## 1. 上游规格
+
+- Spec：SPEC-<topic>
+- Spec 版本：1.0.0
+- 目标：<目标>
+- In Scope：<范围>
+- Out of Scope：<非目标>
+- 验收：AC-001
+
+## 2. 设计目标
+
+- 用户可见行为：<行为>
+- 工程目标：实现 REQ-001，满足 NFR-001 与 SEC-001。
+- 非目标：<非目标>
+
+## 3. 系统边界
+
+| 边界 | 当前真源 | 本次是否修改 | 输入/输出 | 失败语义 |
+|---|---|---|---|---|
+| 页面 / API / DTO / DB / 状态机 / 权限 / 配置 / 发布 | <source-anchor> | yes / no | <契约> | <失败语义> |
+
+## 4. 方案设计
+
+### 4.1 结构
+
+REQ-001 对应的组件、依赖方向和合法扩展点：<设计>。
+
+### 4.2 数据与契约
+
+REQ-001 的输入、输出、状态和唯一术语：<设计>。
+
+### 4.3 流程
+
+REQ-001 的主链路、停止条件和状态转换：<设计>。
+
+### 4.4 异常与失败链路
+
+AC-001 的失败分类、重试预算、恢复动作和公开错误：<设计>。
+
+## 5. 取舍与 ADR
+
+| 决策 ID | 受影响需求 | 备选方案 | 选择原因 | ADR |
+|---|---|---|---|---|
+| DEC-001 | REQ-001 | <方案 A / B> | <原因> | ADR-<topic> |
+
+## 6. TDD 映射
+
+| Spec 验收项 | 可测试行为 | Red 用例 | Green 最小实现 | Refactor 关注点 |
+|---|---|---|---|---|
+| AC-001 | <行为> | <预期失败> | <最小实现> | <边界> |
+
+## 7. 验证与证据
+
+| 约束/主链步骤 | 证据等级（static / contract / runtime / user-visible / release / limitation） | 验证命令 / 产物 | 通过判据 |
+|---|---|---|---|
+| NFR-001 | runtime | `<command>` | <判据> |
+| SEC-001 | runtime | `<command>` | <判据> |
+| AC-001 | user-visible | `<artifact>` | <判据> |
+
+## 8. 交付文档质量门
+
+- [ ] REQ-001 / NFR-001 / SEC-001 / AC-001 全部可追溯。
+- [ ] 可自动化行为已有 Red / Green / Refactor 或明确 TEST_AFTER / NOT_APPLICABLE。
+- [ ] 只有 static / contract 证据的能力已降级为 limitation。
+- [ ] 发布相关结论包含观察窗口、观察入口、回滚触发条件，或 `release: NOT_RUN`。
+
+## 9. 风险与回退
+
+| 风险 | 影响 | 缓解 | 回退方式 | 验证 |
+|---|---|---|---|---|
+| RISK-001 | <影响> | <缓解> | <回退> | <回退验证> |

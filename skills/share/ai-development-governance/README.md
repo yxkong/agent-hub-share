@@ -9,7 +9,8 @@ AI 研发治理总线：定义从需求入口到失败沉淀的端到端阶段�
 ## 单一职责（本 skill 独有）
 
 - G0–G8 生命周期阶段门定义与准入门禁
-- Feature Spec / ADR / Task Contract 空白模板（根 `templates/`）
+- Spec Compiler：Fact Pack、Feature Spec、SDD、ADR、Task Contract 的生成、反证、冻结与追踪校验
+- Feature Spec / SDD / ADR / Task Contract 空白模板（根 `templates/`）
 - Security / Release / Rollback / Quality / Observability 专项门禁
 - Release Evidence（发布证据）收敛到 Release / Rollback / Observability Gate，不新增独立 runbook
 - 9.8+ 评分模型（scorecard）与治理自检清单
@@ -35,6 +36,8 @@ AI 研发治理总线：定义从需求入口到失败沉淀的端到端阶段�
 - **trigger / eval**：`references/trigger_eval.md`
 - **真实闭环样例**：`references/closure_example.md`
 - **跨项目契约门**：`references/gates/project_contract_gate.md`
+- **Spec Compiler**：`references/governance/spec_compiler_workflow.md`
+- **Spec Compiler Eval**：`references/governance/spec_compiler_eval.md`
 
 ## 真源与挂载
 
@@ -45,6 +48,7 @@ AI 研发治理总线：定义从需求入口到失败沉淀的端到端阶段�
 
 | 版本 | 日期 | 修订要点 |
 |------|------|----------|
+| 1.4.0 | 2026-07-28 | 引入 Spec Compiler：统一 Fact Pack、文档状态/版本、追踪 ID、Python 校验核心与 baseline/held-out |
 | 1.3.0 | 2026-06-10 | 增加主链证据、Project Contract、Release Evidence、Task Replay Lite / Skill Health Signal 轻量闭环；不新增 runbook/dashboard |
 | 1.2.0 | 2026-06-08 | 增强持久上下文闭环、多视角反证与反迎合检查 |
 | 1.1.0 | 2026-06-04 | 统一 G0 入口 triage、七层协作模型、Realism Gate 与行为模式变更阻断 |
@@ -54,4 +58,5 @@ AI 研发治理总线：定义从需求入口到失败沉淀的端到端阶段�
 
 - 扩展「负责」范围前：先更新 §单一职责 / §不负责，再改 `SKILL.md`
 - 改 `references/*.md` 后：在此表追加一行
+- 改 Spec Compiler 字段或校验语义时：同步模板、Python 核心、两端 wrapper、回归测试和 eval 证据
 - 与 `delivery-workflow` / `doc-script-governance` 冲突时：执行归 delivery，落位归 doc-script，门禁归本 skill

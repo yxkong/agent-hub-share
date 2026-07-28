@@ -1,69 +1,70 @@
 # Hub 脚本分级
 
-> Agent 用：决定新脚本放 **hub 根 `scripts/`** 还是 **技能 `scripts/`**。路径一律写 **hub 内相对路径**（如 `scripts/register-project.ps1`），不写本机绝对路径；执行时由 `install-hub` 写入的环境变量或 `--hub-root` 解析 hub 根。
+> Agent 用：决定新脚本放 **hub 根 `scripts/`** 还是 **技能 `scripts/`**。路径一律写 **hub 内相对路径**（如 `scripts/register-project.ps1`），不写本机绝对路径；执行时由 `install-hub` 写入的环境变量或 `--hub-root` 解析 hub 根。通用脚本登记真源为 `scripts/registry.json`，`commands/registry.json` 只登记 slash command。
 
 ## 修订记录
 
 | 版本 | 日期 | 修订要点 |
 |------|------|----------|
 | 1.0.0 | 2026-05-21 | 首版：L1 hub / L2 skill / 兼容入口 |
+| 1.1.0 | 2026-07-14 | 融合模型：**hub 稳定入口 + skill 实现真源**；技能专属校验迁入 L2 |
 
 ---
 
-## 两级模型
+## 模型（融合后）
 
-| 级别 | 目录 | 放什么 | 判定（满足任一即 L1） |
-|------|------|--------|------------------------|
-| **L1 Hub** | `scripts/`、`scripts/python/` | 跨技能基础设施或**独立运维/装配场景**工具：安装、注册、挂载、规则同步、索引、全 hub 校验 | 被 `register-project` / `init-project-agenting` 链路调用；或同时服务多个 share 技能；或操作 `rules/`、`prompts/indexes/` 等 hub 全局资产；或本身就是不依赖某个单 skill 的独立入口 |
-| **L2 Skill** | `skills/share/<skill>/scripts/` 或 `skills/projects/<key>/<skill>/scripts/` | 只服务**一个**技能域的工具 | 备份、审计、代码生成、领域 CLI；随该 skill 文档一起演进；**默认所有非通用脚本都先放 L2** |
+| 层级 | 目录 | 放什么 |
+|------|------|--------|
+| **L1 Hub 底座** | `scripts/` | 自举与装配总线：`install-hub`、路径库、`register/init/sync/publish`、`check-hub-all` 等；**技能未挂载前也必须能跑** |
+| **L1 Forwarder** | `scripts/<name>.*` | 同名薄封装，只转发到 L2；**禁止**第二套实现 |
+| **L2 Skill 真源** | `skills/share/<skill>/scripts/` | 只服务一个技能 SOP 的实现；Agent 优先按技能文档调用 L2，兼容旧入口可走 hub forwarder |
 
-**禁止**：在 L1 与 L2 **各维护一套相同逻辑**（除下文「兼容入口」允许的薄封装）。
+**禁止**：在 L1 与 L2 **各维护一套相同逻辑**（除薄 forwarder）。
+
+判定顺序：
+
+1. 只为一个 skill 服务 → **L2**（hub 可留 forwarder）。
+2. 安装 / 挂载 / 同步 / 全 hub 编排、或技能未挂载前就要跑 → **L1 底座**。
+3. 拿不准 → 先 L2。
 
 ---
 
-## L1 清单（hub `scripts/`）
+## L1 底座清单（实现留在 hub）
 
-| 类别 | 脚本（`.ps1` / `.sh` 成对） |
-|------|------------------------------|
+| 类别 | 脚本 |
+|------|------|
 | 安装与注册 | `install-hub`、`register-project`、`init-project-agenting` |
-| 挂载与发布 | `publish-skill`、`sync-shared-skills`、`sync-agent-rules`、`sync-prompts`、`sync-commands`、`build-plugin`、`check-plugin` |
-| 校验与索引 | `check-skill-links`、`check-skill-entrypoints`、`check-skill-structure`、`check-skill-size`、`check-prompts`、`check-commands`、`check-hooks`、`check-shell-quoting`、`check-behavior-audit`、`check-hub-all`、`build-prompt-index`、`build-tech-insight-index`、`check-utf8-no-bom` |
-| 发现与安装 | `find-skills`、`install-skill-from-registry` |
-| 共享库 | `agent-hub-paths`、`agent-pwsh-bridge.sh`、`ensure-hub-python`、`list-scripts`、`install-git-hooks` |
-| Python 包 | `scripts/python/hub_build_indices.py`、`scripts/python/build_plugin.py`、`scripts/python/mysql_schema_diff/`（跨项目 DBA 工具，非单 skill） |
+| 挂载与同步 | `publish-skill`、`sync-shared-skills`、`sync-agent-rules`、`sync-prompts`、`sync-commands` |
+| 装配校验 | `check-skill-links`、`check-user-skill-scope`、`check-commands`、`check-hooks`、`check-agent-rules`、`check-shell-quoting`、`check-hub-all` |
+| Plugin | `build-plugin`、`check-plugin`、`export-public-share` |
+| 共享库 | `agent-hub-paths`、`agent-pwsh-bridge`、`ensure-hub-python`、`list-scripts`、`registry.json`、`agent_hub.py`、`scripts/python/hub_build_indices.py`（索引引擎，被 L2 调用） |
 
-完整索引见 hub 根 **`scripts/README.md`**。
-
----
-
-## L2 清单（技能 `scripts/`）
-
-| 技能 | 脚本 | 说明 |
-|------|------|------|
-| `doc-script-governance` | `backup-file`、`audit-doc-script-governance` | 文档/SQL/技能资料备份与治理自检 |
-| `agent-hub-bootstrap` | `gemini-skill-paths`、`sync-gemini-skills` | Gemini / Antigravity 技能目录别名与用户级同步，唯一写入目标为 `~/.gemini/skills` |
-| `<backend-domain-skill>`（示例） | `gen-ddd`、`gen-ddd-from-table.py` | 项目 DDD 脚手架（技能名见 PROJECT_RULES） |
-| 其他 share/project skill | 按需 | 仅当工具**只属于该 skill** 时创建 |
-
-新 L2 脚本：**必须先**在该 skill 的 `SKILL.md` 或 `references/` 中说明用途与调用方式；**不要**默认丢进 hub `scripts/`。
-
-判定顺序（默认保守）：
-
-1. **若脚本只为一个 skill 服务**，即使它未来可能被别的 skill 借鉴，**先放 L2**。  
-2. **仅当脚本已同时服务多个技能**，或它本身是安装/挂载/校验/索引这类**独立入口**，才升为 L1。  
-3. 若拿不准，**先放 L2**；等出现第二个真实调用方或明确独立场景，再迁到 hub `scripts/`。  
+Private 工具（mysql / llm-local / mineru / cursor-chat-rename / install-git-hooks）本轮不迁，另开 tooling 归属。
 
 ---
 
-## 兼容入口（L1 薄封装 → L2 真源）
+## L2 真源 + hub Forwarder
 
-个别 L2 脚本可在 hub `scripts/` 保留**同名薄封装**，仅做路径解析并 `exec` / `&` 转发到 L2 真源，便于 `list-scripts` 与旧文档入口。
+| 技能 | L2 真源 | hub 入口（forwarder） |
+|------|---------|------------------------|
+| `doc-script-governance` | `backup-file`、`audit-doc-script-governance`、`check-backup-policy`、`check-utf8-no-bom`、`normalize-utf8-lf` | 同名（`backup-file` 等） |
+| `prompt-engineering` | `check-prompts`、`build-prompt-index`、`validate-prompt-body.awk` | `check-prompts`、`build-prompt-index` |
+| `skill-engineering` | `check-skill-size`、`check-skill-structure`、`check-share-skill-private-coupling`、`check-skill-entrypoints`、`fix-skill-entrypoints` | 同名 |
+| `skill-discovery` | `find-skills`、`install-skill-from-registry` | 同名 |
+| `project-insight-extractor` | `build-tech-insight-index` | 同名 |
+| `ai-development-governance` | `check-spec-sdd-structure`、`check-behavior-audit` | 同名 |
+| `delivery-workflow` | `check-replay-structure` | 同名 |
+| `agent-hub-bootstrap` | `gemini-skill-paths`、`sync-gemini-skills`、`migrate-scripts-to-skill-l2`、`fix-l2-script-hub-paths`、`regen-l1-forwarders` | Gemini：技能内调用；迁移工具仅 maintainer |
 
-| hub 入口 | L2 真源 | 状态 |
-|----------|---------|------|
-| `scripts/backup-file.*`（**private hub only**） | `skills/share/doc-script-governance/scripts/backup-file.*` | **public export 仅 L2**；private 可保留 hub 薄封装转发 |
+完整索引真源：`scripts/registry.json`；人读：`scripts/README.md`。
 
-新增兼容入口须在本表登记；**不得**在 hub 再写第二套实现。
+---
+
+## Agent 调用约定
+
+1. 用户说「挂载 / 注册 / 同步」→ `agent-hub-bootstrap` SOP → **只组参数** → 调 hub L1：`register-project` / `init-project-agenting` / `sync-*` / `check-skill-links`。
+2. 用户说「校验 prompt / skill 结构 / 备份」→ 对应技能 SOP → **优先 L2 路径**；旧文档写的 `scripts/<name>` 仍可走 forwarder。
+3. **禁止**在业务仓现写临时挂载/校验脚本。
 
 ---
 
@@ -72,7 +73,7 @@
 | 主题 | 转交 |
 |------|------|
 | 改 docs/SQL 前备份 | `doc-script-governance` → L2 `backup-file` |
-| 脚本应放哪、备份目录结构 | `doc-script-governance` |
-| 挂载、注册、链接校验 | 本技能 + L1 脚本 |
+| 脚本应放哪 | 本文 |
+| 挂载、注册、链接校验 | `agent-hub-bootstrap` + L1 底座 |
 
-研发全流程 → **`rules/common/COMMON_AGENT_RULES.md` §研发全流程**（不在本文重复）。
+研发全流程 → `rules/profiles/engineering/PROFILE_RULES.md`（不在本文重复）。

@@ -1,6 +1,6 @@
 ---
 title: Skill 快速审查门
-updated: 2026-05-28
+updated: 2026-07-16
 summary: review 路由 P0 首读文件。用于 30 秒内判断问题类型、是否可挂载、要不要进入 checklist 详表。
 ---
 
@@ -16,6 +16,8 @@ summary: review 路由 P0 首读文件。用于 30 秒内判断问题类型、�
 - 触发后 30 秒内不知道先读哪份 active 文件
 - 主文件是长手册，混入 human-only / maintenance-only、具体业务样例或可变资产清单
 - README / INDEX / 子目录 README 与 `SKILL.md` 形成并列入口
+- README §修订记录不是倒序（最新版本不在上方）
+- 影响 Agent 行为、验收或生成结果的规则只写在 README，未同步到 `SKILL.md`、active references、模板或校验脚本
 - 承诺能力没有 active 文件支撑，或只存在于 `bak/`
 - share skill 含真实项目私有名、私有 URL、密钥、凭据或稳定项目路径耦合
 - 交付 / 上线 / 失败学习类 skill 宣称闭环，但没有主链证据矩阵、Release Evidence、Task Replay Lite 或等价证据
@@ -38,6 +40,8 @@ summary: review 路由 P0 首读文件。用于 30 秒内判断问题类型、�
 
 - 主文件是纯路由器，非空行在类型上限内
 - README 是维护章程，不是运行入口
+- README §修订记录按倒序维护，最新版本在上
+- README 里的可执行约束已投射到 `SKILL.md`、active references、模板或校验脚本
 - references 有 P0 / P1 / P2 或等价优先级，不要求先读全部
 - 高风险 / 纪律类 skill 有无 skill 基线样本与带 skill 复测样本
 - 结构、评分、触发、模板和脚本均有一致性证据

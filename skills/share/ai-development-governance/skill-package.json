@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "name": "ai-development-governance",
+  "version": "1.4.0",
+  "portability": "standalone",
+  "requires": [],
+  "optional_skills": [
+    "delivery-workflow",
+    "doc-script-governance",
+    "tdd-workflow",
+    "webapp-testing",
+    "skill-engineering",
+    "skill-scorecard",
+    "prompt-engineering",
+    "project-insight-extractor",
+    "agent-asset-router",
+    "biz-safety-audit"
+  ],
+  "runtime": {
+    "python": "3"
+  },
+  "smoke": [
+    {
+      "command": [
+        "{python}",
+        "scripts/spec_compiler_check.py",
+        "--mode",
+        "template"
+      ],
+      "expect_exit": 0,
+      "expect_output": "SPEC_SDD_STRUCTURE=ok"
+    }
+  ]
+}

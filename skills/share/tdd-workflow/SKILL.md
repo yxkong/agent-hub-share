@@ -18,7 +18,7 @@ description: 测试驱动开发共享技能（TDD, test-first, red-green-refacto
 
 ## 作用边界
 
-**负责**：把可验证需求转成红绿重构闭环，补回归测试、最小实现、重构与证据。
+**负责**：把 Spec / SDD / Task Contract 中的可验证需求转成红绿重构闭环，补回归测试、最小实现、重构与证据。
 
 **不负责**：
 
@@ -33,7 +33,7 @@ description: 测试驱动开发共享技能（TDD, test-first, red-green-refacto
 - **最小绿灯**：只写让当前测试通过的最小实现。
 - **重构不改行为**：绿灯后再清理结构，重构前后测试结果一致。
 - **证据优先**：输出测试命令、失败摘要、通过摘要和未覆盖风险。
-- **契约对齐**：Red 用例必须追溯到 Spec / Task Contract / bug 复现之一，不能凭空扩大需求。
+- **契约对齐**：Red 用例必须追溯到 Spec / SDD / Task Contract / bug 复现之一，不能凭空扩大需求。
 
 ## 闭环门
 
@@ -45,6 +45,7 @@ description: 测试驱动开发共享技能（TDD, test-first, red-green-refacto
 | Evidence | 命令、结果、覆盖范围、剩余风险 |
 
 若无法创建或运行测试，标 `unknown` / `blocked`，不要伪装成已 TDD。
+若只是先实现再补测试，必须标 `TEST_AFTER`，不能宣称 TDD；只有记录 Red 失败摘要、Green 通过摘要和 Refactor 后结论，才算 TDD 闭环。
 收口前按 `references/behavior_audit.md` 反查伪 TDD、happy path 偏航、证据缺口与回灌动作。
 
 ## References 优先级

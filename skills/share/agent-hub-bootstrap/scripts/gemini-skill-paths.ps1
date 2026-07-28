@@ -10,14 +10,14 @@ function Resolve-GeminiSkillAlias {
     }
 
     switch ($normalized) {
-        'gemini' { return 'gemini' }
-        'gemini-cli' { return 'gemini' }
-        'antigravity' { return 'gemini' }
-        'antigravity-cli' { return 'gemini' }
-        'config' { return 'gemini' }
-        '反重力' { return 'gemini' }
+        'gemini' { return 'gemini-cli' }
+        'gemini-cli' { return 'gemini-cli' }
+        'antigravity' { return 'antigravity' }
+        'antigravity-ide' { return 'antigravity' }
+        'config' { return 'antigravity' }
+        "$([char]0x53cd)$([char]0x91cd)$([char]0x529b)" { return 'antigravity' }
         default {
-            throw "Unsupported Gemini skill alias: $Alias. Supported aliases resolve to ~/.gemini/skills."
+            throw "Unsupported Gemini skill alias: $Alias. Use gemini-cli or antigravity."
         }
     }
 }
@@ -29,12 +29,22 @@ function Get-GeminiUserSkillRoot {
         [string]$Alias = 'gemini'
     )
 
-    Resolve-GeminiSkillAlias -Alias $Alias | Out-Null
+    $resolvedAlias = Resolve-GeminiSkillAlias -Alias $Alias
     if (-not $UserHome) {
         throw 'Unable to resolve user home for Gemini skills.'
     }
 
+    if ($resolvedAlias -eq 'antigravity') { return (Join-Path $UserHome '.gemini\config\skills') }
     return (Join-Path $UserHome '.gemini\skills')
+}
+
+function Get-GeminiUserSkillRoots {
+    [CmdletBinding()]
+    param([string]$UserHome = $env:USERPROFILE)
+    return @(
+        (Get-GeminiUserSkillRoot -UserHome $UserHome -Alias 'gemini-cli'),
+        (Get-GeminiUserSkillRoot -UserHome $UserHome -Alias 'antigravity')
+    ) | Select-Object -Unique
 }
 
 function Get-GeminiProjectSkillRoot {

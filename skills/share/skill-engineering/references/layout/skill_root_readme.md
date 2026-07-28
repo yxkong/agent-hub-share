@@ -30,7 +30,7 @@
 6. **不负责 / 转交**（表格：场景 → 转哪个 skill）
 7. **入口**（`SKILL.md`；`references/INDEX.md` 若有，meta 禁止 Agent 入口）
 8. **真源与挂载**（hub 路径；项目 `.claude/skills` 仅为 junction 时注明）
-9. **§修订记录（人读）** — 技能资产版本与变更要点；**禁止**在 `references/*.md` 重复 YAML/修订表（Agent 不读、占上下文）
+9. **§修订记录（人读）** — 技能资产版本与变更要点；统一倒序维护：最新版本在上；同日多次修订时，后发生的修订放更上方；**禁止**在 `references/*.md` 重复 YAML/修订表（Agent 不读、占上下文）
 
 ### 2.1 新增建议（命中时写入）
 
@@ -63,6 +63,7 @@
 - [ ] 根目录存在 `README.md`
 - [ ] README 明确写出“这是维护章程，不是运行入口”
 - [ ] README 含 §设计理解 / §分层原则 / §维护约束
+- [ ] README §修订记录按倒序维护，最新版本在上
 - [ ] §不负责 至少列出 2 个相邻 skill 的转交
 - [ ] 核心用途与 `SKILL.md` frontmatter `description` 语义一致
 - [ ] 若本次引入 trigger / eval 增强文档：README 已写清它是独立路由还是挂靠路由

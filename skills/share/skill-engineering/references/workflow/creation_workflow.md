@@ -76,6 +76,8 @@
 
 - README 必须明确写出：**这是维护章程，不是 Agent 运行入口**
 - README 必须包含：**核心用途 / 设计理解 / 分层原则 / 维护约束 / 单一职责 / 不负责**
+- README §修订记录必须按**倒序**维护：最新版本在上；同日多次修订时，后发生的修订放更上方
+- README 里的规则若要约束 Agent 行为或验收，必须同步进入 `SKILL.md`、被路由读取的 active references、模板或校验脚本；README-only 不算已生效
 - 若 skill 会新增 trigger / eval / 审查增强文档：README 必须说明它是**独立主路由**还是**挂靠现有路由**
 - 若你说不清“为什么这个 skill 要独立存在”，先不要进入 Step 4
 
@@ -172,6 +174,7 @@
 ## 新建 skill 的最低验收
 
 - 根目录 `README.md` 已存在且 §不负责 含转交表（见 `layout/skill_root_readme.md`）
+- README §修订记录按倒序维护，最新版本在上
 
 **内容**（在 Step 7 第 5 项之前应已满足）：
 
@@ -179,6 +182,7 @@
 - description 能回答 WHAT + WHEN
 - README 说明了“为什么这样设计”，而不只是“这个 skill 做什么”
 - README 说明了 README / SKILL / references 的分工，避免维护时漂移
+- 需要约束 Agent 的章程项已同步进 `SKILL.md` / active references / 模板 / 校验脚本，未停留在 README-only
 - 若 skill 有 trigger / eval 增强文档：README 与 `SKILL.md` 已说明它的入口关系（独立 / 挂靠）
 - 若 skill 属于高风险 / 纪律类：已准备 1 条无 skill 基线样本 + 1 条带 skill 复测样本；若无法执行，已明确标 `unknown`
 - skill 能指导 AI 快速定位起点

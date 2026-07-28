@@ -2,7 +2,7 @@
 
 ## Step 1：确认可测试行为
 
-先用一句话写清：
+先从 Spec / SDD / Task Contract / bug 复现中选一个可验证行为，并用一句话写清：
 
 - 要保护的行为是什么
 - 最小输入是什么
@@ -46,11 +46,20 @@
 
 输出必须包含：
 
+- 上游锚点：Spec / SDD / Task Contract / bug 复现
 - Red 失败摘要
 - Green 通过摘要
 - Refactor 后通过摘要或未重构原因
 - 覆盖范围
 - 未覆盖风险
+
+## 最小证据表
+
+| 阶段 | 命令 / 产物 | 结果摘要 | 结论 |
+|---|---|---|---|
+| Red |  | 预期失败： | pass / blocked |
+| Green |  | 最小实现通过： | pass / blocked |
+| Refactor |  | 重构后仍通过 / 未重构原因： | pass / not_applicable |
 
 ## 常见反模式
 

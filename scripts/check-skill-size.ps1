@@ -1,62 +1,20 @@
-[CmdletBinding()]
-param(
-    [Parameter(Mandatory = $true)]
-    [string]$File,
-    [int]$Max = 0,
-    [string]$Type = ''
-)
-
+# L1 compatibility forwarder -> L2 skill script (skill-engineering/check-skill-size.ps1)
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'agent-hub-paths.ps1')
-
-if ($Max -gt 0 -and -not [string]::IsNullOrEmpty($Type)) {
-    throw 'check-skill-size: use only one of -Max and -Type'
-}
-
-$resolved = Resolve-AgentAbsolutePath -Path $File
-if (-not (Test-Path -LiteralPath $resolved -PathType Leaf)) {
-    throw "check-skill-size: file not found: $File"
-}
-
-function Get-NonemptyLineCount {
-    param([Parameter(Mandatory = $true)][string]$Path)
-    $n = 0
-    Get-Content -LiteralPath $Path | ForEach-Object {
-        if ($_.Trim().Length -gt 0) {
-            $n++
-        }
-    }
-    return $n
-}
-
-$n = Get-NonemptyLineCount -Path $resolved
-
-if ($Max -le 0 -and [string]::IsNullOrEmpty($Type)) {
-    Write-Output ("SKILL_NONEMPTY_LINES={0} file={1}" -f $n, $resolved)
-    exit 0
-}
-
-$limit = $Max
-if (-not [string]::IsNullOrEmpty($Type)) {
-    $limit = switch ($Type) {
-        'pure-router' { 80 }
-        'router-hard' { 130 }
-        'multi-domain' { 150 }
-        'meta' { 160 }
-        Default {
-            throw 'check-skill-size: -Type must be pure-router|router-hard|multi-domain|meta'
-        }
+$hubRootArg = ''
+for ($i = 0; $i -lt $args.Count; $i++) {
+    if ($args[$i] -eq '-HubRoot' -and ($i + 1) -lt $args.Count) {
+        $hubRootArg = [string]$args[$i + 1]
+        break
     }
 }
-
-if ($limit -le 0) {
-    throw 'check-skill-size: set -Max or -Type'
+$agentsRoot = Resolve-AgentHubRoot -HubRoot $hubRootArg -ScriptRoot $PSScriptRoot
+$target = Join-Path $agentsRoot "skills\share\skill-engineering\scripts\check-skill-size.ps1"
+if (-not (Test-Path -LiteralPath $target)) {
+    throw "L2 script not found: $target"
 }
-
-if ($n -le $limit) {
-    Write-Output ("SKILL_SIZE_OK nonempty={0} max={1} file={2}" -f $n, $limit, $resolved)
-    exit 0
+& $target @args
+if (Get-Variable -Name LASTEXITCODE -Scope Global -ErrorAction SilentlyContinue) {
+    exit [int]$global:LASTEXITCODE
 }
-
-Write-Output ("SKILL_SIZE_FAIL nonempty={0} max={1} file={2}" -f $n, $limit, $resolved)
-exit 1
+exit 0

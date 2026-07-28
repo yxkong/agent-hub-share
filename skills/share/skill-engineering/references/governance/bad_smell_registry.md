@@ -145,6 +145,12 @@ summary: 技能工程中重复出现问题的模式抽象库。与主技能一�
 
 ---
 
+[PERSONA_READ_WITHOUT_ENFORCEMENT] **作者指纹只读不验收**
+- 触发条件：生成流程读取了 persona / voice / account profile，却没有压成生成前控制卡和写后硬退回门；产物事实正确但仍是通用模板稿。
+- 规则：把作者证据压成 `positive_dna / anti_dna / evidence_voice / structure_bias`，随任务 handoff；初稿必须过共享去味层和账号 acceptance gate，读过指纹本身不能算通过。
+- 计数：1
+
+
 ## 使用说明
 
 ### 路由开始前

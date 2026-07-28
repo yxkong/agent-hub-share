@@ -9,7 +9,6 @@ FALLBACK_HUB_ROOT=$(CDPATH='' cd -- "$SCRIPT_DIR/../../../.." && pwd -P)
 HUB_ROOT=''
 DRY_RUN=0
 REPLACE_REAL_DIRS=0
-SKIP_MEDIA=0
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -19,17 +18,16 @@ while [ $# -gt 0 ]; do
       DRY_RUN=1; shift ;;
     --replace-real-dirs)
       REPLACE_REAL_DIRS=1; shift ;;
-    --skip-media)
-      SKIP_MEDIA=1; shift ;;
     *)
       agent_fail "Unknown argument: $1" ;;
   esac
 done
 
 AGENTS_ROOT=$(agent_resolve_hub_root "$HUB_ROOT" "$FALLBACK_HUB_ROOT/scripts")
-SHARE_ROOT="$AGENTS_ROOT/skills/share"
-MEDIA_ROOT="$AGENTS_ROOT/skills/media"
-GEMINI_SKILLS_ROOT=$(gemini_user_skill_root "${HOME:-${USERPROFILE:-}}" gemini)
+GEMINI_SKILLS_ROOTS=$(gemini_user_skill_roots "${HOME:-${USERPROFILE:-}}")
+PYTHON_BIN=$(agent_resolve_python3)
+SKILL_RELATIVE_PATHS=$("$PYTHON_BIN" "$FALLBACK_HUB_ROOT/scripts/agent_hub.py" list-skills --hub-root "$AGENTS_ROOT" --project-type generic --format paths)
+SELECTED_SKILL_NAMES=$(printf '%s\n' "$SKILL_RELATIVE_PATHS" | awk -F/ 'NF {print $NF}')
 
 sync_gemini_link() {
   link_path=$1
@@ -65,42 +63,55 @@ sync_gemini_link() {
   printf '  [NEW] %s\n' "$link_path"
 }
 
-SYNC_GEMINI_COUNT=0
+selected_skill_name() {
+  expected=$1
+  printf '%s\n' "$SELECTED_SKILL_NAMES" | awk -v expected="$expected" '$0 == expected {found=1} END {exit !found}'
+}
 
-sync_gemini_root() {
-  source_root=$1
-  SYNC_GEMINI_COUNT=0
-
-  if [ ! -d "$source_root" ]; then
-    return
-  fi
-
-  for skill_dir in "$source_root"/*; do
-    [ -d "$skill_dir" ] || continue
-    [ "$(basename -- "$skill_dir")" != 'bak' ] || continue
-    [ -f "$skill_dir/SKILL.md" ] || continue
-    name=$(basename -- "$skill_dir")
-    SYNC_GEMINI_COUNT=$((SYNC_GEMINI_COUNT + 1))
-    sync_gemini_link "$GEMINI_SKILLS_ROOT/$name" "$skill_dir"
+remove_stale_managed_gemini_links() {
+  destination_root=$1
+  [ -d "$destination_root" ] || return 0
+  for link_path in "$destination_root"/*; do
+    [ -L "$link_path" ] || continue
+    name=$(basename -- "$link_path")
+    raw_target=$(readlink "$link_path")
+    case "$raw_target" in
+      /*) target_path=$raw_target ;;
+      *) target_path=$(agent_resolve_absolute_path "$(dirname -- "$link_path")/$raw_target") ;;
+    esac
+    case "$target_path" in "$AGENTS_ROOT/skills"/*) ;; *) continue ;; esac
+    if selected_skill_name "$name"; then continue; fi
+    if [ "$DRY_RUN" = '1' ]; then
+      printf '  [DRY-RUN] Remove stale managed skill: %s -> %s\n' "$link_path" "$target_path"
+    else
+      rm -f -- "$link_path"
+      printf '  [REMOVED] %s -> %s\n' "$link_path" "$target_path"
+    fi
   done
 }
 
 echo "=== sync-gemini-skills ==="
 echo "  Hub root      : $AGENTS_ROOT"
-echo "  Gemini skills : $GEMINI_SKILLS_ROOT"
+echo "  Scope         : generic/global only"
+printf '  Gemini roots  : %s\n' "$(printf '%s' "$GEMINI_SKILLS_ROOTS" | tr '\n' ' ')"
 [ "$DRY_RUN" = '1' ] && echo "  [DRY-RUN - no files will be written]"
 echo ""
 
-sync_gemini_root "$SHARE_ROOT"
-SHARE_COUNT=$SYNC_GEMINI_COUNT
-MEDIA_COUNT=0
-if [ "$SKIP_MEDIA" != '1' ]; then
-  sync_gemini_root "$MEDIA_ROOT"
-  MEDIA_COUNT=$SYNC_GEMINI_COUNT
-fi
-TOTAL_COUNT=$((SHARE_COUNT + MEDIA_COUNT))
+TOTAL_COUNT=0
+for DESTINATION_ROOT in $GEMINI_SKILLS_ROOTS; do
+  [ "$DRY_RUN" = '1' ] || agent_ensure_dir "$DESTINATION_ROOT"
+  remove_stale_managed_gemini_links "$DESTINATION_ROOT"
+  while IFS= read -r relative_path || [ -n "$relative_path" ]; do
+    [ -n "$relative_path" ] || continue
+    name=$(basename -- "$relative_path")
+    sync_gemini_link "$DESTINATION_ROOT/$name" "$AGENTS_ROOT/$relative_path"
+    TOTAL_COUNT=$((TOTAL_COUNT + 1))
+  done <<EOF
+$SKILL_RELATIVE_PATHS
+EOF
+done
 
 echo ""
-echo "GEMINI_SKILLS_ROOT=$GEMINI_SKILLS_ROOT"
+printf 'GEMINI_SKILLS_ROOTS=%s\n' "$(printf '%s' "$GEMINI_SKILLS_ROOTS" | tr '\n' ';')"
 echo "GEMINI_SKILLS_SYNCED=$TOTAL_COUNT"
 echo "GEMINI_SKILL_PATHS=ok"

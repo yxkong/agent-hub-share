@@ -48,6 +48,8 @@ $projectAgentSkillsRoot = if ($resolvedRepoRoot) { Join-Path $resolvedRepoRoot '
 $skillsRoot = Join-Path $agentsRoot 'skills'
 $shareRoot = Join-Path $skillsRoot 'share'
 $mediaRoot = Join-Path $skillsRoot 'media'
+$toolingRoot = Join-Path $skillsRoot 'tooling'
+$researchRoot = Join-Path $skillsRoot 'research'
 $categoryRoot = if ($resolvedDefaultCategory) { Join-Path $skillsRoot $resolvedDefaultCategory } else { '' }
 
 function Get-SkillNamesFromRoot {
@@ -134,18 +136,23 @@ if ($LinkProjectSkills) {
 }
 
 if ($LinkUserSkills) {
-    $shareNamesAll = Resolve-Names -Preferred $SkillNames -FallbackRoot $shareRoot
-    $mediaNamesAll = Resolve-Names -Preferred $SkillNames -FallbackRoot $mediaRoot
-
-    $shareNames = $shareNamesAll | Where-Object { Test-Path -LiteralPath (Join-Path $shareRoot $_ 'SKILL.md') }
-    $mediaNames = $mediaNamesAll | Where-Object { Test-Path -LiteralPath (Join-Path $mediaRoot $_ 'SKILL.md') }
-
-    foreach ($name in $shareNames) {
-        & $centralScript -SkillName $name -HubRoot $agentsRoot -Scope share -Category $resolvedDefaultCategory -ProjectRoot $resolvedRepoRoot -LinkUsers
+    $activeLayers = if ($Categories -and $Categories.Count -gt 0) { $Categories } else { @('share', 'media', 'tooling', 'research') }
+    $layerRoots = @{
+        share = $shareRoot
+        media = $mediaRoot
+        tooling = $toolingRoot
+        research = $researchRoot
     }
-
-    foreach ($name in $mediaNames) {
-        & $centralScript -SkillName $name -HubRoot $agentsRoot -Scope media -Category $resolvedDefaultCategory -ProjectRoot $resolvedRepoRoot -LinkUsers
+    foreach ($layer in $activeLayers) {
+        if (-not $layerRoots.ContainsKey($layer)) {
+            continue
+        }
+        $root = $layerRoots[$layer]
+        $namesAll = Resolve-Names -Preferred $SkillNames -FallbackRoot $root
+        $names = $namesAll | Where-Object { Test-Path -LiteralPath (Join-Path $root $_ 'SKILL.md') }
+        foreach ($name in $names) {
+            & $centralScript -SkillName $name -HubRoot $agentsRoot -Scope $layer -Category $resolvedDefaultCategory -ProjectRoot $resolvedRepoRoot -LinkUsers
+        }
     }
 }
 

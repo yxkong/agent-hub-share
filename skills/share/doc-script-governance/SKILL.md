@@ -172,7 +172,7 @@ Agent 完成 docs/SQL/脚本治理后，可按此格式汇报（细节见 checkl
 | 技能 | 何时转移 |
 |---|---|
 | `ai-development-governance` | 端到端研发治理、Spec/ADR/Release/Security 门禁、scorecard；文档落位仍归本技能 |
-| `codebase-architecture` | 代码理解、架构视图、逻辑分层、读码顺序；本技能只管梳理**完成后**的落盘与备份 |
+| `skill-engineering/extract` | 从代码库架构、业务流、数据流提炼项目技能；本技能只管产物落盘与备份 |
 | `agent-asset-router` | 用户同时提到 skill / prompt / hub / insight / review，尚未确定目标产物时 |
 | `delivery-workflow` | 问题变成需求拆解、阶段推进时 |
 | `skill-engineering` | 需要系统优化 skill 内容结构和触发描述时 |

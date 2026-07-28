@@ -5,9 +5,9 @@
 ## 总览
 
 ```text
-G0 Intake Gate          需求入口门
+G0 Idea / Draft Gate    想法、草稿与需求入口门
 G1 Spec Gate            规格真源门
-G2 Design / ADR Gate    设计决策门
+G2 SDD / ADR Gate       设计契约与决策门
 G3 Task Contract Gate   任务契约门
    └─ Project Contract  跨项目契约门（触发时）
 G4 Implementation Gate  实现执行门      → delivery-workflow §实现切分门
@@ -26,17 +26,23 @@ G8 Learning Gate        失败沉淀门      → delivery-workflow R3
 
 ---
 
-## G0 Intake Gate — 需求入口门
+## G0 Idea / Draft Gate — 想法、草稿与需求入口门
 
 | 字段 | 内容 |
 |------|------|
-| **Trigger** | 任何非 trivial 研发任务到达；用户问「规范 / 体系 / 总纲」 |
-| **Owner Skill** | `delivery-workflow`（默认入口 triage）→ 命中体系 / Spec / ADR / 门禁 / 评分时转 `ai-development-governance` |
-| **Required Inputs** | 用户描述、现象或目标（可不完整） |
-| **Required Outputs** | Fast / Full Path 初判；是否需 Spec / ADR / Task Contract |
+| **Trigger** | 任何非 trivial 研发任务到达；用户只有想法、草稿、方向、痛点或问「规范 / 体系 / 总纲」 |
+| **Owner Skill** | `delivery-workflow`（默认入口 triage）→ 头脑风暴/草稿落位读 `doc-script-governance` → 命中体系 / Spec / ADR / 门禁 / 评分时转 `ai-development-governance` |
+| **Required Inputs** | 用户原始想法、草稿、现象或目标（可不完整） |
+| **Required Outputs** | `[头脑风暴自检]`；Fast / Full Path 初判；若 Full Path 或需要跨轮收敛，落 `TEMPLATE_BRAINSTORM_CONVERGENCE.md` 过程稿；是否需 Spec / SDD / ADR / Task Contract |
 | **Blockers** | 目标完全不明且用户拒绝澄清 → 暂停实现 |
 | **Fast Path** | 单点 bugfix、验证路径明确、不改契约 → 跳过 G1–G3 完整文档 |
 | **Full Path** | 需求歧义、跨模块、接口/SQL/权限/状态机 → 必须走 G1–G3 |
+
+**文档落位**（与 `doc-script-governance` 对齐）：
+
+| 产物 | 目录 |
+|------|------|
+| 头脑风暴 / 方案收敛过程稿 | `docs/plan/<domain>/<TOPIC>_BRAINSTORM.md` |
 
 ---
 
@@ -46,7 +52,7 @@ G8 Learning Gate        失败沉淀门      → delivery-workflow R3
 |------|------|
 | **Trigger** | Full Path；或用户要求「先写 Spec / 需求文档」 |
 | **Owner Skill** | `ai-development-governance`（模板）→ `delivery-workflow` §需求理解门 |
-| **Required Inputs** | 业务目标、用户场景、已知约束 |
+| **Required Inputs** | 业务目标、用户场景、已知约束；若 G0 已落过程稿，则引用头脑风暴 / 方案收敛稿 |
 | **Required Outputs** | Feature Spec（见 `templates/TEMPLATE_FEATURE_SPEC.md`） |
 | **Blockers** | In Scope / Out of Scope / 验收标准三项缺二 → 不进入 G4 |
 | **Fast Path** | 口头确认目标 + 边界 + 验收即可 |
@@ -61,17 +67,17 @@ G8 Learning Gate        失败沉淀门      → delivery-workflow R3
 
 ---
 
-## G2 Design / ADR Gate — 设计决策门
+## G2 SDD / ADR Gate — 设计契约与决策门
 
 | 字段 | 内容 |
 |------|------|
 | **Trigger** | 架构取舍、多方案比较、跨模块影响、不可逆决策 |
-| **Owner Skill** | `delivery-workflow` §设计收敛门 + `ai-development-governance`（ADR 模板） |
+| **Owner Skill** | `delivery-workflow` §设计收敛门 + `ai-development-governance`（SDD / ADR 模板） |
 | **Required Inputs** | Spec 或等价需求理解产出 |
-| **Required Outputs** | 最小设计产物 或 ADR（见 `templates/TEMPLATE_ADR.md`） |
+| **Required Outputs** | SDD 或等价设计契约；存在多方案取舍时补 ADR（见 `templates/TEMPLATE_SDD.md`、`templates/TEMPLATE_ADR.md`） |
 | **Blockers** | 有备选方案但未记录决策原因 → 不进入 G4 |
 | **Fast Path** | 只有一种方案且风险低 → 设计收敛门口头收敛即可 |
-| **Full Path** | ADR 落 `docs/design/<domain>/ADR-<topic>.md` |
+| **Full Path** | SDD 落 `docs/design/<domain>/SDD-<topic>.md`；ADR 落 `docs/design/<domain>/ADR-<topic>.md` |
 
 ---
 

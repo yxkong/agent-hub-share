@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 # install-hub.sh
-# One-shot hub installer: links shared skills and global rules to user-level directories.
+# One-shot hub installer: links shared skills to user-level directories.
 # No parameters needed - hub root is auto-detected from the script's own location.
 #
 # Usage (from anywhere, no env var required):
@@ -10,8 +10,8 @@
 #
 # What it does:
 #   1. Auto-detect hub root (script lives inside hub/scripts/)
-#   2. Link all shared skills -> ~/.claude/skills/, ~/.cursor/skills/, ~/.codex/skills/, ~/.agents/skills/, ~/.gemini/skills/
-#   3. Sync global rules    -> ~/.claude/CLAUDE.md, ~/.codex/AGENTS.md
+#   2. Link registry generic/global skills -> host user roots, including ~/.gemini/skills/ and ~/.gemini/config/skills/
+#   3. Persist AGENTS_HUB_ROOT in shell profile
 #   4. Append AGENTS_HUB_ROOT to shell profile (skip with --skip-profile)
 #   5. Print a summary
 #
@@ -25,6 +25,7 @@ DRY_RUN=0
 SKIP_RULES=0
 SKIP_PROFILE=0
 REPLACE_REAL_DIRS=0
+SKIP_SHARE_SKILLS=0
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -32,6 +33,7 @@ while [ $# -gt 0 ]; do
     --skip-rules)   SKIP_RULES=1;   shift ;;
     --skip-profile) SKIP_PROFILE=1; shift ;;
     --replace-real-dirs) REPLACE_REAL_DIRS=1; shift ;;
+    --skip-share-skills|--skip-share) SKIP_SHARE_SKILLS=1; shift ;;
     *) agent_fail "Unknown argument: $1" ;;
   esac
 done
@@ -41,12 +43,13 @@ AGENTS_ROOT=$(agent_resolve_hub_root '' "$SCRIPT_DIR")
 USER_HOME="${HOME:-$USERPROFILE}"
 SHARE_ROOT="$AGENTS_ROOT/skills/share"
 MEDIA_ROOT="$AGENTS_ROOT/skills/media"
+PYTHON_BIN=$(agent_resolve_python3)
 GEMINI_SKILL_PATHS_SCRIPT="$AGENTS_ROOT/skills/share/agent-hub-bootstrap/scripts/gemini-skill-paths.sh"
 if [ -f "$GEMINI_SKILL_PATHS_SCRIPT" ]; then
   . "$GEMINI_SKILL_PATHS_SCRIPT"
-  USER_GEMINI_SKILLS_ROOT=$(gemini_user_skill_root "$USER_HOME" gemini)
+  USER_GEMINI_SKILL_ROOTS=$(gemini_user_skill_roots "$USER_HOME")
 else
-  USER_GEMINI_SKILLS_ROOT="$USER_HOME/.gemini/skills"
+  USER_GEMINI_SKILL_ROOTS="$USER_HOME/.gemini/skills $USER_HOME/.gemini/config/skills"
 fi
 if [ -f "$SCRIPT_DIR/check-skill-entrypoints.sh" ]; then
   sh "$SCRIPT_DIR/check-skill-entrypoints.sh" --hub-root "$AGENTS_ROOT"
@@ -62,15 +65,49 @@ echo ""
 # ---------------------------------------------------------------------------
 # 1. Link shared skills to user-level directories
 # ---------------------------------------------------------------------------
-USER_SKILL_ROOTS="$USER_HOME/.claude/skills $USER_HOME/.cursor/skills $USER_HOME/.codex/skills $USER_HOME/.agents/skills $USER_GEMINI_SKILLS_ROOT"
+USER_SKILL_ROOTS="$USER_HOME/.claude/skills $USER_HOME/.cursor/skills $USER_HOME/.codex/skills $USER_HOME/.agents/skills $USER_GEMINI_SKILL_ROOTS"
 
-SHARE_SKILL_NAMES=$(agent_skill_names_from_root "$SHARE_ROOT")
-MEDIA_SKILL_NAMES=$(agent_skill_names_from_root "$MEDIA_ROOT")
+if [ "$SKIP_SHARE_SKILLS" = '1' ]; then
+  SHARE_SKILL_NAMES=""
+else
+  SHARE_SKILL_NAMES=$("$PYTHON_BIN" "$SCRIPT_DIR/agent_hub.py" list-skills --hub-root "$AGENTS_ROOT" --project-type generic --layer share)
+fi
+MEDIA_SKILL_NAMES=$("$PYTHON_BIN" "$SCRIPT_DIR/agent_hub.py" list-skills --hub-root "$AGENTS_ROOT" --project-type generic --layer media)
+SELECTED_USER_SKILL_NAMES="$SHARE_SKILL_NAMES
+$MEDIA_SKILL_NAMES"
 
-echo "=== Linking shared + media skills ==="
+selected_user_skill() {
+  expected=$1
+  printf '%s\n' "$SELECTED_USER_SKILL_NAMES" | awk -v expected="$expected" '$0 == expected {found=1} END {exit !found}'
+}
+
+remove_stale_managed_user_skill_links() {
+  skill_root=$1
+  [ -d "$skill_root" ] || return 0
+  for link_path in "$skill_root"/*; do
+    [ -L "$link_path" ] || continue
+    name=$(basename -- "$link_path")
+    raw_target=$(readlink "$link_path")
+    case "$raw_target" in
+      /*) target_path=$raw_target ;;
+      *) target_path=$(agent_resolve_absolute_path "$(dirname -- "$link_path")/$raw_target") ;;
+    esac
+    case "$target_path" in "$AGENTS_ROOT/skills"/*) ;; *) continue ;; esac
+    if selected_user_skill "$name"; then continue; fi
+    if [ "$DRY_RUN" = '1' ]; then
+      printf '  [DRY-RUN] Remove stale managed skill: %s -> %s\n' "$link_path" "$target_path"
+    else
+      rm -f -- "$link_path"
+      printf '  [REMOVED] %s -> %s\n' "$link_path" "$target_path"
+    fi
+  done
+}
+
+echo "=== Linking global skills ==="
 INSTALL_HUB_BLOCKED=0
 for skill_root in $USER_SKILL_ROOTS; do
   [ "$DRY_RUN" = '0' ] && agent_ensure_dir "$skill_root"
+  remove_stale_managed_user_skill_links "$skill_root"
   for name in $SHARE_SKILL_NAMES; do
     link_path="$skill_root/$name"
     target_path="$SHARE_ROOT/$name"
@@ -135,8 +172,19 @@ for skill_root in $USER_SKILL_ROOTS; do
     printf '  [NEW] %s\n' "$link_path"
   done
 done
-SHARE_SKILL_COUNT=$(printf '%s\n' $SHARE_SKILL_NAMES | wc -l | tr -d ' ')
-MEDIA_SKILL_COUNT=$(printf '%s\n' $MEDIA_SKILL_NAMES | wc -l | tr -d ' ')
+agent_count_names() {
+  names=$1
+  if [ -z "$names" ]; then
+    printf '%s' 0
+    return
+  fi
+  # shellcheck disable=SC2086
+  set -- $names
+  printf '%s' "$#"
+}
+
+SHARE_SKILL_COUNT=$(agent_count_names "$SHARE_SKILL_NAMES")
+MEDIA_SKILL_COUNT=$(agent_count_names "$MEDIA_SKILL_NAMES")
 echo ""
 
 if [ "$INSTALL_HUB_BLOCKED" -gt 0 ] && [ "$DRY_RUN" = '0' ]; then
@@ -145,15 +193,11 @@ if [ "$INSTALL_HUB_BLOCKED" -gt 0 ] && [ "$DRY_RUN" = '0' ]; then
 fi
 
 # ---------------------------------------------------------------------------
-# 2. Sync global rules to user-level files
+# 2. User-level rules are intentionally not synced
 # ---------------------------------------------------------------------------
 if [ "$SKIP_RULES" != '1' ]; then
-  echo "=== Syncing global rules ==="
-  if [ "$DRY_RUN" = '0' ]; then
-    sh "$SCRIPT_DIR/sync-agent-rules.sh" --hub-root "$AGENTS_ROOT"
-  else
-    echo "  [DRY-RUN] Would run sync-agent-rules.sh --hub-root $AGENTS_ROOT"
-  fi
+  echo "=== User-level rules ==="
+  echo "  Skipped: user-level AGENTS.md / CLAUDE.md are deprecated; project rules are synced per workspace."
   echo ""
 fi
 
@@ -187,8 +231,8 @@ fi
 # ---------------------------------------------------------------------------
 echo "=== Summary ==="
 echo "  Hub           : $AGENTS_ROOT"
-echo "  Share skills  : $SHARE_SKILL_COUNT -> ~/.claude/skills, ~/.cursor/skills, ~/.codex/skills, ~/.agents/skills, ~/.gemini/skills"
-echo "  Media skills  : $MEDIA_SKILL_COUNT -> ~/.claude/skills, ~/.cursor/skills, ~/.codex/skills, ~/.agents/skills, ~/.gemini/skills"
+echo "  Global share skills : $SHARE_SKILL_COUNT -> user roots including Gemini CLI ~/.gemini/skills and Antigravity ~/.gemini/config/skills"
+echo "  Global media skills : $MEDIA_SKILL_COUNT -> user roots including Gemini CLI ~/.gemini/skills and Antigravity ~/.gemini/config/skills"
 echo "  Next step     : cd <your-project> && sh \"$AGENTS_ROOT/scripts/register-project.sh\""
 echo ""
 echo "=== Done ==="

@@ -1,5 +1,5 @@
 ---
-name: prompt-engineering
+name: "prompt-engineering"
 description: 提炼、裁剪、评测和落盘可复用提示词资产（prompt asset, agent-task, eval）。适用于子 Agent 长指令沉淀、系统提示词优化、划分 prompts/share 与 projects；不负责 SKILL.md、insight vault 或 hub 链接同步。
 ---
 

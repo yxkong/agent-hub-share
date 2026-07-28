@@ -37,7 +37,7 @@ while [ $# -gt 0 ]; do
 done
 
 [ -n "$SKILL_NAME" ] || agent_fail '--skill-name is required'
-[ "$SCOPE" = 'share' ] || [ "$SCOPE" = 'category' ] || [ "$SCOPE" = 'media' ] || agent_fail '--scope must be share, category, or media'
+[ "$SCOPE" = 'share' ] || [ "$SCOPE" = 'category' ] || [ "$SCOPE" = 'media' ] || [ "$SCOPE" = 'tooling' ] || [ "$SCOPE" = 'research' ] || agent_fail '--scope must be share, category, media, tooling, or research'
 
 AGENTS_ROOT=$(agent_resolve_hub_root "$HUB_ROOT" "$SCRIPT_DIR")
 SKILLS_ROOT="$AGENTS_ROOT/skills"
@@ -50,10 +50,10 @@ USER_CLAUDE_SKILLS_ROOT="$USER_HOME/.claude/skills"
 USER_CURSOR_SKILLS_ROOT="$USER_HOME/.cursor/skills"
 USER_CODEX_SKILLS_ROOT="$USER_HOME/.codex/skills"
 USER_AGENTS_SKILLS_ROOT="$USER_HOME/.agents/skills"
-if command -v gemini_user_skill_root >/dev/null 2>&1; then
-  USER_GEMINI_SKILLS_ROOT=$(gemini_user_skill_root "$USER_HOME" gemini)
+if command -v gemini_user_skill_roots >/dev/null 2>&1; then
+  USER_GEMINI_SKILL_ROOTS=$(gemini_user_skill_roots "$USER_HOME")
 else
-  USER_GEMINI_SKILLS_ROOT="$USER_HOME/.gemini/skills"
+  USER_GEMINI_SKILL_ROOTS="$USER_HOME/.gemini/skills $USER_HOME/.gemini/config/skills"
 fi
 
 RESOLVED_PROJECT_ROOT=''
@@ -108,6 +108,10 @@ if [ "$SCOPE" = 'share' ]; then
   SCOPE_ROOT="$SKILLS_ROOT/share"
 elif [ "$SCOPE" = 'media' ]; then
   SCOPE_ROOT="$SKILLS_ROOT/media"
+elif [ "$SCOPE" = 'tooling' ]; then
+  SCOPE_ROOT="$SKILLS_ROOT/tooling"
+elif [ "$SCOPE" = 'research' ]; then
+  SCOPE_ROOT="$SKILLS_ROOT/research"
 else
   SCOPE_ROOT="$SKILLS_ROOT/$RESOLVED_CATEGORY"
 fi
@@ -126,13 +130,15 @@ if [ "$LINK_PROJECT" = '1' ] || [ "$SCOPE" = 'category' ]; then
   agent_ensure_symlink "$PROJECT_CURSOR_SKILLS_ROOT/$SKILL_NAME" "$SKILL_ROOT"
 fi
 
-if [ "$LINK_USERS" = '1' ] || [ "$SCOPE" = 'share' ] || [ "$SCOPE" = 'media' ]; then
+if [ "$LINK_USERS" = '1' ]; then
   [ -n "$USER_HOME" ] || agent_fail 'HOME is required for user skill links'
   agent_ensure_symlink "$USER_CLAUDE_SKILLS_ROOT/$SKILL_NAME" "$SKILL_ROOT"
   agent_ensure_symlink "$USER_CURSOR_SKILLS_ROOT/$SKILL_NAME" "$SKILL_ROOT"
   agent_ensure_symlink "$USER_CODEX_SKILLS_ROOT/$SKILL_NAME" "$SKILL_ROOT"
   agent_ensure_symlink "$USER_AGENTS_SKILLS_ROOT/$SKILL_NAME" "$SKILL_ROOT"
-  agent_ensure_symlink "$USER_GEMINI_SKILLS_ROOT/$SKILL_NAME" "$SKILL_ROOT"
+  for root in $USER_GEMINI_SKILL_ROOTS; do
+    agent_ensure_symlink "$root/$SKILL_NAME" "$SKILL_ROOT"
+  done
 fi
 
 echo "Hub root: $AGENTS_ROOT"

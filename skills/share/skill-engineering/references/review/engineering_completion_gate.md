@@ -29,6 +29,22 @@
 
 **新增（share only）**：对改动的 share 技能再补跑 `check-share-skill-private-coupling`，扫描 active `SKILL.md` / `README.md` / `references/**/*.md`（排除 `bak/`）中的**最小私有耦合集**；当前至少拒绝真实项目/模块前缀、legacy docs 治理命名、已知 private repo 名与本机绝对路径。命中后应改为 `<project-key>` / `<runtime-module>` / `<domain-module>` / `docs/guide/DOCS_GOVERNANCE.md` / `<hub-root>` 等通用占位符。
 
+**新增（portable package）**：skill 根存在 `skill-package.json` 时，必须执行 `skill-engineering/scripts/check-skill-package-closure.*` 的隔离 smoke。该门检查 required dependency graph、包外路径、symlink、manifest 和清除 Hub 环境后的运行证据；只跑 private-coupling 不足以证明技能可单独安装。
+
+```powershell
+& "$env:AGENTS_HUB_ROOT\skills\share\skill-engineering\scripts\check-skill-package-closure.ps1" `
+  -SkillsRoot "$env:AGENTS_HUB_ROOT\skills\share" `
+  -SkillRoot "$env:AGENTS_HUB_ROOT\skills\share\<skill>" `
+  -RunSmoke
+```
+
+```bash
+sh "$AGENTS_HUB_ROOT/skills/share/skill-engineering/scripts/check-skill-package-closure.sh" \
+  --skills-root "$AGENTS_HUB_ROOT/skills/share" \
+  --skill-root "$AGENTS_HUB_ROOT/skills/share/<skill>" \
+  --run-smoke
+```
+
 **日常收尾（推荐）**：只对 **本次变更涉及** 的技能根目录执行 §2（可为 1 个或多个），**避免**被 hub 内其它 project skill 的历史结构误伤：
 
 - macOS/Linux：  
@@ -46,6 +62,8 @@
 **README 联动（人工必查）**：
 
 - 根 README 是否明确写出“维护章程，不是运行入口”
+- 根 README §修订记录是否倒序维护，最新版本在上
+- README 中可执行约束是否已同步进 `SKILL.md`、active references、模板或校验脚本；README-only 不算已完成管控
 - 若本次改动影响边界、评分、门禁、分层、模板或脚本契约，README 的设计理解 / 维护约束是否同步更新
 - 若本次新增或调整 trigger / eval 增强文档：README 与 `SKILL.md` 是否都写清它是**独立路由**还是**挂靠路由**
 

@@ -18,6 +18,8 @@
 | [gates/project_contract_gate.md](gates/project_contract_gate.md) | 跨项目 / 共享 DB / Java-Python / 前后端联动契约门 |
 | [trigger_eval.md](trigger_eval.md) | should-trigger / should-not-trigger、治理入口回归 |
 | [closure_example.md](closure_example.md) | 真实质量门 / 学习门闭环样例 |
+| [governance/spec_compiler_workflow.md](governance/spec_compiler_workflow.md) | Fact Pack → Spec → SDD/ADR/Task → frozen 的编译闭环 |
+| [governance/spec_compiler_eval.md](governance/spec_compiler_eval.md) | baseline、held-out 与优化证据 |
 
 ## 轻量闭环术语
 

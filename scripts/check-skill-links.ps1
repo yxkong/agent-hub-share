@@ -1,5 +1,6 @@
 [CmdletBinding()]
 param(
+    [Alias('ProjectRoot')]
     [string]$RepoRoot = '',
     [string]$HubRoot = '',
     [string]$ProjectKey = '',
@@ -88,9 +89,13 @@ if (-not $resolvedProjectKey) {
 
 $expectedProjectRoot = [System.IO.Path]::Combine($agentsRoot, 'skills', 'projects', $resolvedProjectKey)
 $expectedShareRoot = [System.IO.Path]::Combine($agentsRoot, 'skills', 'share')
+$expectedMediaRoot = [System.IO.Path]::Combine($agentsRoot, 'skills', 'media')
+$expectedToolingRoot = [System.IO.Path]::Combine($agentsRoot, 'skills', 'tooling')
+$expectedResearchRoot = [System.IO.Path]::Combine($agentsRoot, 'skills', 'research')
 $skillRoots = @(
     [System.IO.Path]::Combine($resolvedRepoRoot, '.agents', 'skills'),
-    [System.IO.Path]::Combine($resolvedRepoRoot, '.cursor', 'skills')
+    [System.IO.Path]::Combine($resolvedRepoRoot, '.cursor', 'skills'),
+    [System.IO.Path]::Combine($resolvedRepoRoot, '.claude', 'skills')
 )
 
 $rows = New-Object System.Collections.Generic.List[object]
@@ -100,6 +105,14 @@ foreach ($root in $skillRoots) {
     }
 
     Get-ChildItem -LiteralPath $root -Directory | ForEach-Object {
+        if ($_.Name.StartsWith('source-command-')) {
+            return
+        }
+        $workspaceSkillFile = Join-Path $_.FullName 'SKILL.md'
+        if ((Test-Path -LiteralPath $workspaceSkillFile -PathType Leaf) -and
+            [System.IO.File]::ReadAllText($workspaceSkillFile).Contains('GENERATED_BY_SYNC_COMMANDS')) {
+            return
+        }
         if ($SkillName -and $_.Name -ne $SkillName) {
             return
         }
@@ -125,6 +138,9 @@ foreach ($root in $skillRoots) {
         else {
             $expectedProject = [System.IO.Path]::Combine($expectedProjectRoot, $skill)
             $expectedShare = [System.IO.Path]::Combine($expectedShareRoot, $skill)
+            $expectedMedia = [System.IO.Path]::Combine($expectedMediaRoot, $skill)
+            $expectedTooling = [System.IO.Path]::Combine($expectedToolingRoot, $skill)
+            $expectedResearch = [System.IO.Path]::Combine($expectedResearchRoot, $skill)
             if ([System.StringComparer]::OrdinalIgnoreCase.Equals($targetText, $expectedProject)) {
                 $status = 'OK_PROJECT'
                 $expected = $expectedProject
@@ -132,6 +148,18 @@ foreach ($root in $skillRoots) {
             elseif ([System.StringComparer]::OrdinalIgnoreCase.Equals($targetText, $expectedShare)) {
                 $status = 'OK_SHARE'
                 $expected = $expectedShare
+            }
+            elseif ([System.StringComparer]::OrdinalIgnoreCase.Equals($targetText, $expectedMedia)) {
+                $status = 'OK_MEDIA'
+                $expected = $expectedMedia
+            }
+            elseif ([System.StringComparer]::OrdinalIgnoreCase.Equals($targetText, $expectedTooling)) {
+                $status = 'OK_TOOLING'
+                $expected = $expectedTooling
+            }
+            elseif ([System.StringComparer]::OrdinalIgnoreCase.Equals($targetText, $expectedResearch)) {
+                $status = 'OK_RESEARCH'
+                $expected = $expectedResearch
             }
             elseif ($targetText.StartsWith($expectedProjectRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
                 $status = 'PROJECT_MISMATCH_NAME'
@@ -143,7 +171,7 @@ foreach ($root in $skillRoots) {
             }
             else {
                 $status = 'OUTSIDE_HUB'
-                $expected = "$expectedProject or $expectedShare"
+                $expected = "$expectedProject or $expectedShare or $expectedMedia"
             }
         }
 
@@ -171,8 +199,8 @@ Write-Host ("Expected project root: {0}" -f $expectedProjectRoot)
 Write-Host ("Expected share root:   {0}" -f $expectedShareRoot)
 Write-Host ''
 
-$bad = @($sortedRows | Where-Object { $_.Status -notin @('OK_PROJECT', 'OK_SHARE') })
-$okCount = @($sortedRows | Where-Object { $_.Status -in @('OK_PROJECT', 'OK_SHARE') }).Count
+$bad = @($sortedRows | Where-Object { $_.Status -notin @('OK_PROJECT', 'OK_SHARE', 'OK_MEDIA', 'OK_TOOLING', 'OK_RESEARCH') })
+$okCount = @($sortedRows | Where-Object { $_.Status -in @('OK_PROJECT', 'OK_SHARE', 'OK_MEDIA', 'OK_TOOLING', 'OK_RESEARCH') }).Count
 $badCount = $bad.Count
 Write-Host ("Summary: total={0}, ok={1}, bad={2}" -f $sortedRows.Count, $okCount, $badCount)
 

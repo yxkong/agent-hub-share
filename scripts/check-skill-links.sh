@@ -81,6 +81,9 @@ RESOLVED_PROJECT_KEY=$(agent_resolve_project_key "$PROJECT_KEY" "$RESOLVED_REPO_
 
 EXPECTED_PROJECT_ROOT="$AGENTS_ROOT/skills/projects/$RESOLVED_PROJECT_KEY"
 EXPECTED_SHARE_ROOT="$AGENTS_ROOT/skills/share"
+EXPECTED_MEDIA_ROOT="$AGENTS_ROOT/skills/media"
+EXPECTED_TOOLING_ROOT="$AGENTS_ROOT/skills/tooling"
+EXPECTED_RESEARCH_ROOT="$AGENTS_ROOT/skills/research"
 BAD_COUNT=0
 TOTAL=0
 OK=0
@@ -94,6 +97,10 @@ for root in "$RESOLVED_REPO_ROOT/.agents/skills" "$RESOLVED_REPO_ROOT/.cursor/sk
     [ -e "$dir" ] || continue
     [ -d "$dir" ] || [ -L "$dir" ] || continue
     skill=$(basename -- "$dir")
+    case "$skill" in source-command-*) continue ;; esac
+    if [ -f "$dir/SKILL.md" ] && grep -F 'GENERATED_BY_SYNC_COMMANDS' "$dir/SKILL.md" >/dev/null 2>&1; then
+      continue
+    fi
     if [ -n "$SKILL_NAME" ] && [ "$skill" != "$SKILL_NAME" ]; then
       continue
     fi
@@ -111,14 +118,26 @@ for root in "$RESOLVED_REPO_ROOT/.agents/skills" "$RESOLVED_REPO_ROOT/.cursor/sk
     else
       expected_project="$EXPECTED_PROJECT_ROOT/$skill"
       expected_share="$EXPECTED_SHARE_ROOT/$skill"
+      expected_media="$EXPECTED_MEDIA_ROOT/$skill"
+      expected_tooling="$EXPECTED_TOOLING_ROOT/$skill"
+      expected_research="$EXPECTED_RESEARCH_ROOT/$skill"
       if [ "$target" = "$expected_project" ]; then
         status='OK_PROJECT'
       elif [ "$target" = "$expected_share" ]; then
         status='OK_SHARE'
+      elif [ "$target" = "$expected_media" ]; then
+        status='OK_MEDIA'
+      elif [ "$target" = "$expected_tooling" ]; then
+        status='OK_TOOLING'
+      elif [ "$target" = "$expected_research" ]; then
+        status='OK_RESEARCH'
       else
         case "$target" in
           "$EXPECTED_PROJECT_ROOT"/*) status='PROJECT_MISMATCH_NAME' ;;
           "$EXPECTED_SHARE_ROOT"/*) status='SHARE_MISMATCH_NAME' ;;
+          "$EXPECTED_MEDIA_ROOT"/*) status='MEDIA_MISMATCH_NAME' ;;
+          "$EXPECTED_TOOLING_ROOT"/*) status='TOOLING_MISMATCH_NAME' ;;
+          "$EXPECTED_RESEARCH_ROOT"/*) status='RESEARCH_MISMATCH_NAME' ;;
           *) status='OUTSIDE_HUB' ;;
         esac
       fi
@@ -131,13 +150,16 @@ for root in "$RESOLVED_REPO_ROOT/.agents/skills" "$RESOLVED_REPO_ROOT/.cursor/sk
 while IFS= read -r status; do
   TOTAL=$((TOTAL+1))
   case "$status" in
-    OK_PROJECT|OK_SHARE) OK=$((OK+1)) ;;
+    OK_PROJECT|OK_SHARE|OK_MEDIA|OK_TOOLING|OK_RESEARCH) OK=$((OK+1)) ;;
     *) BAD_COUNT=$((BAD_COUNT+1)) ;;
   esac
 done < "$TMP_FILE"
 
 printf '\nExpected project root: %s\n' "$EXPECTED_PROJECT_ROOT"
-printf 'Expected share root:   %s\n\n' "$EXPECTED_SHARE_ROOT"
+printf 'Expected share root:   %s\n' "$EXPECTED_SHARE_ROOT"
+printf 'Expected media root:   %s\n' "$EXPECTED_MEDIA_ROOT"
+printf 'Expected tooling root: %s\n' "$EXPECTED_TOOLING_ROOT"
+printf 'Expected research root: %s\n\n' "$EXPECTED_RESEARCH_ROOT"
 printf 'Summary: total=%s, ok=%s, bad=%s\n' "$TOTAL" "$OK" "$BAD_COUNT"
 if [ "$BAD_COUNT" -eq 0 ]; then
   echo 'Result: PASS'

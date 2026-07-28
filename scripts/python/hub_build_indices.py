@@ -27,14 +27,34 @@ SKIP_NAMES = frozenset({'README.md'})
 
 
 def fm_field_yaml(text, key):
-    """Parse a field from YAML front matter (--- ... ---)."""
+    """Parse a field from YAML front matter (--- ... ---).
+
+    Supports plain scalars and simple folded/literal block scalars
+    (description: >- / > / |- / | followed by indented lines).
+    """
     m = re.search(r'^---\s*\n(.*?)\n---', text, re.S | re.M)
     if not m:
         return ''
     block = m.group(1)
-    for line in block.splitlines():
-        if line.startswith(key + ':'):
-            return line.split(':', 1)[1].strip().strip('"').strip("'")
+    lines = block.splitlines()
+    prefix = key + ':'
+    for i, line in enumerate(lines):
+        if not line.startswith(prefix):
+            continue
+        rest = line[len(prefix):].strip()
+        if rest in ('>-', '>', '|-', '|'):
+            collected = []
+            for nxt in lines[i + 1:]:
+                if not nxt:
+                    if collected:
+                        collected.append('')
+                    continue
+                if nxt[0] in (' ', '\t'):
+                    collected.append(nxt.strip())
+                    continue
+                break
+            return ' '.join(x for x in collected if x).strip()
+        return rest.strip().strip('"').strip("'")
     return ''
 
 

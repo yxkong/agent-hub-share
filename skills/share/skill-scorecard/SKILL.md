@@ -58,7 +58,7 @@ description: 以双 100 分制审查 AI skill、prompt、references、scripts �
 - 已盘点 active 全包资产，且排除 `bak/`。
 - 已按质量分、兑现分、门禁结论三层输出。
 - 96+ 或“标杆”结论已对齐 `references/calibration_examples.md`，不能只靠静态好感。
-- 若对象经历过“优化 skill”，已检查 `skill-optimization` 的 rollout / reflection / held-out 证据。
+- 若对象经历过“优化 skill”，已检查 `skill-engineering/references/optimization/` 的 rollout / reflection / held-out 证据。
 - 评分后若需要修复正文，转 `skill-engineering`；若需要挂载发布，转 `agent-hub-bootstrap`。
 
 ## 最小评分流程
@@ -99,7 +99,7 @@ description: 以双 100 分制审查 AI skill、prompt、references、scripts �
 | 技能 | 何时转交 |
 |------|----------|
 | `skill-engineering` | 评分后决定重构/新建/抽取 skill |
-| `skill-optimization` | 评分后需要基于真实任务证据迭代优化 skill |
+| `skill-engineering/optimize` | 评分后需要基于真实任务证据迭代优化 skill |
 | `prompt-engineering` | 评分对象变成 `*.prompt.md` 正文生产与 eval 落盘 |
 | `agent-hub-bootstrap` | 需要挂载、发布、同步、校验入口 |
 | `delivery-workflow` | 目标变成真实研发交付，而不是审计资产 |

@@ -1,51 +1,71 @@
-# ADR-<序号>: <决策标题>
+---
+title: <中文标题> ADR
+status: in_progress
+document_type: adr
+spec_id: SPEC-<topic>
+spec_version: 1.0.0
+version: 1.0.0
+decision_status: proposed
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+related:
+  - path: docs/design/<domain>/<TOPIC>_SPEC.md
+    role: source
+---
 
-> 落 `docs/design/<domain>/ADR-<topic>.md`。复制自 `ai-development-governance/templates/TEMPLATE_ADR.md`。
+# ADR: <中文标题>
+
+> **文档性质**：记录 SDD 中存在真实备选方案的架构决策；只有 `decision_status: accepted` 才可进入实现。
+
+## 修订记录
+
+| 版本 | 日期 | 修订要点 | 备份/引用 |
+|---|---|---|---|
+| 1.0.0 | YYYY-MM-DD | 初稿：提出 DEC-001 | — |
 
 ## 状态
 
-Proposed / Accepted / Superseded
+- 决策：DEC-001
+- 状态：proposed / accepted / superseded
 
 ## 背景
 
-为什么需要这个决策？
-
-- 上游头脑风暴 / 方案收敛：
+REQ-001 为什么需要架构决策：<背景>。
 
 ## 约束
 
-- 技术约束：
-- 业务约束：
-- 时间约束：
-- 不改范围：
+- 技术与项目指纹：<约束>
+- 业务与共享契约：<约束>
+- 时间与成本：<约束>
+- 不改范围：<范围>
+- 安全与回滚：SEC-001
 
 ## 备选方案
 
-| 方案 | 优点 | 缺点 | 风险 |
-|------|------|------|------|
-| | | | |
+| 方案 | 优点 | 缺点 | 风险 | 停止条件 |
+|---|---|---|---|---|
+| A | <优点> | <缺点> | <风险> | <条件> |
+| B | <优点> | <缺点> | <风险> | <条件> |
 
 ## 决策
 
-选择方案：
+DEC-001 选择：<方案>。
 
 ## 决策原因
 
-核心权衡：
+核心权衡：<用户价值、可信、效能、演进、安全和变更半径>。
 
 ## 影响范围
 
-- 代码：
-- 接口：
-- 数据：
-- 配置：
-- 运维：
-- 文档：
+- 代码：<影响>
+- 接口/数据/配置：<影响>
+- 运维/可观测：<影响>
+- 文档与兼容：<影响>
 
 ## 回滚方案
 
-如何撤销这个决策？
+如何撤销 DEC-001：<动作与验证>。
 
 ## 后续验证
 
-- [ ]
+- [ ] AC-001 已覆盖该决策的主链与关键失败链。

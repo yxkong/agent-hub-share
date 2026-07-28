@@ -19,7 +19,7 @@
 1. benchmark skill 深审 → `skill-engineering`
 2. 其它 share skill 结构与资产修复 → 对应目标 skill
 3. 测试闭环资产 → `tdd-workflow`
-4. 文档口径回写 → `<private-media-skill>` + `doc-script-governance`
+4. 文档口径回写 → media PROFILE / 对应 workflow + `doc-script-governance`
 
 ## 结果（observed）
 

@@ -2,6 +2,8 @@
 .tmp/
 *.tmp
 .tmp_*.json
+.pytest_cache/
+pytest-cache-files-*/
 
 # 简历 / PII，勿提交
 /person/

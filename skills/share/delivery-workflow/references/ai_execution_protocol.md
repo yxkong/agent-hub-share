@@ -2,6 +2,8 @@
 
 > 面向 AI 智能体的强制执行规范，统一阶段门行为约束与推压响应逻辑。路由判定见 `delivery-workflow/SKILL.md` 的 `30 秒决策区`。
 
+> 工程编程方法论（先边界再诊断、最小改动、重构证明、同错重判、个人架构指纹与设计偏好）见 `docs/design/ai-dev-system/ENGINEERING_AI_PROGRAMMING_METHOD.md`；普通工程任务不强制读取，规则修订、工程提示优化、工程 workflow 设计和反复失败复盘时读取。
+
 ### 真实协作算子
 
 阶段门执行时默认嵌入 [real_collaboration_operators.md](real_collaboration_operators.md)，但不把它当 prompt 模板库：

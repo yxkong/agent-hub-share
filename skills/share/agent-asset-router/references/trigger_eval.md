@@ -14,7 +14,7 @@
 - 「给这个 Vue 页面加一个按钮」→ 前端领域技能
 - 「直接执行这份已经确定的 prompt 模板」→ 直接执行目标 prompt
 - 「已经明确是 skill 审查任务，直接开始 review」→ `skill-engineering`
-- 「已经明确是长文对外成稿，直接写正文」→ `<private-media-skill>`
+- 「已经明确是长文对外成稿，直接写正文」→ 切 media 身份后按 `PROFILE_RULES.md` 进 workflow
 
 ## 通过标准
 

@@ -24,7 +24,7 @@
 
 ### 2.1 与 Agent 资产的分界
 
-- **代码理解 / 架构视图 / 读码方法论**（4+1、逻辑视图优先、下钻顺序）归 **`codebase-architecture`**；本技能只管梳理产物的**目录、命名、备份**，不在此展开视图理论。
+- **从代码理解项目并提炼技能**归 **`skill-engineering/extract`**，由其读取架构、业务流、数据流与调用链证据；本技能只管梳理产物的**目录、命名、备份**。
 - `prompt` 正文、eval 与 `*.prompt.md` 归 `prompt-engineering`，本技能只管其目录与备份规则。
 - `SKILL.md` 正文质量、trigger、references 拓扑归 `skill-engineering`，本技能只管真实源放置与备份策略。
 - TechInsightVault 案例、面试表达、简历素材归 `project-insight-extractor`，不放入 `docs/review/`。
