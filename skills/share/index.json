@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "count": 13,
+  "count": 14,
   "items": [
     {
       "name": "agent-asset-router",
@@ -37,6 +37,12 @@
       "dir": "doc-script-governance",
       "path": "skills/share/doc-script-governance",
       "description": "文档、SQL、脚本与技能资料的治理技能（docs placement, SQL dev/online, backup-file）。处理 docs 放置、dev/online SQL 分层、命名引用、标准 backup-file 备份、归档与回退边界。适用于 review 放哪、SQL 合终版、改文档前备份；不处理代码实现质量、prompt 正文或 insight vault 洞察。"
+    },
+    {
+      "name": "ops-bootstrap",
+      "dir": "ops-bootstrap",
+      "path": "skills/share/ops-bootstrap",
+      "description": "跨平台运维技能包（Python core + ps1/sh thin wrapper），覆盖服务器连接与资产映射、SSH alias、公钥部署、ops-check、在线/离线环境安装规划、Nginx/MySQL/Redis/JDK/Node/ZooKeeper/Kafka 等服务模板、部署编排、在线检测、日志排查和只读数据核验；用于用户要求连接某台服务器、安装基础服务、排查服务异常日志、核验数据库结构/数据或抽取通用运维能力时；不负责保存真实凭据、默认执行生产变更或替代项目业务部署脚本。"
     },
     {
       "name": "project-insight-extractor",

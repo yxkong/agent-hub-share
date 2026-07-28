@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "targetName": "example-server",
+  "service": "nginx",
+  "mode": "readonly",
+  "timeWindow": {
+    "since": "2 hours ago",
+    "until": "now"
+  },
+  "sources": [
+    {
+      "type": "file",
+      "path": "/var/log/nginx/error.log",
+      "tailLines": 500,
+      "patterns": [
+        "error",
+        "crit",
+        "alert",
+        "emerg",
+        "upstream timed out",
+        "connect() failed",
+        "permission denied"
+      ]
+    },
+    {
+      "type": "journalctl",
+      "unit": "nginx",
+      "since": "2 hours ago",
+      "lines": 300
+    }
+  ],
+  "correlate": {
+    "ports": [
+      80,
+      443
+    ],
+    "configTest": "nginx -t",
+    "serviceStatus": "systemctl status nginx --no-pager"
+  },
+  "output": {
+    "redact": true,
+    "maxLines": 200,
+    "includeFixHints": true
+  }
+}

@@ -1,0 +1,2 @@
+class OpsError(RuntimeError):
+    pass

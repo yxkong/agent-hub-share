@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "projectName": "example",
+  "connect": {
+    "targetName": "example",
+    "aliases": [
+      "ops-example"
+    ],
+    "hosts": [],
+    "services": [],
+    "defaultChecks": [
+      "ssh",
+      "ports",
+      "systemd"
+    ]
+  },
+  "provision": {
+    "osFamily": "ubuntu",
+    "packageManager": "apt",
+    "architecture": "x86_64",
+    "timezone": "Asia/Shanghai",
+    "networkMode": "auto",
+    "dryRunDefault": true,
+    "offlineBundleDir": "provision/offline",
+    "modules": {}
+  },
+  "deploys": {},
+  "detect": {
+    "schemaVersion": 1,
+    "name": "example-online-detection",
+    "checks": {}
+  },
+  "logs": {
+    "schemaVersion": 1,
+    "targetName": "example",
+    "service": "example",
+    "mode": "readonly",
+    "sources": [],
+    "correlate": {},
+    "output": {
+      "redact": true,
+      "maxLines": 200,
+      "includeFixHints": true
+    }
+  },
+  "query": {
+    "schemaVersion": 1,
+    "defaultMode": "readonly"
+  },
+  "dbVerify": {
+    "schemaVersion": 1,
+    "targetName": "example-db",
+    "mode": "readonly",
+    "connection": {},
+    "localCode": {
+      "root": ".",
+      "include": [],
+      "exclude": []
+    },
+    "schemaChecks": [],
+    "dataChecks": [],
+    "safety": {
+      "allowedPrefixes": [
+        "SELECT",
+        "SHOW",
+        "EXPLAIN",
+        "WITH"
+      ],
+      "redactColumns": [
+        "password",
+        "token",
+        "secret"
+      ]
+    }
+  }
+}

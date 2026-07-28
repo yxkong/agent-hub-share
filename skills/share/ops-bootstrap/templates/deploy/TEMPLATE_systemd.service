@@ -1,0 +1,15 @@
+[Unit]
+Description=Example App
+After=network.target
+
+[Service]
+Type=simple
+User=appuser
+WorkingDirectory=/app/current
+EnvironmentFile=/app/shared/app.env
+ExecStart=/usr/bin/java @${JAVA_OPTIONS_FILE} ${JAVA_OPTS_EXTRA} -jar /app/current/app.jar
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

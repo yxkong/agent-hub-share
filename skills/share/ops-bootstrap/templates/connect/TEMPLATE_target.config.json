@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "targetName": "example-server",
+  "aliases": [
+    "prod-api-1",
+    "ops-example"
+  ],
+  "hosts": [
+    {
+      "name": "prod-api-1",
+      "ip": "1.2.3.4",
+      "sshHost": "ops-example",
+      "sshUser": "root",
+      "rsaConfigured": true,
+      "accountRef": "account.md",
+      "credentialRef": "credentials.md"
+    }
+  ],
+  "services": [
+    {
+      "name": "nginx",
+      "host": "prod-api-1",
+      "port": 80,
+      "protocol": "http",
+      "systemd": "nginx"
+    },
+    {
+      "name": "mysql",
+      "host": "prod-api-1",
+      "port": 3306,
+      "protocol": "mysql",
+      "systemd": "mysql"
+    },
+    {
+      "name": "redis",
+      "host": "prod-api-1",
+      "port": 6379,
+      "protocol": "redis",
+      "systemd": "redis-server"
+    }
+  ],
+  "defaultChecks": [
+    "ssh",
+    "ports",
+    "systemd"
+  ]
+}

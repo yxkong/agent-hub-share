@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "bundleRoot": "provision/offline",
+  "target": {
+    "osFamily": "ubuntu",
+    "osVersion": "",
+    "architecture": "x86_64"
+  },
+  "preparedBy": "",
+  "preparedAt": "",
+  "artifacts": [
+    {
+      "module": "python-uv",
+      "id": "python-apt-packages",
+      "path": "python-uv/apt",
+      "sha256Manifest": "python-uv/apt/SHA256SUMS"
+    },
+    {
+      "module": "python-uv",
+      "id": "uv-binary",
+      "path": "python-uv/uv-installer.tar.gz",
+      "sha256": ""
+    },
+    {
+      "module": "jdk",
+      "id": "jdk-package-set",
+      "path": "jdk",
+      "sha256Manifest": "jdk/SHA256SUMS"
+    },
+    {
+      "module": "nginx",
+      "id": "nginx-package-set",
+      "path": "nginx/apt",
+      "sha256Manifest": "nginx/apt/SHA256SUMS"
+    },
+    {
+      "module": "node",
+      "id": "node-binary",
+      "path": "node/node-v20-linux-x64.tar.xz",
+      "sha256": ""
+    },
+    {
+      "module": "mysql",
+      "id": "mysql-package-set",
+      "path": "mysql/apt",
+      "sha256Manifest": "mysql/apt/SHA256SUMS"
+    },
+    {
+      "module": "redis",
+      "id": "redis-package-set",
+      "path": "redis/apt",
+      "sha256Manifest": "redis/apt/SHA256SUMS"
+    }
+  ]
+}

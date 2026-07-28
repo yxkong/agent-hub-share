@@ -1,0 +1,55 @@
+{
+  "module": "mysql",
+  "enabled": false,
+  "majorVersion": "8.0",
+  "installMethod": "package-manager",
+  "onlineInstall": {
+    "commands": [
+      "apt-get update && apt-get install -y mysql-server"
+    ]
+  },
+  "offlineArtifacts": [
+    {
+      "id": "mysql-package-set",
+      "type": "apt-deb-set",
+      "targetDir": "mysql/apt",
+      "required": true,
+      "prepareHint": "Download mysql-server and dependencies as .deb files for the exact target OS release."
+    }
+  ],
+  "serviceName": "mysql",
+  "listen": {
+    "host": "127.0.0.1",
+    "port": 3306,
+    "publicAccess": false
+  },
+  "dataDir": "/var/lib/mysql",
+  "configFile": "/etc/mysql/mysql.conf.d/mysqld.cnf",
+  "configTemplates": [
+    {
+      "name": "mysqld-cnf",
+      "template": "templates/provision/modules/mysql/TEMPLATE_mysqld.cnf",
+      "target": "/etc/mysql/mysql.conf.d/mysqld.cnf",
+      "profileAware": true,
+      "validate": "mysqld --validate-config"
+    }
+  ],
+  "networkPolicy": {
+    "reverseProxy": false,
+    "domainName": "",
+    "exposure": "local-or-vpc-only",
+    "note": "MySQL is not an HTTP service. Do not expose through Nginx by default; use VPC/VPN/security-group/TLS and least-privilege users in project scope."
+  },
+  "credentials": {
+    "source": "project-private-file",
+    "path": "credentials.md"
+  },
+  "databases": [],
+  "users": [],
+  "healthCheck": {
+    "commands": [
+      "mysql --version",
+      "systemctl is-active mysql"
+    ]
+  }
+}

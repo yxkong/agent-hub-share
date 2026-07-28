@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "appName": "example-app",
+  "profile": "small",
+  "strategy": "symlink-release",
+  "artifact": {
+    "type": "tar.gz",
+    "localPath": "dist/example-app.tar.gz",
+    "remoteReleaseDir": "/app/releases",
+    "currentSymlink": "/app/current"
+  },
+  "runtime": {
+    "serviceManager": "systemd",
+    "serviceName": "example-app",
+    "appUser": "appuser",
+    "workingDirectory": "/app/current"
+  },
+  "configTemplates": [
+    {
+      "name": "app-env",
+      "template": "templates/deploy/TEMPLATE_app.env",
+      "target": "/app/shared/app.env",
+      "profileAware": false
+    },
+    {
+      "name": "java-jvm-options",
+      "template": "templates/deploy/TEMPLATE_java-app.jvm.options",
+      "target": "/app/shared/jvm.options",
+      "profileAware": true
+    },
+    {
+      "name": "systemd-service",
+      "template": "templates/deploy/TEMPLATE_systemd.service",
+      "target": "/etc/systemd/system/example-app.service",
+      "profileAware": true
+    }
+  ],
+  "hooks": {
+    "preCheck": [
+      "systemctl is-active nginx || true",
+      "df -h /app || df -h /"
+    ],
+    "postCheck": [
+      "systemctl is-active example-app",
+      "test -r /app/shared/jvm.options",
+      "curl -fsS http://127.0.0.1:8080/health"
+    ],
+    "rollback": [
+      "ln -sfn /app/releases/<previous> /app/current",
+      "systemctl restart example-app"
+    ]
+  }
+}

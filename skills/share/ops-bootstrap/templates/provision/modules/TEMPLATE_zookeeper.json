@@ -1,0 +1,36 @@
+{
+  "module": "zookeeper",
+  "enabled": false,
+  "version": "3.9",
+  "installMethod": "tarball",
+  "onlineInstall": {
+    "commands": [
+      "download Apache ZooKeeper binary tarball from an official mirror",
+      "extract to /opt/zookeeper and configure zoo.cfg"
+    ]
+  },
+  "offlineArtifacts": [
+    {
+      "id": "zookeeper-binary",
+      "type": "binary-archive",
+      "targetFile": "zookeeper/apache-zookeeper-bin.tar.gz",
+      "required": true,
+      "prepareHint": "Download Apache ZooKeeper binary archive matching the selected version and verify checksum."
+    }
+  ],
+  "serviceName": "zookeeper",
+  "ports": {
+    "client": 2181,
+    "peer": 2888,
+    "leaderElection": 3888
+  },
+  "dataDir": "/var/lib/zookeeper",
+  "configFile": "/opt/zookeeper/conf/zoo.cfg",
+  "profile": "fixed",
+  "healthCheck": {
+    "commands": [
+      "systemctl is-active zookeeper",
+      "echo ruok | nc 127.0.0.1 2181"
+    ]
+  }
+}

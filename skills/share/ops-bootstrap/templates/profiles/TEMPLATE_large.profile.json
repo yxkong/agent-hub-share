@@ -1,0 +1,43 @@
+{
+  "profile": "large",
+  "description": "Higher-resource production profile.",
+  "resources": {
+    "cpuCores": "4+",
+    "memory": "8g+",
+    "disk": "system-disk-plus-data-disk"
+  },
+  "nginx": {
+    "workerConnections": 8192,
+    "clientMaxBodySize": "100m",
+    "proxyBuffering": true,
+    "gzipCompLevel": 5
+  },
+  "mysql": {
+    "innodbBufferPoolSize": "4g",
+    "maxConnections": 500,
+    "slowQueryLog": true,
+    "tableOpenCache": 4096,
+    "tmpTableSize": "256M",
+    "maxAllowedPacket": "128M"
+  },
+  "redis": {
+    "maxmemory": "2gb",
+    "maxmemoryPolicy": "allkeys-lru",
+    "appendOnly": true,
+    "tcpBacklog": 2048,
+    "databases": 16
+  },
+  "javaApp": {
+    "xms": "2g",
+    "xmx": "2g",
+    "gc": "G1GC",
+    "maxGCPauseMillis": 200,
+    "gcLogFileCount": 10,
+    "gcLogFileSize": "100M",
+    "heapDumpOnOutOfMemoryError": true
+  },
+  "node": {
+    "pm2Instances": "max",
+    "maxMemoryRestart": "1024M"
+  }
+}

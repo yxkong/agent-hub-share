@@ -1,0 +1,38 @@
+{
+  "module": "jdk",
+  "enabled": true,
+  "distribution": "temurin",
+  "majorVersion": 17,
+  "installMethod": "package-manager",
+  "onlineInstall": {
+    "commands": [
+      "apt-get update && apt-get install -y openjdk-17-jdk"
+    ]
+  },
+  "offlineArtifacts": [
+    {
+      "id": "jdk-package-set",
+      "type": "apt-deb-set-or-tarball",
+      "targetDir": "jdk",
+      "required": true,
+      "prepareHint": "Prepare OpenJDK/Temurin JDK package plus dependencies for the target OS, or a vendor tar.gz archive."
+    }
+  ],
+  "javaHome": "",
+  "profilePath": "/etc/profile.d/java.sh",
+  "configTemplates": [
+    {
+      "name": "java-profile",
+      "template": "templates/provision/modules/jdk/TEMPLATE_java.sh",
+      "target": "/etc/profile.d/java.sh",
+      "profileAware": false,
+      "validate": ". /etc/profile.d/java.sh && java -version"
+    }
+  ],
+  "healthCheck": {
+    "commands": [
+      "java -version",
+      "javac -version"
+    ]
+  }
+}

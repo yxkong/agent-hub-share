@@ -1,0 +1,120 @@
+{
+  "module": "nginx",
+  "enabled": false,
+  "version": "stable",
+  "installMethod": "package-manager",
+  "onlineInstall": {
+    "commands": [
+      "apt-get update && apt-get install -y nginx"
+    ]
+  },
+  "offlineArtifacts": [
+    {
+      "id": "nginx-package-set",
+      "type": "apt-deb-set",
+      "targetDir": "nginx/apt",
+      "required": true,
+      "prepareHint": "Download nginx and dependencies as .deb files for the exact target OS release."
+    },
+    {
+      "id": "site-certificates",
+      "type": "project-private-files",
+      "targetDir": "nginx/certs",
+      "required": false,
+      "prepareHint": "Project side only: place public certs and private keys outside share templates."
+    }
+  ],
+  "serviceName": "nginx",
+  "ports": [
+    80,
+    443
+  ],
+  "paths": {
+    "nginxConf": "/etc/nginx/nginx.conf",
+    "confDir": "/etc/nginx/conf.d",
+    "sitesAvailableDir": "/etc/nginx/sites-available",
+    "sitesEnabledDir": "/etc/nginx/sites-enabled",
+    "logDir": "/var/log/nginx",
+    "webRoot": "/var/www/html"
+  },
+  "templates": {
+    "nginxConf": "templates/provision/modules/nginx/TEMPLATE_nginx.conf",
+    "reverseProxySite": "templates/provision/modules/nginx/TEMPLATE_site.reverse-proxy.conf"
+  },
+  "sitesEnabledDir": "/etc/nginx/conf.d",
+  "configTestCommand": "nginx -t",
+  "reloadCommand": "systemctl reload nginx",
+  "optimization": {
+    "workerProcesses": "auto",
+    "workerConnections": 4096,
+    "keepaliveTimeoutSeconds": 65,
+    "clientMaxBodySize": "50m",
+    "serverTokens": "off",
+    "gzip": {
+      "enabled": true,
+      "minLength": 1024,
+      "types": [
+        "text/plain",
+        "text/css",
+        "application/json",
+        "application/javascript",
+        "application/xml",
+        "image/svg+xml"
+      ]
+    },
+    "proxy": {
+      "readTimeoutSeconds": 60,
+      "sendTimeoutSeconds": 60,
+      "connectTimeoutSeconds": 10,
+      "buffering": true,
+      "websocket": false
+    },
+    "staticCache": {
+      "enabled": true,
+      "immutableDays": 30,
+      "htmlNoCache": true
+    }
+  },
+  "security": {
+    "tlsProtocols": [
+      "TLSv1.2",
+      "TLSv1.3"
+    ],
+    "hsts": {
+      "enabled": false,
+      "maxAgeSeconds": 15552000,
+      "includeSubDomains": false
+    },
+    "securityHeaders": {
+      "enabled": true,
+      "xFrameOptions": "SAMEORIGIN",
+      "xContentTypeOptions": "nosniff",
+      "referrerPolicy": "strict-origin-when-cross-origin"
+    }
+  },
+  "sites": [
+    {
+      "name": "example",
+      "serverName": "example.invalid",
+      "listen": [
+        80
+      ],
+      "mode": "reverse-proxy",
+      "upstream": "http://127.0.0.1:8080",
+      "root": "",
+      "spaFallback": false,
+      "accessLog": true,
+      "errorLog": true
+    }
+  ],
+  "certificates": {
+    "managedByProject": true,
+    "publicCertPath": "",
+    "privateKeyPath": ""
+  },
+  "healthCheck": {
+    "urls": [
+      "http://127.0.0.1/"
+    ]
+  }
+}

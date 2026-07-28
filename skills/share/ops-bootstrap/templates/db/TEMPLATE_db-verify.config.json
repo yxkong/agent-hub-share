@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "targetName": "dev-db",
+  "mode": "readonly",
+  "connection": {
+    "type": "mysql",
+    "host": "127.0.0.1",
+    "port": 3306,
+    "database": "",
+    "authSource": "project-dev-config-or-private-file"
+  },
+  "localCode": {
+    "root": ".",
+    "include": [
+      "src/**/*.java",
+      "src/**/*.py",
+      "app/**/*.py",
+      "migrations/**/*.sql",
+      "docs/db/**/*.sql"
+    ],
+    "exclude": [
+      "target/**",
+      ".venv/**",
+      "node_modules/**"
+    ]
+  },
+  "schemaChecks": [
+    {
+      "table": "example_table",
+      "expectedColumnsFromCode": true,
+      "queries": [
+        "SHOW CREATE TABLE example_table",
+        "SHOW COLUMNS FROM example_table"
+      ]
+    }
+  ],
+  "dataChecks": [
+    {
+      "name": "recent-write-check",
+      "sql": "SELECT * FROM example_table ORDER BY id DESC LIMIT 20",
+      "expect": "rows-present",
+      "maxRows": 20
+    }
+  ],
+  "safety": {
+    "allowedPrefixes": [
+      "SELECT",
+      "SHOW",
+      "EXPLAIN",
+      "WITH"
+    ],
+    "redactColumns": [
+      "password",
+      "token",
+      "secret",
+      "mobile",
+      "email"
+    ]
+  }
+}

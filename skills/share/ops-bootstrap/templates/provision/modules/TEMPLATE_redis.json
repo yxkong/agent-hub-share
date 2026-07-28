@@ -1,0 +1,56 @@
+{
+  "module": "redis",
+  "enabled": false,
+  "version": "stable",
+  "installMethod": "package-manager",
+  "onlineInstall": {
+    "commands": [
+      "apt-get update && apt-get install -y redis-server"
+    ]
+  },
+  "offlineArtifacts": [
+    {
+      "id": "redis-package-set",
+      "type": "apt-deb-set",
+      "targetDir": "redis/apt",
+      "required": true,
+      "prepareHint": "Download redis-server and dependencies as .deb files for the exact target OS release."
+    }
+  ],
+  "serviceName": "redis-server",
+  "listen": {
+    "host": "127.0.0.1",
+    "port": 6379,
+    "publicAccess": false
+  },
+  "configFile": "/etc/redis/redis.conf",
+  "configTemplates": [
+    {
+      "name": "redis-conf",
+      "template": "templates/provision/modules/redis/TEMPLATE_redis.conf",
+      "target": "/etc/redis/redis.conf",
+      "profileAware": true,
+      "validate": "redis-server /etc/redis/redis.conf --test-memory 2"
+    }
+  ],
+  "persistence": {
+    "appendOnly": true,
+    "rdb": true
+  },
+  "networkPolicy": {
+    "reverseProxy": false,
+    "domainName": "",
+    "exposure": "local-or-vpc-only",
+    "note": "Redis is not an HTTP service. Do not expose through Nginx by default; use VPC/VPN/security-group/TLS/ACL in project scope when remote access is required."
+  },
+  "credentials": {
+    "source": "project-private-file",
+    "path": "credentials.md"
+  },
+  "healthCheck": {
+    "commands": [
+      "redis-server --version",
+      "systemctl is-active redis-server"
+    ]
+  }
+}

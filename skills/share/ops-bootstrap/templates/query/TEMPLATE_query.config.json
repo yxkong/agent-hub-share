@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "defaultMode": "readonly",
+  "redis": {
+    "enabled": true,
+    "connection": {
+      "host": "127.0.0.1",
+      "port": 6379,
+      "db": 0,
+      "authSource": "project-private-file"
+    },
+    "allowedCommands": [
+      "GET",
+      "HGETALL",
+      "TTL",
+      "TYPE",
+      "INFO",
+      "DBSIZE",
+      "SCAN"
+    ],
+    "deniedCommands": [
+      "SET",
+      "DEL",
+      "FLUSHDB",
+      "FLUSHALL",
+      "CONFIG SET",
+      "EVAL"
+    ],
+    "limits": {
+      "scanCount": 100,
+      "maxKeysReturned": 200,
+      "timeoutSeconds": 5
+    },
+    "examples": [
+      "TYPE session:<id>",
+      "TTL session:<id>",
+      "HGETALL user:<id>",
+      "SCAN 0 MATCH prefix:* COUNT 100"
+    ]
+  },
+  "mysql": {
+    "enabled": true,
+    "connection": {
+      "host": "127.0.0.1",
+      "port": 3306,
+      "database": "",
+      "authSource": "project-private-file"
+    },
+    "allowedPrefixes": [
+      "SELECT",
+      "SHOW",
+      "EXPLAIN",
+      "WITH"
+    ],
+    "deniedPrefixes": [
+      "INSERT",
+      "UPDATE",
+      "DELETE",
+      "DROP",
+      "ALTER",
+      "CREATE",
+      "GRANT",
+      "REVOKE",
+      "TRUNCATE"
+    ],
+    "limits": {
+      "defaultLimit": 100,
+      "timeoutSeconds": 10
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "profile": "small",
+  "description": "Low-resource single-server profile.",
+  "resources": {
+    "cpuCores": "1-2",
+    "memory": "1-4g",
+    "disk": "single-disk"
+  },
+  "nginx": {
+    "workerConnections": 1024,
+    "clientMaxBodySize": "20m",
+    "proxyBuffering": true,
+    "gzipCompLevel": 4
+  },
+  "mysql": {
+    "innodbBufferPoolSize": "512m",
+    "maxConnections": 100,
+    "slowQueryLog": true,
+    "tableOpenCache": 512,
+    "tmpTableSize": "64M",
+    "maxAllowedPacket": "64M"
+  },
+  "redis": {
+    "maxmemory": "256mb",
+    "maxmemoryPolicy": "allkeys-lru",
+    "appendOnly": true,
+    "tcpBacklog": 511,
+    "databases": 16
+  },
+  "javaApp": {
+    "xms": "512m",
+    "xmx": "512m",
+    "gc": "G1GC",
+    "maxGCPauseMillis": 200,
+    "gcLogFileCount": 5,
+    "gcLogFileSize": "20M",
+    "heapDumpOnOutOfMemoryError": true
+  },
+  "node": {
+    "pm2Instances": 1,
+    "maxMemoryRestart": "512M"
+  }
+}

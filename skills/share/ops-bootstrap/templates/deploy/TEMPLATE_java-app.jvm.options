@@ -1,0 +1,14 @@
+# JVM options template for a JDK 17 service.
+# Render from templates/profiles/TEMPLATE_<profile>.profile.json and project deploy config.
+
+-Xms{{java_xms|512m}}
+-Xmx{{java_xmx|512m}}
+-XX:+Use{{java_gc|G1GC}}
+-XX:MaxGCPauseMillis={{java_max_gc_pause_millis|200}}
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:HeapDumpPath={{java_heap_dump_path|/app/logs/heapdump.hprof}}
+-XX:+ExitOnOutOfMemoryError
+-Xlog:gc*,safepoint:file={{java_gc_log_path|/app/logs/gc.log}}:time,uptime,level,tags:filecount={{java_gc_log_file_count|5}},filesize={{java_gc_log_file_size|20M}}
+-Dfile.encoding={{java_file_encoding|UTF-8}}
+-Duser.timezone={{java_timezone|Asia/Shanghai}}
+-Djava.security.egd=file:/dev/./urandom

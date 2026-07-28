@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "osFamily": "ubuntu",
+  "packageManager": "apt",
+  "architecture": "x86_64",
+  "timezone": "Asia/Shanghai",
+  "networkMode": "auto",
+  "dryRunDefault": true,
+  "offlineBundleDir": "provision/offline",
+  "packageMirror": {
+    "enabled": false,
+    "aptSource": "",
+    "pipIndexUrl": "",
+    "npmRegistry": "",
+    "mavenMirror": ""
+  },
+  "modules": {
+    "python-uv": {
+      "enabled": true,
+      "config": "modules/python-uv.json"
+    },
+    "jdk": {
+      "enabled": true,
+      "config": "modules/jdk.json"
+    },
+    "nginx": {
+      "enabled": false,
+      "config": "modules/nginx.json"
+    },
+    "node": {
+      "enabled": false,
+      "config": "modules/node.json"
+    },
+    "mysql": {
+      "enabled": false,
+      "config": "modules/mysql.json"
+    },
+    "redis": {
+      "enabled": false,
+      "config": "modules/redis.json"
+    },
+    "zookeeper": {
+      "enabled": false,
+      "config": "modules/zookeeper.json"
+    },
+    "kafka": {
+      "enabled": false,
+      "config": "modules/kafka.json"
+    }
+  }
+}

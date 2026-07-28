@@ -1,0 +1,38 @@
+{
+  "module": "kafka",
+  "enabled": false,
+  "version": "3.7",
+  "installMethod": "tarball",
+  "onlineInstall": {
+    "commands": [
+      "download Apache Kafka binary tarball from an official mirror",
+      "extract to /opt/kafka and configure server.properties"
+    ]
+  },
+  "offlineArtifacts": [
+    {
+      "id": "kafka-binary",
+      "type": "binary-archive",
+      "targetFile": "kafka/kafka-bin.tgz",
+      "required": true,
+      "prepareHint": "Download Apache Kafka binary archive matching Scala/Kafka version and verify checksum."
+    }
+  ],
+  "serviceName": "kafka",
+  "ports": {
+    "broker": 9092,
+    "controller": 9093
+  },
+  "logDirs": [
+    "/var/lib/kafka/logs"
+  ],
+  "configFile": "/opt/kafka/config/kraft/server.properties",
+  "mode": "kraft",
+  "profile": "fixed",
+  "healthCheck": {
+    "commands": [
+      "systemctl is-active kafka",
+      "ss -lntp | grep ':9092'"
+    ]
+  }
+}

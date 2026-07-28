@@ -1,0 +1,12 @@
+{
+  "opsName": "example",
+  "sshHost": "ops-example",
+  "remoteUser": "root",
+  "remoteHost": "1.2.3.4",
+  "remotePath": "/app",
+  "identityFile": "~/.ssh/id_rsa",
+  "accountFile": "account.md",
+  "opsCheckScript": "ops-check.remote.sh",
+  "environmentConfig": "provision/environment.config.json",
+  "sshMarker": "ops-bootstrap"
+}

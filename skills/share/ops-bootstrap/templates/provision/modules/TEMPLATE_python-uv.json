@@ -1,0 +1,50 @@
+{
+  "module": "python-uv",
+  "enabled": true,
+  "pythonVersion": "3.12",
+  "uvVersion": "latest",
+  "installMethod": "official-script",
+  "onlineInstall": {
+    "commands": [
+      "apt-get update && apt-get install -y python3 python3-venv python3-pip curl ca-certificates",
+      "curl -LsSf https://astral.sh/uv/install.sh | sh"
+    ]
+  },
+  "offlineArtifacts": [
+    {
+      "id": "python-apt-packages",
+      "type": "apt-deb-set",
+      "targetDir": "python-uv/apt",
+      "required": true,
+      "prepareHint": "On a matching online Ubuntu/Debian machine, download python3, python3-venv, python3-pip, curl, ca-certificates and dependencies as .deb files."
+    },
+    {
+      "id": "uv-binary",
+      "type": "binary-archive",
+      "targetFile": "python-uv/uv-installer.tar.gz",
+      "required": true,
+      "prepareHint": "Download uv release archive for the target OS and architecture."
+    },
+    {
+      "id": "python-wheels",
+      "type": "wheelhouse",
+      "targetDir": "python-uv/wheels",
+      "required": false,
+      "prepareHint": "Put project Python wheels here if the project must install dependencies offline."
+    }
+  ],
+  "venv": {
+    "enabled": false,
+    "path": "/app/.venv"
+  },
+  "pip": {
+    "indexUrl": "",
+    "trustedHost": ""
+  },
+  "healthCheck": {
+    "commands": [
+      "python3 --version",
+      "uv --version"
+    ]
+  }
+}

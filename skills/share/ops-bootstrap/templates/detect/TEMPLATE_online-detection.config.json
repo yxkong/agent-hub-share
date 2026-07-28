@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "name": "example-online-detection",
+  "checks": {
+    "systemd": [
+      "nginx",
+      "example-app",
+      "mysql",
+      "redis-server"
+    ],
+    "ports": [
+      80,
+      443,
+      8080,
+      3306,
+      6379
+    ],
+    "http": [
+      {
+        "name": "local-health",
+        "url": "http://127.0.0.1:8080/health",
+        "expectStatus": 200,
+        "timeoutSeconds": 5
+      }
+    ],
+    "processes": [
+      "nginx",
+      "java",
+      "redis-server",
+      "mysqld"
+    ],
+    "resources": {
+      "diskUsageWarnPercent": 80,
+      "memoryUsageWarnPercent": 85,
+      "loadAverageWarnPerCore": 2
+    },
+    "logs": [
+      {
+        "path": "/var/log/nginx/error.log",
+        "tailLines": 100,
+        "grep": "error|crit|alert|emerg"
+      }
+    ]
+  }
+}

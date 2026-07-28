@@ -1,0 +1,26 @@
+{
+  "profile": "fixed",
+  "description": "Fixed service configuration independent of machine size.",
+  "jdk": {
+    "javaHome": "",
+    "profilePath": "/etc/profile.d/java.sh"
+  },
+  "systemd": {
+    "restart": "on-failure",
+    "restartSec": 5,
+    "workingDirectory": "/app/current"
+  },
+  "javaApp": {
+    "javaBin": "/usr/bin/java",
+    "optionsFile": "/app/shared/jvm.options",
+    "jarPath": "/app/current/app.jar",
+    "heapDumpPath": "/app/logs/heapdump.hprof",
+    "gcLogPath": "/app/logs/gc.log",
+    "timezone": "Asia/Shanghai",
+    "fileEncoding": "UTF-8"
+  },
+  "ports": {
+    "health": 8080,
+    "ssh": 22
+  }
+}

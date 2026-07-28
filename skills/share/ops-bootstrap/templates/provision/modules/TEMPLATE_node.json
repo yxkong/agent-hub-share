@@ -1,0 +1,40 @@
+{
+  "module": "node",
+  "enabled": false,
+  "majorVersion": 20,
+  "installMethod": "nvm",
+  "onlineInstall": {
+    "commands": [
+      "curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash",
+      "nvm install 20 && nvm alias default 20",
+      "npm install -g pm2"
+    ]
+  },
+  "offlineArtifacts": [
+    {
+      "id": "node-binary",
+      "type": "binary-archive",
+      "targetFile": "node/node-v20-linux-x64.tar.xz",
+      "required": true,
+      "prepareHint": "Download Node.js binary archive matching majorVersion, OS, and architecture."
+    },
+    {
+      "id": "npm-global-packages",
+      "type": "npm-cache-or-tarballs",
+      "targetDir": "node/npm-packages",
+      "required": false,
+      "prepareHint": "Prepare npm package tarballs or cache for pm2 and other global packages."
+    }
+  ],
+  "packageManager": "npm",
+  "npmRegistry": "",
+  "globalPackages": [
+    "pm2"
+  ],
+  "healthCheck": {
+    "commands": [
+      "node -v",
+      "npm -v"
+    ]
+  }
+}
