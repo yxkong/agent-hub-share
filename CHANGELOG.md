@@ -51,7 +51,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 
 - `public-export.config.yaml` 与 CI 拆分 export / private-prompts 工作流
-- Share 技能 `codebase-architecture` 等在 private 真源维护；是否纳入 public 白名单见 manifest `share_whitelist`
+- Share 技能 public 导出改为显式白名单控制，废弃技能不再作为独立 share 资产维护
 
 ## [0.1.0] - 2026-05-25
 
