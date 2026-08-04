@@ -26,6 +26,9 @@ SKIP_RULES=0
 SKIP_PROFILE=0
 REPLACE_REAL_DIRS=0
 SKIP_SHARE_SKILLS=0
+TOOLS='codex,claude,cursor'
+SKILLS=''
+APPLY_USER_RULES=0
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -34,6 +37,9 @@ while [ $# -gt 0 ]; do
     --skip-profile) SKIP_PROFILE=1; shift ;;
     --replace-real-dirs) REPLACE_REAL_DIRS=1; shift ;;
     --skip-share-skills|--skip-share) SKIP_SHARE_SKILLS=1; shift ;;
+    --tools|--hosts) TOOLS=$2; shift 2 ;;
+    --skills) SKILLS=$2; shift 2 ;;
+    --apply-user-rules) APPLY_USER_RULES=1; shift ;;
     *) agent_fail "Unknown argument: $1" ;;
   esac
 done
@@ -69,12 +75,24 @@ USER_SKILL_ROOTS="$USER_HOME/.claude/skills $USER_HOME/.cursor/skills $USER_HOME
 
 if [ "$SKIP_SHARE_SKILLS" = '1' ]; then
   SHARE_SKILL_NAMES=""
+elif [ -n "$SKILLS" ]; then
+  SHARE_SKILL_NAMES=$("$PYTHON_BIN" "$SCRIPT_DIR/agent_hub.py" list-skills --hub-root "$AGENTS_ROOT" --project-type generic --layer share --include "$SKILLS")
 else
   SHARE_SKILL_NAMES=$("$PYTHON_BIN" "$SCRIPT_DIR/agent_hub.py" list-skills --hub-root "$AGENTS_ROOT" --project-type generic --layer share)
 fi
-MEDIA_SKILL_NAMES=$("$PYTHON_BIN" "$SCRIPT_DIR/agent_hub.py" list-skills --hub-root "$AGENTS_ROOT" --project-type generic --layer media)
+if [ -n "$SKILLS" ]; then
+  MEDIA_SKILL_NAMES=$("$PYTHON_BIN" "$SCRIPT_DIR/agent_hub.py" list-skills --hub-root "$AGENTS_ROOT" --project-type generic --layer media --include "$SKILLS")
+  TOOLING_SKILL_NAMES=$("$PYTHON_BIN" "$SCRIPT_DIR/agent_hub.py" list-skills --hub-root "$AGENTS_ROOT" --project-type generic --layer tooling --include "$SKILLS")
+  RESEARCH_SKILL_NAMES=$("$PYTHON_BIN" "$SCRIPT_DIR/agent_hub.py" list-skills --hub-root "$AGENTS_ROOT" --project-type generic --layer research --include "$SKILLS")
+else
+  MEDIA_SKILL_NAMES=$("$PYTHON_BIN" "$SCRIPT_DIR/agent_hub.py" list-skills --hub-root "$AGENTS_ROOT" --project-type generic --layer media)
+  TOOLING_SKILL_NAMES=$("$PYTHON_BIN" "$SCRIPT_DIR/agent_hub.py" list-skills --hub-root "$AGENTS_ROOT" --project-type generic --layer tooling)
+  RESEARCH_SKILL_NAMES=$("$PYTHON_BIN" "$SCRIPT_DIR/agent_hub.py" list-skills --hub-root "$AGENTS_ROOT" --project-type generic --layer research)
+fi
 SELECTED_USER_SKILL_NAMES="$SHARE_SKILL_NAMES
-$MEDIA_SKILL_NAMES"
+$MEDIA_SKILL_NAMES
+$TOOLING_SKILL_NAMES
+$RESEARCH_SKILL_NAMES"
 
 selected_user_skill() {
   expected=$1
@@ -105,72 +123,47 @@ remove_stale_managed_user_skill_links() {
 
 echo "=== Linking global skills ==="
 INSTALL_HUB_BLOCKED=0
+sync_user_skill_link() {
+  skill_root=$1
+  layer=$2
+  name=$3
+  link_path="$skill_root/$name"
+  target_path="$AGENTS_ROOT/skills/$layer/$name"
+  if [ "$DRY_RUN" = '1' ]; then
+    printf '  [DRY-RUN] symlink: %s -> %s\n' "$link_path" "$target_path"
+    return
+  fi
+  target_resolved=$(agent_resolve_absolute_path "$target_path")
+  if [ -e "$link_path" ] || [ -L "$link_path" ]; then
+    if [ -L "$link_path" ]; then
+      existing=$(agent_real_path "$link_path")
+      if [ "$existing" = "$target_resolved" ]; then
+        printf '  [OK] %s\n' "$link_path"
+        return
+      fi
+      rm -f -- "$link_path"
+    elif [ -f "$link_path/SKILL.md" ]; then
+      if [ "$REPLACE_REAL_DIRS" = '1' ]; then
+        rm -rf -- "$link_path"
+      else
+        printf '  [SKIP] Real dir exists, wont overwrite: %s\n' "$link_path" >&2
+        INSTALL_HUB_BLOCKED=$((INSTALL_HUB_BLOCKED + 1))
+        return
+      fi
+    else
+      agent_fail "Path exists and is not a symlink: $link_path"
+    fi
+  fi
+  ln -s "$target_path" "$link_path"
+  printf '  [NEW] %s\n' "$link_path"
+}
 for skill_root in $USER_SKILL_ROOTS; do
   [ "$DRY_RUN" = '0' ] && agent_ensure_dir "$skill_root"
   remove_stale_managed_user_skill_links "$skill_root"
-  for name in $SHARE_SKILL_NAMES; do
-    link_path="$skill_root/$name"
-    target_path="$SHARE_ROOT/$name"
-    if [ "$DRY_RUN" = '1' ]; then
-      printf '  [DRY-RUN] symlink: %s -> %s\n' "$link_path" "$target_path"
-      continue
-    fi
-    target_resolved=$(agent_resolve_absolute_path "$target_path")
-    if [ -e "$link_path" ] || [ -L "$link_path" ]; then
-      if [ -L "$link_path" ]; then
-        existing=$(agent_real_path "$link_path")
-        if [ "$existing" = "$target_resolved" ]; then
-          printf '  [OK] %s\n' "$link_path"
-          continue
-        fi
-        rm -f -- "$link_path"
-      elif [ -f "$link_path/SKILL.md" ]; then
-        if [ "$REPLACE_REAL_DIRS" = '1' ]; then
-          rm -rf -- "$link_path"
-        else
-          printf '  [SKIP] Real dir exists, wont overwrite: %s\n' "$link_path" >&2
-          INSTALL_HUB_BLOCKED=$((INSTALL_HUB_BLOCKED + 1))
-          continue
-        fi
-      else
-        agent_fail "Path exists and is not a symlink: $link_path"
-      fi
-    fi
-    ln -s "$target_path" "$link_path"
-    printf '  [NEW] %s\n' "$link_path"
-  done
-
-  for name in $MEDIA_SKILL_NAMES; do
-    link_path="$skill_root/$name"
-    target_path="$MEDIA_ROOT/$name"
-    if [ "$DRY_RUN" = '1' ]; then
-      printf '  [DRY-RUN] symlink: %s -> %s\n' "$link_path" "$target_path"
-      continue
-    fi
-    target_resolved=$(agent_resolve_absolute_path "$target_path")
-    if [ -e "$link_path" ] || [ -L "$link_path" ]; then
-      if [ -L "$link_path" ]; then
-        existing=$(agent_real_path "$link_path")
-        if [ "$existing" = "$target_resolved" ]; then
-          printf '  [OK] %s\n' "$link_path"
-          continue
-        fi
-        rm -f -- "$link_path"
-      elif [ -f "$link_path/SKILL.md" ]; then
-        if [ "$REPLACE_REAL_DIRS" = '1' ]; then
-          rm -rf -- "$link_path"
-        else
-          printf '  [SKIP] Real dir exists, wont overwrite: %s\n' "$link_path" >&2
-          INSTALL_HUB_BLOCKED=$((INSTALL_HUB_BLOCKED + 1))
-          continue
-        fi
-      else
-        agent_fail "Path exists and is not a symlink: $link_path"
-      fi
-    fi
-    ln -s "$target_path" "$link_path"
-    printf '  [NEW] %s\n' "$link_path"
-  done
+  for name in $SHARE_SKILL_NAMES; do sync_user_skill_link "$skill_root" share "$name"; done
+  for name in $MEDIA_SKILL_NAMES; do sync_user_skill_link "$skill_root" media "$name"; done
+  for name in $TOOLING_SKILL_NAMES; do sync_user_skill_link "$skill_root" tooling "$name"; done
+  for name in $RESEARCH_SKILL_NAMES; do sync_user_skill_link "$skill_root" research "$name"; done
 done
 agent_count_names() {
   names=$1
@@ -185,6 +178,8 @@ agent_count_names() {
 
 SHARE_SKILL_COUNT=$(agent_count_names "$SHARE_SKILL_NAMES")
 MEDIA_SKILL_COUNT=$(agent_count_names "$MEDIA_SKILL_NAMES")
+TOOLING_SKILL_COUNT=$(agent_count_names "$TOOLING_SKILL_NAMES")
+RESEARCH_SKILL_COUNT=$(agent_count_names "$RESEARCH_SKILL_NAMES")
 echo ""
 
 if [ "$INSTALL_HUB_BLOCKED" -gt 0 ] && [ "$DRY_RUN" = '0' ]; then
@@ -193,11 +188,16 @@ if [ "$INSTALL_HUB_BLOCKED" -gt 0 ] && [ "$DRY_RUN" = '0' ]; then
 fi
 
 # ---------------------------------------------------------------------------
-# 2. User-level rules are intentionally not synced
+# 2. Generate global rules and optionally apply managed user targets
 # ---------------------------------------------------------------------------
 if [ "$SKIP_RULES" != '1' ]; then
   echo "=== User-level rules ==="
-  echo "  Skipped: user-level AGENTS.md / CLAUDE.md are deprecated; project rules are synced per workspace."
+  rule_args="--hub-root $AGENTS_ROOT --project-root $AGENTS_ROOT --project-key agents --projection-mode layered --scope global --hosts $TOOLS"
+  [ -n "$SKILLS" ] && rule_args="$rule_args --skills $SKILLS"
+  [ "$APPLY_USER_RULES" = '1' ] && rule_args="$rule_args --apply-user-targets"
+  [ "$DRY_RUN" = '1' ] && rule_args="$rule_args --dry-run"
+  # shellcheck disable=SC2086
+  "$PYTHON_BIN" "$SCRIPT_DIR/agent_hub.py" sync-agent-rules $rule_args
   echo ""
 fi
 
@@ -233,6 +233,9 @@ echo "=== Summary ==="
 echo "  Hub           : $AGENTS_ROOT"
 echo "  Global share skills : $SHARE_SKILL_COUNT -> user roots including Gemini CLI ~/.gemini/skills and Antigravity ~/.gemini/config/skills"
 echo "  Global media skills : $MEDIA_SKILL_COUNT -> user roots including Gemini CLI ~/.gemini/skills and Antigravity ~/.gemini/config/skills"
+echo "  Global tooling skills : $TOOLING_SKILL_COUNT"
+echo "  Global research skills : $RESEARCH_SKILL_COUNT"
+echo "  Global rules     : hosts=$TOOLS apply_user_targets=$APPLY_USER_RULES"
 echo "  Next step     : cd <your-project> && sh \"$AGENTS_ROOT/scripts/register-project.sh\""
 echo ""
 echo "=== Done ==="

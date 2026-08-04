@@ -42,6 +42,7 @@ HUB_ROOT=''
 PROJECT_ROOT=''
 PROJECT_KEY=''
 PROJECT_TYPE=''
+HOSTS=''
 SKIP_RULES=0
 SKIP_SHARED_SKILLS=0
 SKIP_PROJECT_SKILLS=0
@@ -60,6 +61,7 @@ while [ $# -gt 0 ]; do
     --project-root) PROJECT_ROOT=$2; shift 2 ;;
     --project-key) PROJECT_KEY=$2; shift 2 ;;
     --project-type) PROJECT_TYPE=$2; shift 2 ;;
+    --hosts|--tools) HOSTS=$2; shift 2 ;;
     --skip-rules) SKIP_RULES=1; shift ;;
     --skip-shared-skills) SKIP_SHARED_SKILLS=1; shift ;;
     --skip-project-skills) SKIP_PROJECT_SKILLS=1; shift ;;
@@ -134,6 +136,7 @@ registry_skill_names_csv() {
   "$PYTHON_BIN" "$SCRIPT_DIR/agent_hub.py" list-skills \
     --hub-root "$AGENTS_ROOT" \
     --project-type "$RESOLVED_PROJECT_TYPE" \
+    --project-key "$RESOLVED_PROJECT_KEY" \
     --layer "$layer" \
     | awk 'NF { if (out) out = out "," $0; else out = $0 } END { print out }'
 }
@@ -142,6 +145,9 @@ if [ "$SKIP_RULES" != '1' ]; then
   rule_args="--hub-root $AGENTS_ROOT --project-root $RESOLVED_PROJECT_ROOT --project-key $RESOLVED_PROJECT_KEY"
   if [ -n "$PROJECT_TYPE" ]; then
     rule_args="$rule_args --project-type $PROJECT_TYPE"
+  fi
+  if [ -n "$HOSTS" ]; then
+    rule_args="$rule_args --hosts $HOSTS"
   fi
   if [ "$SKIP_USER_TARGETS" = '1' ]; then
     rule_args="$rule_args --skip-user-targets"
@@ -234,3 +240,13 @@ echo "Project key: $RESOLVED_PROJECT_KEY"
 echo "Project type: $RESOLVED_PROJECT_TYPE"
 echo "Prompts enabled: $PROMPTS_ENABLED"
 echo "Hub root: $AGENTS_ROOT"
+
+echo "=== Project agenting closure ==="
+closure_args="--hub-root $AGENTS_ROOT --project-root $RESOLVED_PROJECT_ROOT --project-key $RESOLVED_PROJECT_KEY"
+[ -n "$HOSTS" ] && closure_args="$closure_args --hosts $HOSTS"
+# shellcheck disable=SC2086
+"$PYTHON_BIN" "$SCRIPT_DIR/agent_hub.py" check-agenting-closure $closure_args
+if [ "$SKIP_SHARED_SKILLS" != '1' ] || [ "$SKIP_PROJECT_SKILLS" != '1' ]; then
+  sh "$SCRIPT_DIR/check-skill-links.sh" --repo-root "$RESOLVED_PROJECT_ROOT" --hub-root "$AGENTS_ROOT" --project-key "$RESOLVED_PROJECT_KEY"
+fi
+echo "INIT_PROJECT_AGENTING=verified"

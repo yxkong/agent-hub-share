@@ -5,6 +5,7 @@ param(
     [string]$ProjectKey = '',
     [ValidateSet('engineering', 'media', 'generic', 'mixed', 'hub')]
     [string]$ProjectType = '',
+    [string]$Hosts = '',
     [switch]$SkipRules,
     [switch]$SkipSharedSkills,
     [switch]$SkipProjectSkills,
@@ -142,7 +143,7 @@ function Get-AgentRegistrySkillNames {
     )
     $pythonBin = Resolve-AgentPython3Interpreter
     $agentHubPy = Join-Path $PSScriptRoot 'agent_hub.py'
-    $items = @(& $pythonBin $agentHubPy list-skills --hub-root $agentsRoot --project-type $ProjectType --layer $Layer | Where-Object { $_ })
+    $items = @(& $pythonBin $agentHubPy list-skills --hub-root $agentsRoot --project-type $ProjectType --project-key $resolvedProjectKey --layer $Layer | Where-Object { $_ })
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to resolve skill registry for project_type=$ProjectType layer=$Layer"
     }
@@ -171,6 +172,9 @@ if (-not $SkipRules) {
     }
     if ($ProjectType) {
         $ruleArgs.ProjectType = $ProjectType
+    }
+    if ($Hosts) {
+        $ruleArgs.Args = @('--hosts', $Hosts)
     }
     if ($SkipUserTargets) {
         $ruleArgs.SkipUserTargets = $true
@@ -294,3 +298,17 @@ Write-Host "Project key: $resolvedProjectKey"
 Write-Host "Project type: $resolvedProjectType"
 Write-Host "Prompts enabled: $promptsEnabled"
 Write-Host "Hub root: $agentsRoot"
+
+Write-Host "=== Project agenting closure ==="
+$closureArgs = @(
+    'check-agenting-closure', '--hub-root', $agentsRoot,
+    '--project-root', $resolvedProjectRoot, '--project-key', $resolvedProjectKey
+)
+if ($Hosts) { $closureArgs += @('--hosts', $Hosts) }
+& (Resolve-AgentPython3Interpreter) (Join-Path $PSScriptRoot 'agent_hub.py') @closureArgs
+if ($LASTEXITCODE -ne 0) { throw 'Project rule desired-state closure failed.' }
+if (-not $SkipSharedSkills -or -not $SkipProjectSkills) {
+    & (Join-Path $PSScriptRoot 'check-skill-links.ps1') -RepoRoot $resolvedProjectRoot -HubRoot $agentsRoot -ProjectKey $resolvedProjectKey
+    if ($LASTEXITCODE -ne 0) { throw 'Project skill link closure failed.' }
+}
+Write-Host "INIT_PROJECT_AGENTING=verified"

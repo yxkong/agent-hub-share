@@ -19,6 +19,10 @@ HUB_ROOT=''
 PROJECT_ROOT=''
 PROJECT_KEY=''
 PROJECT_TYPE=''
+TOOLS='codex,claude,cursor'
+CONTRACT_GROUPS=''
+SKILL_GROUPS=''
+PROJECT_SKILLS=''
 SKIP_RULES=0
 SKIP_SHARED_SKILLS=0
 SKIP_PROJECT_SKILLS=0
@@ -35,6 +39,10 @@ while [ $# -gt 0 ]; do
     --project-root)       PROJECT_ROOT=$2;   shift 2 ;;
     --project-key)        PROJECT_KEY=$2;    shift 2 ;;
     --project-type)       PROJECT_TYPE=$2;   shift 2 ;;
+    --tools|--hosts)      TOOLS=$2;          shift 2 ;;
+    --contract-groups)    CONTRACT_GROUPS=$2; shift 2 ;;
+    --skill-groups)       SKILL_GROUPS=$2;    shift 2 ;;
+    --project-skills)     PROJECT_SKILLS=$2;  shift 2 ;;
     --skip-rules)         SKIP_RULES=1;      shift   ;;
     --skip-shared-skills) SKIP_SHARED_SKILLS=1; shift ;;
     --skip-project-skills) SKIP_PROJECT_SKILLS=1; shift ;;
@@ -105,6 +113,11 @@ if [ -n "$PROJECT_TYPE" ]; then
       cat > "$PROJECT_YAML" <<SKELETON
 project_key: $RESOLVED_PROJECT_KEY
 project_type: $PROJECT_TYPE
+hosts: $TOOLS
+projection_mode: layered
+contract_groups: $CONTRACT_GROUPS
+skill_groups: $SKILL_GROUPS
+project_skills: $PROJECT_SKILLS
 default_workflow: $DEFAULT_WORKFLOW
 project_skill: unknown
 prompts_enabled: $(if [ "$PROJECT_TYPE" = 'media' ]; then printf false; else printf true; fi)
@@ -237,6 +250,7 @@ if [ "$DRY_RUN" = '0' ]; then
   echo "=== Running init-project-agenting ==="
   init_args="--hub-root $AGENTS_ROOT --project-root $RESOLVED_PROJECT_ROOT --project-key $RESOLVED_PROJECT_KEY"
   [ -n "$PROJECT_TYPE" ] && init_args="$init_args --project-type $PROJECT_TYPE"
+  [ -n "$TOOLS" ] && init_args="$init_args --hosts $TOOLS"
   [ "$SKIP_RULES"          = '1' ] && init_args="$init_args --skip-rules"
   [ "$SKIP_SHARED_SKILLS"  = '1' ] && init_args="$init_args --skip-shared-skills"
   [ "$SKIP_PROJECT_SKILLS" = '1' ] && init_args="$init_args --skip-project-skills"

@@ -17,6 +17,10 @@ param(
     [string]$ProjectKey    = '',
     [ValidateSet('engineering', 'media', 'generic', 'mixed', 'hub')]
     [string]$ProjectType   = '',
+    [string]$Tools         = 'codex,claude,cursor',
+    [string]$ContractGroups = '',
+    [string]$SkillGroups   = '',
+    [string]$ProjectSkills = '',
     [switch]$SkipRules,
     [switch]$SkipSharedSkills,
     [switch]$SkipProjectSkills,
@@ -87,6 +91,11 @@ if ($ProjectType) {
         $projectYamlBody = @(
             "project_key: $resolvedProjectKey",
             "project_type: $ProjectType",
+            "hosts: $Tools",
+            'projection_mode: layered',
+            "contract_groups: $ContractGroups",
+            "skill_groups: $SkillGroups",
+            "project_skills: $ProjectSkills",
             "default_workflow: $defaultWorkflow",
             'project_skill: unknown',
             "prompts_enabled: $defaultPromptsEnabled",
@@ -268,6 +277,7 @@ if (-not $DryRun) {
         ProjectKey  = $resolvedProjectKey
     }
     if ($ProjectType)        { $initArgs.ProjectType        = $ProjectType }
+    if ($Tools)              { $initArgs.Hosts              = $Tools }
     if ($SkipRules)         { $initArgs.SkipRules         = $true }
     if ($SkipSharedSkills)  { $initArgs.SkipSharedSkills  = $true }
     if ($SkipProjectSkills) { $initArgs.SkipProjectSkills = $true }

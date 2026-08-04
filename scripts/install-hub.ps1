@@ -21,7 +21,10 @@ param(
     [switch]$DryRun,
     [switch]$SkipRules,
     [switch]$SkipProfile,
-    [switch]$ReplaceRealDirs
+    [switch]$ReplaceRealDirs,
+    [string]$Tools = 'codex,claude,cursor',
+    [string[]]$Skills = @(),
+    [switch]$ApplyUserRules
 )
 
 $ErrorActionPreference = 'Stop'
@@ -30,8 +33,6 @@ $ErrorActionPreference = 'Stop'
 # Hub root auto-detected from script location (no env var needed)
 $agentsRoot  = Resolve-AgentHubRoot -ScriptRoot $PSScriptRoot
 $userProfile = $env:USERPROFILE
-$shareRoot   = Join-Path $agentsRoot 'skills\share'
-$mediaRoot   = Join-Path $agentsRoot 'skills\media'
 $pythonBin   = Resolve-AgentPython3Interpreter
 $geminiSkillPathsScript = Join-Path $agentsRoot 'skills\share\agent-hub-bootstrap\scripts\gemini-skill-paths.ps1'
 if (Test-Path -LiteralPath $geminiSkillPathsScript) {
@@ -66,10 +67,20 @@ $userSkillRoots = @(
 ) + $userGeminiSkillRoots
 
 $agentHubPy = Join-Path $PSScriptRoot 'agent_hub.py'
-$shareSkillNames = @(& $pythonBin $agentHubPy list-skills --hub-root $agentsRoot --project-type generic --layer share | Where-Object { $_ })
-$mediaSkillNames = @(& $pythonBin $agentHubPy list-skills --hub-root $agentsRoot --project-type generic --layer media | Where-Object { $_ })
+$includeSkills = ($Skills | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }) -join ','
+$globalSkillRecords = @()
+foreach ($layer in 'share', 'media', 'tooling', 'research') {
+    $listArgs = @('list-skills', '--hub-root', $agentsRoot, '--project-type', 'generic', '--layer', $layer)
+    if ($includeSkills) { $listArgs += @('--include', $includeSkills) }
+    foreach ($name in @(& $pythonBin $agentHubPy @listArgs | Where-Object { $_ })) {
+        $globalSkillRecords += [pscustomobject]@{
+            Name = $name
+            Target = Join-Path $agentsRoot ("skills\{0}\{1}" -f $layer, $name)
+        }
+    }
+}
 $selectedUserSkillNames = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
-foreach ($name in @($shareSkillNames) + @($mediaSkillNames)) { [void]$selectedUserSkillNames.Add($name) }
+foreach ($item in $globalSkillRecords) { [void]$selectedUserSkillNames.Add($item.Name) }
 $managedSkillsPrefix = [System.IO.Path]::GetFullPath((Join-Path $agentsRoot 'skills')).TrimEnd('\') + '\'
 
 function Remove-StaleManagedUserSkillLinks {
@@ -95,80 +106,46 @@ function Remove-StaleManagedUserSkillLinks {
 
 Write-Host "=== Linking global skills ===" -ForegroundColor Cyan
 $installHubBlocked = 0
+function Sync-AgentUserSkillLink {
+    param(
+        [Parameter(Mandatory)][string]$SkillRoot,
+        [Parameter(Mandatory)][string]$Name,
+        [Parameter(Mandatory)][string]$TargetPath
+    )
+    $linkPath = Join-Path $SkillRoot $Name
+    if ($DryRun) {
+        Write-Host ("  [DRY-RUN] Junction: {0} -> {1}" -f $linkPath, $TargetPath)
+        return
+    }
+    if (Test-Path -LiteralPath $linkPath) {
+        $existing = Get-Item -LiteralPath $linkPath -Force
+        $isReparse = ($existing.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0
+        if ($isReparse) {
+            $currentTarget = @($existing.Target)
+            if ($currentTarget -contains $TargetPath) {
+                Write-Host ("  [OK]  {0}" -f $linkPath) -ForegroundColor Green
+                return
+            }
+            [System.IO.Directory]::Delete($linkPath)
+        }
+        elseif (Test-Path -LiteralPath (Join-Path $linkPath 'SKILL.md')) {
+            if ($ReplaceRealDirs) { Remove-Item -LiteralPath $linkPath -Recurse -Force }
+            else {
+                Write-Host ("  [SKIP] Real dir exists, won't overwrite: {0}" -f $linkPath) -ForegroundColor Yellow
+                $script:installHubBlocked++
+                return
+            }
+        }
+        else { Remove-Item -LiteralPath $linkPath -Recurse -Force }
+    }
+    New-Item -ItemType Junction -Path $linkPath -Target $TargetPath | Out-Null
+    Write-Host ("  [NEW] {0}" -f $linkPath) -ForegroundColor DarkGreen
+}
 foreach ($skillRoot in $userSkillRoots) {
     if (-not $DryRun) { Ensure-AgentDirectory -Path $skillRoot }
     Remove-StaleManagedUserSkillLinks -SkillRoot $skillRoot
-
-    foreach ($name in $shareSkillNames) {
-        $linkPath   = Join-Path $skillRoot $name
-        $targetPath = Join-Path $shareRoot $name
-
-        if ($DryRun) {
-            Write-Host ("  [DRY-RUN] Junction: {0} -> {1}" -f $linkPath, $targetPath)
-            continue
-        }
-
-        if (Test-Path -LiteralPath $linkPath) {
-            $existing = Get-Item -LiteralPath $linkPath -Force
-            $isReparse = ($existing.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0
-            if ($isReparse) {
-                $currentTarget = $existing.Target
-                if ($currentTarget -contains $targetPath) {
-                    Write-Host ("  [OK]  {0}" -f $linkPath) -ForegroundColor Green
-                    continue
-                }
-                [System.IO.Directory]::Delete($linkPath)
-            } elseif (Test-Path -LiteralPath (Join-Path $linkPath 'SKILL.md')) {
-                if ($ReplaceRealDirs) {
-                    Remove-Item -LiteralPath $linkPath -Recurse -Force
-                }
-                else {
-                    Write-Host ("  [SKIP] Real dir exists, won't overwrite: {0}" -f $linkPath) -ForegroundColor Yellow
-                    $installHubBlocked++
-                    continue
-                }
-            } else {
-                Remove-Item -LiteralPath $linkPath -Recurse -Force
-            }
-        }
-        New-Item -ItemType Junction -Path $linkPath -Target $targetPath | Out-Null
-        Write-Host ("  [NEW] {0}" -f $linkPath) -ForegroundColor DarkGreen
-    }
-
-    foreach ($name in $mediaSkillNames) {
-        $linkPath   = Join-Path $skillRoot $name
-        $targetPath = Join-Path $mediaRoot $name
-
-        if ($DryRun) {
-            Write-Host ("  [DRY-RUN] Junction: {0} -> {1}" -f $linkPath, $targetPath)
-            continue
-        }
-
-        if (Test-Path -LiteralPath $linkPath) {
-            $existing = Get-Item -LiteralPath $linkPath -Force
-            $isReparse = ($existing.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0
-            if ($isReparse) {
-                $currentTarget = $existing.Target
-                if ($currentTarget -contains $targetPath) {
-                    Write-Host ("  [OK]  {0}" -f $linkPath) -ForegroundColor Green
-                    continue
-                }
-                [System.IO.Directory]::Delete($linkPath)
-            } elseif (Test-Path -LiteralPath (Join-Path $linkPath 'SKILL.md')) {
-                if ($ReplaceRealDirs) {
-                    Remove-Item -LiteralPath $linkPath -Recurse -Force
-                }
-                else {
-                    Write-Host ("  [SKIP] Real dir exists, won't overwrite: {0}" -f $linkPath) -ForegroundColor Yellow
-                    $installHubBlocked++
-                    continue
-                }
-            } else {
-                Remove-Item -LiteralPath $linkPath -Recurse -Force
-            }
-        }
-        New-Item -ItemType Junction -Path $linkPath -Target $targetPath | Out-Null
-        Write-Host ("  [NEW] {0}" -f $linkPath) -ForegroundColor DarkGreen
+    foreach ($item in $globalSkillRecords) {
+        Sync-AgentUserSkillLink -SkillRoot $skillRoot -Name $item.Name -TargetPath $item.Target
     }
 }
 Write-Host ""
@@ -179,11 +156,19 @@ if ($installHubBlocked -gt 0 -and -not $DryRun) {
 }
 
 # ---------------------------------------------------------------------------
-# 2. User-level rules are intentionally not synced
+# 2. Generate global rules and optionally apply managed user targets
 # ---------------------------------------------------------------------------
 if (-not $SkipRules) {
     Write-Host "=== User-level rules ===" -ForegroundColor Cyan
-    Write-Host "  Skipped: user-level AGENTS.md / CLAUDE.md are deprecated; project rules are synced per workspace." -ForegroundColor Yellow
+    $ruleArgs = @(
+        'sync-agent-rules', '--hub-root', $agentsRoot, '--project-root', $agentsRoot,
+        '--project-key', 'agents', '--projection-mode', 'layered', '--scope', 'global', '--hosts', $Tools
+    )
+    if ($includeSkills) { $ruleArgs += @('--skills', $includeSkills) }
+    if ($ApplyUserRules) { $ruleArgs += '--apply-user-targets' }
+    if ($DryRun) { $ruleArgs += '--dry-run' }
+    & $pythonBin $agentHubPy @ruleArgs
+    if ($LASTEXITCODE -ne 0) { throw 'Global rule initialization failed.' }
     Write-Host ""
 }
 
@@ -216,8 +201,8 @@ if (-not $SkipProfile -and -not $DryRun) {
 # ---------------------------------------------------------------------------
 Write-Host "=== Summary ===" -ForegroundColor Cyan
 Write-Host "  Hub            : $agentsRoot"
-Write-Host "  Global share skills : $($shareSkillNames.Count) -> user roots including Gemini CLI ~/.gemini/skills and Antigravity ~/.gemini/config/skills"
-Write-Host "  Global media skills : $($mediaSkillNames.Count) -> user roots including Gemini CLI ~/.gemini/skills and Antigravity ~/.gemini/config/skills"
+Write-Host "  Global skills  : $($globalSkillRecords.Count) -> user roots including Gemini CLI ~/.gemini/skills and Antigravity ~/.gemini/config/skills"
+Write-Host "  Global rules   : hosts=$Tools apply_user_targets=$ApplyUserRules"
 Write-Host "  Next step      : cd <your-project> && & `"$agentsRoot\scripts\register-project.ps1`""
 Write-Host ""
 Write-Host "=== Done ===" -ForegroundColor Green
