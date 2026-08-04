@@ -10,7 +10,7 @@
 | Deploy | 上传、渲染配置、切换版本、重启、回滚 | 项目脚本执行真实业务动作，share 只管编排契约 |
 | Config Profiles | small/large/fixed 多档参数 | 只提供变量值，不替代服务配置模板 |
 | Service Configs | Nginx/Redis/MySQL/JDK/JVM/systemd 配置模板 | 模板脱敏，凭据和域名在项目侧填 |
-| Online Detect | 进程、端口、HTTP、systemd、日志、磁盘内存；本机开发端口释放 | 默认只读；`local free-port` 仅杀本机占用进程 |
+| Online Detect | 进程、端口、HTTP、systemd、日志、磁盘内存；本机开发端口释放；磁盘满排查；Nginx 崩溃溯源；安全审计；证书检查；配置漂移检查 | 默认只读；`local free-port` 仅杀本机占用进程；`disk_triage.sh`/`nginx_crash_triage.sh`/`security_audit.sh`/`nginx_cert_check.sh`/`nginx_drift_check.sh` 只读探测不删文件 |
 | Log Triage | Nginx/服务日志源、异常 pattern、journalctl、关联检查 | 默认只读，不直接改配置 |
 | Data Query | Redis/MySQL 等只读查询 | 默认 allowlist，禁止写命令 |
 | DB Verify | 表结构、字段、索引、样例数据与本地代码核验 | 默认只读，限制行数和脱敏字段 |
@@ -25,7 +25,11 @@
 | 在 `xxx` 安装基础服务 | 指定或默认 nginx/redis/mysql/zookeeper/kafka/jdk17 等 | 读取模块模板，按在线/离线模式输出安装命令、离线包清单、端口和健康检查 | `provision plan` + `templates/provision/` |
 | 排查 `xxx` 上 Nginx 异常日志 | 服务名、时间窗口、可读日志路径 | 定位 access/error/journalctl 来源，匹配异常 pattern，关联端口、`nginx -t`、systemd 状态 | `logs plan` + `templates/logs/` |
 | 查询 DB 结构/数据并核验本地代码 | 数据库连接引用、本地代码目录、目标表/SQL | 只读生成 schema/data 检查计划，限制 SQL 前缀、行数和脱敏列 | `db plan` + `templates/db/` |
-| 排查本机开发端口占用 / WinError 10013 | 端口号、可选 cmdline 匹配 | 结束存活监听进程并 bind 探测；忽略 Windows 幽灵 LISTEN | `local free-port` + `scripts/free-local-port.ps1|.sh` |
+| 排查本机开发端口占用 / WinError 10013 | 端口号、可选 cmdline 匹配 | 结束存活监听进程并 bind 探测；忽略 Windows 幽灵 LISTEN | `local free-port` + `scripts/free-local-port.ps1\|.sh` |
+| 排查 Nginx 崩溃原因 | 服务名、时间窗口 | 检查 unattended-upgrades 日志、dpkg 历史、journalctl、配置测试 | `scripts/helpers/nginx_crash_triage.sh` + CASE-004 |
+| 安全审计 / 疑似入侵 | 主机名、SSH 别名 | 检查公网监听端口、可疑进程、异常 cron、挖矿进程、iptables 规则 | `scripts/helpers/security_audit.sh` + CASE-005 |
+| SSL 证书 / OCSP 错误 | 证书目录、错误日志路径 | 检查证书有效期、OCSP 错误计数、OCSP responder 可达性 | `scripts/helpers/nginx_cert_check.sh` + CASE-006 |
+| Nginx 配置漂移 | 多台主机名/SSH 别名 | 对比所有节点配置文件数量和 MD5，输出差异列表 | `scripts/helpers/nginx_drift_check.sh` + CASE-007 |
 
 ## 部署能力
 

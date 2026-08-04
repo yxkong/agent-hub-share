@@ -26,7 +26,13 @@ description: 跨平台运维技能包（Python core + ps1/sh thin wrapper），�
 | `db-verify` | 查询数据库表结构/数据并与本地代码核验 | `templates/db/TEMPLATE_db-verify.config.json` |
 | `project-ops-config` | 给某个项目落本地 ops 配置骨架 | `references/project_ops_contract.md` + `templates/project/TEMPLATE_ops.config.json` |
 | `ops-patterns` | 用户要求参考开源运维工具完善技能边界 | `references/open_source_patterns.md` |
-| `triage-case` | 服务器死机/OOM/SSH不通等故障，先查历史案例 | `references/case_library.md` |
+| `triage-case` | 服务器死机/OOM/SSH不通/磁盘满等故障，先查历史案例 | `references/case_library.md` |
+| `disk-triage` | 磁盘满 / 磁盘 100% / 日志满了，定位是哪块满 | `scripts/helpers/disk_triage.sh` + `references/case_library.md` CASE-003 |
+| `nginx-crash` | Nginx 突然崩溃、"systemctl status nginx failed"、无人操作但服务挂了 | `scripts/helpers/nginx_crash_triage.sh` + `references/case_library.md` CASE-004 |
+| `security-audit` | 服务器 CPU 飙高、疑似被入侵、挖矿木马、端口暴露公网 | `scripts/helpers/security_audit.sh` + `references/case_library.md` CASE-005 |
+| `nginx-cert` | SSL 证书过期、OCSP 错误刷屏、证书有效期检查 | `scripts/helpers/nginx_cert_check.sh` + `references/case_library.md` CASE-006 |
+| `nginx-drift` | 多台 Nginx 配置不一致、部分域名行为异常、配置漂移 | `scripts/helpers/nginx_drift_check.sh` + `references/case_library.md` CASE-007 |
+| `safe-ops` | 任何修改/删除/重启操作前，必须查阅安全操作规范 | `references/safe_ops_manual.md` |
 
 ## 作用边界
 
@@ -51,6 +57,8 @@ description: 跨平台运维技能包（Python core + ps1/sh thin wrapper），�
 - 连接、日志排查、数据库核验都先生成只读 plan；真实 SSH、日志读取、DB 查询必须来自项目私有配置和人工明确目标。
 - 禁止在项目运维目录各自维护一份完整 bootstrap。
 - **禁止**把密码、私钥写进本技能或 templates。
+- **安全操作**：任何修改前必须备份；任何删除前必须人工确认；除非用户明确要求"删除"，不得执行 `rm`。详见 `references/safe_ops_manual.md`。
+- **凭证隔离**：项目目录内不存放明文密码；通过 SSH 密钥直连跳板机操作所有节点；项目内 `account.md` 只保留 IP、SSH 别名和密钥路径。
 
 ## 调用
 
@@ -91,7 +99,7 @@ python "$AGENTS_HUB_ROOT/skills/share/ops-bootstrap/scripts/ecs_ops.py" local fr
 & "$env:AGENTS_HUB_ROOT\skills\share\ops-bootstrap\scripts\bootstrap-ssh.ps1" -OpsRoot $PSScriptRoot @args
 ```
 
-能力模型 → `references/capability_model.md`；项目配置闭环 → `references/project_ops_contract.md`；开源模式吸收 → `references/open_source_patterns.md`；细节 SOP → `references/workflow.md`；目录分层 → `references/layout_contract.md`；环境安装路线图 → `references/roadmap.md`；触发样例 → `references/trigger_eval.md`；**故障排查案例库** → `references/case_library.md`。
+能力模型 → `references/capability_model.md`；项目配置闭环 → `references/project_ops_contract.md`；开源模式吸收 → `references/open_source_patterns.md`；细节 SOP → `references/workflow.md`；目录分层 → `references/layout_contract.md`；环境安装路线图 → `references/roadmap.md`；触发样例 → `references/trigger_eval.md`；**故障排查案例库** → `references/case_library.md`；**安全操作手册** -> `references/safe_ops_manual.md`.
 
 ## 与其他技能
 

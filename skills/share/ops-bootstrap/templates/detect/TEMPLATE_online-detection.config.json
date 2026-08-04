@@ -38,8 +38,16 @@
       {
         "path": "/var/log/nginx/error.log",
         "tailLines": 100,
-        "grep": "error|crit|alert|emerg"
+        "grep": "error|crit|alert|emerg|OCSP|SSL|TLS"
       }
-    ]
+    ],
+    "unattendedUpgrades": {
+      "check": true,
+      "note": "apt-daily-upgrade.service can auto-restart nginx after package upgrades; monitor for unexpected version changes"
+    },
+    "certChecks": {
+      "ocspErrorThreshold": 100,
+      "certExpiryWarnDays": 30
+    }
   }
 }

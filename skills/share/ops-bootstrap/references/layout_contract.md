@@ -28,6 +28,7 @@
 | 开源模式抽象 | `open_source_patterns.md` | 从开源 sysadmin/Ansible/deploy/monitoring 生态抽象出的能力边界 |
 | 项目配置闭环 | `project_ops_contract.md` | 把 share 模板实例化到项目 ops 目录时的必备配置和禁区 |
 | 触发样例 | `trigger_eval.md` | should-trigger / should-not-trigger / held-out 样例 |
+| 安全操作手册 | `safe_ops_manual.md` | 修改前备份、删除前确认、操作分级、Agent 行为约束 |
 | 模块细则 | `modules/<name>.md` | 某个组件的检查、安装、回滚、模板字段说明 |
 
 规则：
