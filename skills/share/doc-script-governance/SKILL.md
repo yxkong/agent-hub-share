@@ -108,6 +108,7 @@ bash "$AGENTS_HUB_ROOT/skills/share/doc-script-governance/scripts/backup-file.sh
 
 - 主文件名不写 `FINAL`、`V2`、`copy`
 - 最新文档禁止引用历史副本文件名
+- 修订记录、版本记录、变更记录一律倒序：最新记录置于表格首行；同日按语义版本或修订序号倒序；新增记录只能插入表格首行，禁止追加到末尾
 - 文档、SQL、脚本统一 `UTF-8`，文本优先 `LF`
 - 每个 `docs/db/dev/<module>/` 应产出 `mysql57_dev_final.sql`
 

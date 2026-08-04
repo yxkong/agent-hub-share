@@ -21,7 +21,7 @@ description: 初始化、修复、发布和校验 agent hub 挂载（install-hub
 - 初始化已注册项目与本地 hub 的连接：同步规则、挂载共享技能、挂载项目技能、同步提示词链接、复挂单个技能、核对链接状态。
 - 负责 **hub 资产的位置、挂载、校验与分发**（rules / skills / prompts），**不负责**提示词或规则正文的提炼与评测；正文质量与 eval 设计转 `prompt-engineering`；skill 正文提炼转 `skill-engineering`；技术复盘卡片转 `project-insight-extractor`。
 - 不负责文档、SQL、脚本的放置策略设计；涉及备份与治理时遵循 `doc-script-governance`。
-- 领域 workflow 由 `rules/profiles/<project-type>/PROFILE_RULES.md` 决定；技能挂载由 `skills/registry.json` 决定；命令投影由 `commands/registry.json` 决定。本技能只管类型选择、规则组装、注册、挂载和分发，不把未知项目默认套入工程或自媒体 workflow。
+- 领域 workflow 由 `rules/profiles/<project-type>/PROFILE_RULES.md` 决定；宿主投影由 `rules/hosts/registry.json` 决定；技能挂载由 `skills/registry.json` 决定；命令投影由 `commands/registry.json` 决定。本技能只管类型选择、规则组装、注册、挂载和分发，不把未知项目默认套入工程或自媒体 workflow。
 - 技能元数据规范见 `skills/REGISTRY.md`；注册表只写 hub 相对路径，不写本机绝对路径、用户目录或生成产物路径。
 
 ## 项目类型决策
@@ -52,9 +52,7 @@ description: 初始化、修复、发布和校验 agent hub 挂载（install-hub
 
 ## 默认动作（推荐顺序）
 
-默认只做 **workspace skills 挂载 + workspace 全局规则同步**。规则同步范围包括
-`AGENTS.md`、`CLAUDE.md`、`.cursorrules`、`.cursor/rules/00-common.mdc`；技能挂载范围按
-`skills/registry.json` 与项目 `project_type` 计算。`commands` 与 `prompts` 不是默认动作，只有用户明确要求
+Hub 初始化先生成 **个人全局规则 bundle + global skills**；只有显式 `--apply-user-rules` / `-ApplyUserRules` 才写受管用户规则目标。项目初始化再按 `project.yaml` 的 `hosts / project_type / contract_groups / skill_groups / project_skills` 联合投影项目规则与技能，并在同一结束门校验。`commands` 与 `prompts` 不是默认动作，只有用户明确要求
 “同步命令 / workflows / prompts / 全量初始化 / register-project”时才执行对应脚本。
 
 | 场景 | 脚本 |
@@ -114,9 +112,9 @@ description: 初始化、修复、发布和校验 agent hub 挂载（install-hub
 
 `install-hub` = 零参数安装（hub 路径从脚本自身位置自动推导）；若 `~/.cursor/skills/<name>` 等处已是**真实目录**（含 `SKILL.md`）而非指向 hub 的链接，默认**跳过并整体失败退出**（避免误报 Done）；需迁移时可显式传入 **`-ReplaceRealDirs` / `--replace-real-dirs`**（**会删除**该目录后再建链，破坏性操作）。
 
-1. 读取 `skills/registry.json` 的 `generic/global` 清单，只挂跨项目通用资产能力；工程、自媒体和 hub-maintenance 技能由项目注册/初始化按类型补挂
+1. 读取 `skills/registry.json` 的 `generic/global` 清单，并合并用户显式 `--skills` / `-Skills`；工程、自媒体和 hub-maintenance 技能仍由项目注册/初始化按类型补挂
 2. 软链 / Junction 到 `~/.claude/skills/`、`~/.cursor/skills/`、`~/.codex/skills/`、Gemini CLI `~/.gemini/skills/`、Antigravity `~/.gemini/config/skills/`；不写历史路径 `~/.gemini/antigravity/skills`、`~/.antigravity/skills`
-3. 不再同步用户级 `~/.claude/CLAUDE.md`、`~/.codex/AGENTS.md`；规则按项目同步到 workspace
+3. 按 `--tools` / `-Tools` 生成个人全局规则 bundle；有稳定文件入口的宿主只有在显式 `--apply-user-rules` / `-ApplyUserRules` 时写入，UI-only 宿主返回 `NEEDS_USER_ACTION`
 4. 把 `AGENTS_HUB_ROOT` 写入 shell profile（`--skip-profile` 跳过）
 5. 支持 `--dry-run` / `-DryRun` 预览
 

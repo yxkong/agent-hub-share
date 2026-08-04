@@ -34,7 +34,7 @@ sh "$AGENTS_HUB_ROOT/scripts/install-hub.sh" --dry-run
 
 **效果：**
 - `skills/registry.json` 中的 global 基础设施技能软链到各宿主个人目录，包括 Gemini CLI `~/.gemini/skills/` 与 Antigravity `~/.gemini/config/skills/`
-- 不再同步用户级 `~/.claude/CLAUDE.md`、`~/.codex/AGENTS.md`；完整规则只同步到项目 workspace
+- 默认生成各宿主个人全局 bundle；显式 `--apply-user-rules` / `-ApplyUserRules` 时才写稳定的受管用户入口，UI-only 宿主保留手工导入状态
 - `AGENTS_HUB_ROOT` 自动写入 shell profile（永久生效）
 
 安装完成后，**不需要再手动设置任何环境变量**，进入项目目录直接跑 `register-project` 即可。
@@ -66,7 +66,7 @@ export AGENTS_HUB_ROOT="<你的 hub 目录>"
 
 把本地项目和 hub 的内容对齐：
 
-- 规则文件：`AGENTS.md`、`CLAUDE.md`、`.cursorrules`、`.cursor/rules/00-common.mdc`
+- 规则文件：`AGENTS.md` 与各宿主原生项目规则；根 `CLAUDE.md`、`.cursorrules` 仅作 legacy 薄迁移提示
 - 规则分层：`rules/common/COMMON_AGENT_RULES.md` + `rules/profiles/<project-type>/PROFILE_RULES.md` + `rules/projects/<project-key>/PROJECT_RULES.md`
 - 技能注册表：`skills/registry.json`
 - 命令注册表：`commands/registry.json`；按 `project_type` 投影，不扫描整目录
@@ -105,16 +105,21 @@ export AGENTS_HUB_ROOT="<你的 hub 目录>"
 
 类型真源优先级：命令参数 `--project-type` / `-ProjectType` > `rules/projects/<project-key>/project.yaml` > `generic` fallback。
 
-`project.yaml` 最小结构：
+`project.yaml` 最小结构（完整字段契约见 `docs/design/ai-dev-system/AGENT_HUB_INITIALIZATION_SDD.md`）：
 
 ```yaml
 project_key: my-project
 project_type: media
+hosts: codex,claude,cursor
+projection_mode: layered
+contract_groups:
+skill_groups:
+project_skills:
 default_workflow: none
 project_skill: unknown
 ```
 
-`sync-agent-rules` 会生成精简运行时规则：首跳 + common + environment + profile + project overlay。组装元数据、注册表标记和大标题不写入最终 `AGENTS.md`。
+`sync-agent-rules` 的 layered 模式生成两部分：个人全局为 `首跳 + common + personal + environment`；项目增量为 `首跳 + typed personal preferences + profile + contract groups + project overlay`。项目文件不重复全局正文。
 
 技能注册真源为 `skills/registry.json`：`install-hub` 只把 `generic/global` 清单挂到用户级入口，数量和名单不得在脚本/文档硬编码；`init-project-agenting` 按 `project_type` 展开注册表，默认把对应技能挂到工作区级入口；`hub` 展开为 `global + hub-maintenance`，并额外挂 `skills/projects/<project-key>/*`；只有显式 `--link-user-skills` / `-LinkUserSkills` 才追加写用户级入口。
 
@@ -188,7 +193,7 @@ sh "$AGENTS_HUB_ROOT/scripts/init-project-agenting.sh" \
 
 命令的 canonical `audience` 与宿主显示的 Personal / Workspace 是两件事：前者表示 hub 资产归属，后者由挂载路径决定。真实 `SKILL.md` 只承担能力发现与自然语言触发，不写团队/个人分发语义，也不依赖非 Antigravity 标准的 `user-invocable`。反重力 IDE 的显式 `/` 入口只投影到 `.agents/workflows/<command>.md`；禁止再把同一 command 生成为 `.agents/skills/<command>/SKILL.md`，否则菜单会重复且 Codex 会把命令误当技能。
 
-**规则生成（默认）：** 项目规则按 `首跳 + COMMON_AGENT_RULES + ENV_RULES + PROFILE_RULES + PROJECT_RULES` 生成；用户级 `AGENTS.md` / `CLAUDE.md` 不再作为规则投影目标，避免成为第二真源。规则新增或修订任务必须先读 `docs/design/ai-dev-system/AGENT_RULES_LEARNING_LEDGER.md` 并在完成后追加 entry，普通执行任务不读完整 ledger。
+**规则生成（默认）：** 新项目使用 `projection_mode: layered`。个人全局入口先建立，项目只写类型、契约组和项目增量；宿主目标由 `rules/hosts/registry.json` 解析。所有 live/generated 目标记录 hash manifest，`check-agenting-closure` 使用完整内容比较。规则新增或修订任务必须先读 `docs/design/ai-dev-system/AGENT_RULES_LEARNING_LEDGER.md` 并在完成后追加 entry，普通执行任务不读完整 ledger。
 
 **技能挂载（默认）：** 工作区级入口挂 `skills/registry.json` 计算出的当前 `project_type` 清单；`generic` 只有 global，`engineering` 为 global + engineering，`media` 为 global + media，`hub` 为 global + hub-maintenance，`mixed` 为 global + engineering + media。用户级入口只由 `install-hub` 放 global 基础设施；若确实要把当前项目类型技能也写入用户级目录，显式传入 **`-LinkUserSkills`** / **`--link-user-skills`**。Gemini CLI 用户级入口是 `~/.gemini/skills`，Antigravity 用户级入口是 `~/.gemini/config/skills`；二者的工作区共同使用 `.agents/skills`。**`skills/projects/<key>/*`** 同样挂载到工作区 **`.agents/skills/`、`.cursor/skills/`、`.claude/skills`**（项目技能镜像，非真源）。
 

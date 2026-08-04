@@ -8,6 +8,7 @@
 
 | 版本 | 日期 | 修订要点 |
 |------|------|----------|
+| 1.5.0 | 2026-07-30 | 统一项目文档修订记录倒序契约：最新记录置顶，新增记录插入表格首行；同步主技能、规范示例与检查清单 |
 | 1.4.0 | 2026-06-04 | 明确 hub skill references 的 material change 才强制更新根 README 修订记录 |
 | 1.3.0 | 2026-05-21 | 通用双技能协作迁至 share/README；去掉项目绑定 |
 | 1.2.0 | 2026-05-21 | references 无 YAML；模板在根 templates/ |
@@ -18,6 +19,7 @@
 - **目录模型**：design / plan / implementation / review / config / db/dev / db/online；终版与重构分目录。
 - **模板真源**：本技能根 `templates/` + `references/document_types_and_templates.md`。
 - **改前 backup**：`backup-file`；**项目 docs** 改后 YAML + §修订记录；**hub skill references/** 无自身修订表，material change 更新技能根 README §修订记录。
+- **修订顺序**：修订/版本/变更记录始终倒序，最新记录置顶；新增记录插入表格首行。
 - **online SQL 只读**：Agent 不得写入 `docs/db/online/`。
 
 ## 关键 references

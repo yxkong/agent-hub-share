@@ -17,8 +17,8 @@
 
 1. **过程稿**在 `docs/plan/` 推进，结论稳定后写入/更新 **终版**（合并、删重、补图/契约表）。  
 2. **修订记录双写**（[document_revision_metadata.md](document_revision_metadata.md) §7）：  
-   - 终版：追加修订行（写清并入来源 plan、变更章节）；`updated` + `version` 递增。  
-   - plan：最后一行写「已并入 `<终版路径>` vX.Y」；`status: done`。  
+   - 终版：修订表首行新增记录（写清并入来源 plan、变更章节）；`updated` + `version` 递增。
+   - plan：最新记录（修订表首行）写「已并入 `<终版路径>` vX.Y」；`status: done`。
 3. 旧 `design/*_日期.md` → supersede 短页；**改前** `backup-file`；修订表一行「supersede by …」。  
 4. **Agent 契约**进项目技能 `references/meta/`；design 只保留背景与拓扑。  
 5. 实现完成后：更新终版 §实现状态；plan 不得与终版长期双真源。
