@@ -45,13 +45,44 @@
   },
   "query": {
     "schemaVersion": 1,
-    "defaultMode": "readonly"
+    "defaultMode": "readonly",
+    "mysql": {
+      "enabled": true,
+      "connection": {
+        "name": "dev",
+        "host": "127.0.0.1",
+        "port": 3306,
+        "database": "",
+        "credentials": {
+          "type": "env",
+          "usernameEnv": "OPS_MYSQL_USERNAME",
+          "passwordEnv": "OPS_MYSQL_PASSWORD"
+        }
+      },
+      "allowedPrefixes": ["SELECT", "SHOW", "EXPLAIN", "WITH"],
+      "deniedPrefixes": ["INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "CREATE"],
+      "redactColumns": ["password", "token", "secret", "mobile", "email"],
+      "limits": {
+        "maxRows": 100,
+        "timeoutSeconds": 10
+      }
+    }
   },
   "dbVerify": {
     "schemaVersion": 1,
     "targetName": "example-db",
     "mode": "readonly",
-    "connection": {},
+    "connection": {
+      "type": "mysql",
+      "host": "127.0.0.1",
+      "port": 3306,
+      "database": "",
+      "credentials": {
+        "type": "env",
+        "usernameEnv": "OPS_MYSQL_USERNAME",
+        "passwordEnv": "OPS_MYSQL_PASSWORD"
+      }
+    },
     "localCode": {
       "root": ".",
       "include": [],
@@ -66,6 +97,11 @@
         "EXPLAIN",
         "WITH"
       ],
+      "deniedPrefixes": ["INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "CREATE"],
+      "limits": {
+        "maxRows": 100,
+        "timeoutSeconds": 10
+      },
       "redactColumns": [
         "password",
         "token",

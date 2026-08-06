@@ -39,7 +39,8 @@
 | 规划通用环境安装 | 先补 `references/roadmap.md` 与 `templates/provision/`，再实现 `plan/check` |
 | 为某项目安装 MySQL 并创建业务库 | 项目 `scripts/` / `provision/`，share 只提供模块契约和 dry-run 编排 |
 | 规划部署流程 | 用 `deploy plan` 和 `templates/deploy/`，真实上传/重启留到项目脚本 |
-| 查 Redis key 状态 | 用 `query plan` 校验只读 allowlist；真实查询需项目凭据和审计 |
+| 查 Redis key 状态 | 用 `query plan` 校验只读 allowlist；Redis 执行仍由项目侧完成 |
 | 连接某台服务器 | 用 `connect plan` 解析别名、主机、服务清单；凭据引用留在项目侧 |
 | 排查 nginx 502 | 用 `logs plan` 定义 error/access/journalctl 和关联检查；真实读取日志需明确目标 |
-| 核验订单表结构 | 用 `db plan` 定义 schema/data 检查；SQL 保持只读和限行 |
+| 核验订单表结构 | 先用 `db plan` 定义 schema/data 检查，再以私有凭据执行 `db run --confirm-readonly`；SQL 保持只读、限行、脱敏并 rollback |
+| 查询另一个项目的 MySQL 样例数据 | 使用其 `ops.config.json` 执行 `query plan`，确认后 `query run --confirm-readonly`；不得新建项目专用连库脚本 |

@@ -142,7 +142,7 @@ description: 创建、提炼、审查、重构和基于真实任务优化 AI Ski
 
 | 技能 | 何时转移 |
 |------|----------|
-| `agent-asset-router` | 产物未定在 skill / prompt / insight / hub / docs 间 |
+| `agent-asset-router` | 仅 engineering 项目中，工程产物未定在 skill / prompt / insight / docs / review 间 |
 | `delivery-workflow` | 真实研发任务怎么推进 |
 | `doc-script-governance` | 文档/SQL 放置、备份、skill 目录治理 |
 | `agent-hub-bootstrap` | hub 安装、挂载、`publish-skill` |

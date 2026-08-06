@@ -6,7 +6,7 @@
       "name": "agent-asset-router",
       "dir": "agent-asset-router",
       "path": "skills/share/agent-asset-router",
-      "description": "Agent 资产类任务的轻量总路由器（asset router, skill routing）。用于 skill、prompt、hub、文档治理、技术洞察、长文内容成稿、项目评审、TDD 测试闭环等混合任务时，先判定目标产物并转交 skill-discovery、skill-engineering、prompt-engineering、project-insight-extractor、media PROFILE（切项目身份）、agent-hub-bootstrap、doc-script-governance、ai-development-governance、biz-safety-audit、tdd-workflow 或 `<project-review-skill>`。"
+      "description": "工程体系资产路由技能（engineering asset router）。仅在已确认 `project_type=engineering` 的工程项目中，当任务同时涉及代码、Spec/ADR、docs/SQL、test、review、replay、skill、prompt 或 insight 且目标产物/owner 不明确时触发；不得在 generic、media、hub、mixed 体系中挂载或触发。"
     },
     {
       "name": "agent-hub-bootstrap",

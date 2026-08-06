@@ -11,7 +11,7 @@
 - 不用明显无关的负例糊弄测试
 - 漏触发和误触发都要看
 - 高风险 / 纪律执行类 skill，除了触发验证，还要看是否真正改变了默认行为
-- 先确认目标确实是 skill；若更像 prompt、insight、hub 挂载或 docs 治理，先转 `agent-asset-router`
+- 先确认目标确实是 skill；engineering 项目中若更像 prompt、insight 或 docs 治理，转 `agent-asset-router`；hub 挂载直接转 `agent-hub-bootstrap`，其它项目类型走当前 profile
 
 ## 四层验证
 

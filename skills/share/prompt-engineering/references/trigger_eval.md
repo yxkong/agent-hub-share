@@ -14,7 +14,8 @@
 - 目标产物是 **SKILL.md / 研发 SOP** → `skill-engineering`
 - 只要**面试叙事 / 案例库**、不要可执行 prompt → `project-insight-extractor`
 - 只要**同步 prompts 链接 / CI** → `agent-hub-bootstrap`
-- 尚未确定要做成 skill、prompt 还是 insight → `agent-asset-router`
+- engineering 项目且尚未确定工程产物要做成 skill、prompt 还是 insight → `agent-asset-router`
+- 非 engineering 项目的不确定资产请求 → 当前 profile 或询问用户，不触发 `agent-asset-router`
 - prompt 含客户名、内网地址、真实项目字段且用户**未**要求脱敏 → 先脱敏或降级为 project-only，不直接进入 share
 
 开源边界见 [hub_layout.md](hub_layout.md) §开源 / public export 边界。

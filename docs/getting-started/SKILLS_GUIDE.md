@@ -2,7 +2,7 @@
 
 > **语言**：[简体中文](SKILLS_GUIDE.md) | [English](SKILLS_GUIDE.en.md)
 
-本页说明 **agent-hub-share** 中 13 个共享技能各自做什么、何时该用，以及从克隆到日常协作的最短路径。Agent 运行时入口始终是各技能目录下的 `SKILL.md`；本页供**人类**选型与 onboarding。
+本页说明 **agent-hub-share** 中 14 个共享技能各自做什么、何时该用，以及从克隆到日常协作的最短路径。Agent 运行时入口始终是各技能目录下的 `SKILL.md`；本页供**人类**选型与 onboarding。
 
 ## 整体怎么用
 
@@ -26,7 +26,7 @@
 
 4. **日常协作**  
    - 有研发任务 → 先说清目标，Agent 应走 `delivery-workflow`（阶段门、Fast/Full Path）。  
-   - 不确定该用哪个技能 → 先说产物类型（写代码 / 写文档 / 做 skill / 做测试…），由 `agent-asset-router` 分流。  
+   - engineering 项目中不确定工程产物类型 → 由 `agent-asset-router` 分流；其它项目类型走当前 profile，禁止调用该 router。
    - 改 `docs/`、SQL、技能主文件前 → `doc-script-governance` 要求先 `backup-file`。
 
 ### 套餐怎么选
@@ -34,24 +34,25 @@
 | 套餐 | 技能 | 适合谁 |
 |------|------|--------|
 | **Minimal** | bootstrap + delivery + doc-script | 只想降返工、规范文档与交付节奏 |
-| **Standard** | Minimal + governance + router + scorecard + biz-safety | 要 Spec/门禁/评分/业务安全审计 |
-| **Asset Factory** | Standard + skill/prompt 工程 + discovery | 维护 Agent 资产的人 |
-| **Full** | Asset Factory + insight + TDD + webapp-testing | 全链路：洞察沉淀 + 测试 + 浏览器验证 |
+| **Engineering Standard** | Minimal + governance + router + scorecard + biz-safety | 仅工程项目；其它体系不挂载 router |
+| **Engineering Asset Factory** | Engineering Standard + skill/prompt 工程 + discovery | 工程体系内维护 Agent 资产 |
+| **Full** | Engineering Asset Factory + insight + TDD + webapp-testing | 工程体系全链路：洞察沉淀 + 测试 + 浏览器验证 |
 
 更细的安装与烟测见 [VERIFY.md](VERIFY.md)。
 
 ---
 
-## 13 个技能一览
+## 14 个技能一览
 
 | 技能 | 一句话 | 路径 |
 |------|--------|------|
-| agent-asset-router | 混合任务先判产物，再转交对口技能 | `skills/share/agent-asset-router/` |
+| agent-asset-router | 仅 engineering：工程混合任务先判产物，再转交 owner | `skills/share/agent-asset-router/` |
 | agent-hub-bootstrap | 装 hub、修链接、发 skill、查挂载 | `skills/share/agent-hub-bootstrap/` |
 | ai-development-governance | Spec/ADR/门禁/评分总线（不写业务代码） | `skills/share/ai-development-governance/` |
 | biz-safety-audit | UGC/交互/短信等业务侧安全审计 | `skills/share/biz-safety-audit/` |
 | delivery-workflow | 研发交付阶段门（默认必触） | `skills/share/delivery-workflow/` |
 | doc-script-governance | 文档/SQL 放哪、改前备份 | `skills/share/doc-script-governance/` |
+| ops-bootstrap | 跨平台服务器接入、服务模板、部署与只读数据核验 | `skills/share/ops-bootstrap/` |
 | project-insight-extractor | 从调试/复盘提炼给人读的洞察 | `skills/share/project-insight-extractor/` |
 | prompt-engineering | 长 prompt / agent-task 资产化 | `skills/share/prompt-engineering/` |
 | skill-discovery | 找 skill、装 skill、该不该做成 skill | `skills/share/skill-discovery/` |
@@ -64,13 +65,13 @@
 
 ## 各技能介绍与作用
 
-### 1. `agent-asset-router` — 资产任务总路由
+### 1. `agent-asset-router` — 工程资产路由
 
-**介绍**：当一句话里混着「写 skill、改文档、做 Spec、跑测试」等多种意图时，先判断**最终产物**是什么，再转到对应技能，避免 Agent 猜错入口。
+**介绍**：仅在已登记为 `project_type=engineering` 的项目中使用。当一句话混着「实现、Spec、文档、测试、replay、skill、prompt、insight」时，先判断**最终工程产物**，再转到 owner skill。
 
-**作用**：统一分流到 discovery / engineering / doc-script / governance / delivery / TDD / webapp-testing 等；不代替具体实现。
+**作用**：统一分流到 discovery / engineering / doc-script / governance / delivery / TDD / webapp-testing 等；不代替具体实现，也不服务 generic、media、hub、mixed。
 
-**何时用**：任务类型不清、或用户同时提了多类交付物。
+**何时用**：工程项目内目标产物或 owner 不清；项目类型未知时先加载身份或询问用户。
 
 **示例**：「我要整理一套 Agent 规范，顺便把文档备份流程也定下来」→ 应先路由，再分别打开 doc-script 与 skill-engineering。
 
@@ -136,7 +137,19 @@
 
 ---
 
-### 7. `project-insight-extractor` — 技术洞察提炼
+### 7. `ops-bootstrap` — 跨平台运维底座
+
+**介绍**：以 Python core 配合 PowerShell / shell 薄入口，覆盖 SSH 与服务器资产映射、基础服务模板、部署编排、日志排查和数据库只读核验。
+
+**作用**：为跨平台运维任务提供统一启动包；不保存真实凭据，不默认执行生产变更，也不替代项目自身的业务部署脚本。
+
+**何时用**：连接服务器、运行健康检查、安装 Nginx/MySQL/Redis 等基础服务、排查异常日志或核验数据库结构与数据。
+
+**示例**：「先只读核验这台服务器上的 MySQL 表结构」→ ops-bootstrap。
+
+---
+
+### 8. `project-insight-extractor` — 技术洞察提炼
 
 **介绍**：从会话、调试记录、重构说明、diff 中抽出**给人读**的案例、方法论、简历 bullet（不是给 Agent 跑的长 prompt）。
 
@@ -148,7 +161,7 @@
 
 ---
 
-### 8. `prompt-engineering` — 提示词资产工程
+### 9. `prompt-engineering` — 提示词资产工程
 
 **介绍**：子 Agent 长指令、系统提示词、eval 的**裁剪、分层、落盘**（`prompts/share` vs `prompts/projects` 在 private hub）。
 
@@ -160,7 +173,7 @@
 
 ---
 
-### 9. `skill-discovery` — 技能发现与安装
+### 10. `skill-discovery` — 技能发现与安装
 
 **介绍**：在本地 hub、外部 registry 里**找、比、装** skill；判断该不该新做一个 skill。
 
@@ -172,7 +185,7 @@
 
 ---
 
-### 10. `skill-engineering` — 技能工程
+### 11. `skill-engineering` — 技能工程
 
 **介绍**：创建、重构、审查 `SKILL.md`：description/trigger、references 分层、体量门禁、坏味道登记。
 
@@ -184,7 +197,7 @@
 
 ---
 
-### 11. `skill-scorecard` — 技能与 prompt 评分
+### 12. `skill-scorecard` — 技能与 prompt 评分
 
 **介绍**：对 skill、prompt、references、脚本、挂载做**双 100 分**审查，输出 Pass/Fix 门禁结论。
 
@@ -196,7 +209,7 @@
 
 ---
 
-### 12. `tdd-workflow` — 测试驱动开发
+### 13. `tdd-workflow` — 测试驱动开发
 
 **介绍**：红 → 绿 → 重构；先失败测试再最小实现，保留验证证据。
 
@@ -208,7 +221,7 @@
 
 ---
 
-### 13. `webapp-testing` — 本地 Web 验证
+### 14. `webapp-testing` — 本地 Web 验证
 
 **介绍**：用 Playwright 或等价工具做**黑盒**：冒烟、DOM 侦察、截图、控制台日志。
 
@@ -224,7 +237,9 @@
 
 ```mermaid
 flowchart LR
-  U[你的需求] --> R[agent-asset-router]
+  U[你的需求] --> E{project_type=engineering?}
+  E -->|是，且工程产物不明| R[agent-asset-router]
+  E -->|否| P[当前 profile / 项目首跳]
   R --> D[delivery-workflow]
   R --> G[ai-development-governance]
   R --> DOC[doc-script-governance]

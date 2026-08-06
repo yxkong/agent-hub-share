@@ -28,7 +28,7 @@
 - `prompt` 正文、eval 与 `*.prompt.md` 归 `prompt-engineering`，本技能只管其目录与备份规则。
 - `SKILL.md` 正文质量、trigger、references 拓扑归 `skill-engineering`，本技能只管真实源放置与备份策略。
 - TechInsightVault 案例、面试表达、简历素材归 `project-insight-extractor`，不放入 `docs/review/`。
-- 若用户还没确定目标是 docs、skill、prompt、insight 还是 review，先走 `agent-asset-router`。
+- 仅在已确认的 engineering 项目中，若工程产物还没确定为 docs、skill、prompt、insight 或 review，转 `agent-asset-router`；其它项目类型走当前 profile 或询问用户。
 
 ## 3. 标准备份规则
 

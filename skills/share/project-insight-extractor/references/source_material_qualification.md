@@ -19,7 +19,7 @@
 - 只能从测试材料中提炼“skill 需要如何改进”“知识提取方法论如何修正”“SOP 哪里容易跑偏”。
 - 当源材料角色不清楚时，禁止直接归档业务资产；先输出未归档原因或只归档 skill 改进资产。
 - 如果目标产物是给 Agent 执行的长指令或系统提示词，转 `prompt-engineering`；如果目标是改 `SKILL.md` / trigger / references，转 `skill-engineering`。
-- 如果用户只说“沉淀一下”但未说明给人读还是给 Agent 用，先走 `agent-asset-router` 或追问一句。
+- 如果用户只说“沉淀一下”但未说明给人读还是给 Agent 用：engineering 项目可走 `agent-asset-router`；其它项目类型追问一句或走当前 profile。
 
 ## target_scope 决策规则
 

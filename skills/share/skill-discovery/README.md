@@ -25,4 +25,4 @@
 | 创建/重构 SKILL.md 正文 | `skill-engineering` |
 | hub 挂载、脚本修复 | `agent-hub-bootstrap` |
 | 写可执行 prompt | `prompt-engineering` |
-| 多产物路由不明 | `agent-asset-router` |
+| engineering 项目内工程产物不明 | `agent-asset-router`；其它项目类型走当前 profile |

@@ -8,6 +8,7 @@
 
 | 版本 | 日期 | 修订要点 |
 |------|------|----------|
+| 1.12.0 | 2026-08-05 | 补齐 MySQL `query run` / `db run` 只读执行器：凭据引用、SQL 防护、限行、超时、脱敏和强制回滚 |
 | 1.11.0 | 2026-07-24 | 新增本机端口释放 helper：`local free-port` / `free-local-port.ps1|.sh`，覆盖 WinError 10013 / uvicorn 残留 |
 | 1.10.0 | 2026-07-16 | 明确维护章程修订记录统一倒序，并补充运维能力模型优先的维护原则 |
 | 1.9.0 | 2026-07-16 | 收敛项目侧默认配置为单个 `ops.config.json`，模板留在 skill，项目只写变量和目标状态 |
@@ -39,7 +40,7 @@
 
 | 层 | 内容 |
 |----|------|
-| share skill | `ecs_ops.py`、`setup_ssh_key.py`、`bootstrap-ssh.ps1`、`ops-check.ps1`、`bootstrap-ssh.sh`、`ops-check.sh`、`free-local-port.ps1`、`free-local-port.sh`、`helpers/free_local_port.py` |
+| share skill | `ecs_ops.py`、`core/mysql_readonly.py`、`setup_ssh_key.py`、`bootstrap-ssh.ps1`、`ops-check.ps1`、`bootstrap-ssh.sh`、`ops-check.sh`、`free-local-port.ps1`、`free-local-port.sh`、`helpers/free_local_port.py` |
 | share references | `capability_model.md`、`project_ops_contract.md`、`open_source_patterns.md`、`workflow.md`、`layout_contract.md`、`roadmap.md`、`trigger_eval.md` |
 | share templates | `TEMPLATE_sync.config.json`、`TEMPLATE_ops-check.remote.sh`、`templates/project/TEMPLATE_ops.config.json`、`templates/connect/`、`templates/provision/`、`templates/deploy/`、`templates/detect/`、`templates/logs/`、`templates/query/`、`templates/db/`、`templates/profiles/` |
 | 项目 ops 目录 | `sync.config.json`、`ops.config.json`、`account.md`、`ops-check.remote.sh`、`credentials.md`、`docs/` |
@@ -65,7 +66,8 @@
 - 无公网安装必须先生成离线包清单；使用者按 `TEMPLATE_offline.bundle.json` 准备包，不允许脚本临场猜包
 - 连接目标、日志排查、DB 核验都必须走脱敏模板和只读 plan；真实 IP、密码、业务库账号在项目侧落地
 - 部署配置必须声明 profile；small/large/fixed 的默认调优值在 `templates/profiles/`
-- Redis/MySQL 查询默认只读；写命令必须在项目侧另走人工确认
+- MySQL 查询通过 `query run` / `db run` 执行，只接受环境变量或项目私有 JSON 凭据引用；内置安全基线不可被项目配置放宽
+- Redis 查询仍停留在 plan；Redis/MySQL 写命令不属于本技能执行范围
 - 不在 templates 写入真实密码
 - 新增远程检查字段时同步更新 `templates/TEMPLATE_sync.config.json` 与 `references/workflow.md`
 

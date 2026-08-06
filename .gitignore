@@ -32,3 +32,4 @@ vendors/
 **/__pycache__/
 *.py[cod]
 *$py.class
+*.zip

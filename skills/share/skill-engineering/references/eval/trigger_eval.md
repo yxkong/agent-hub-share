@@ -14,7 +14,8 @@
 | 8 | 上次踩过多套路由，沉淀坏味道规则 | `governance/bad_smell_registry.md` |
 | 9 | 这个需求先做什么后做什么 | **不触发** → `delivery-workflow` |
 | 10 | 帮我改 BiTableConfig 后端接口 | **不触发** → `<backend-domain-skill>` 等项目领域技能 |
-| 11 | 沉淀成 skill 还是 prompt 还是 insight | **不触发** → `agent-asset-router` |
+| 11 | engineering 项目：沉淀成 skill 还是 prompt 还是 insight | **不触发** → `agent-asset-router` |
+| 11a | 非 engineering 项目：沉淀成什么资产 | **不触发** → 当前 profile 或询问用户 |
 | 12 | full 模式还要交哪些加强项 | `review/full_mode_checklist.md` |
 
 **通过标准**：14 条全部命中；review 首读必须是 `review/quick_gate.md`；9–11 不读本 skill 主 SOP；13 必须要求 baseline + held-out；14 不得直接创建。

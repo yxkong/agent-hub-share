@@ -30,7 +30,7 @@
 | SKILL 正文、trigger、eval | `skill-engineering` |
 | prompt 正文与评测 | `prompt-engineering` |
 | 文档/SQL 备份与放置 | `doc-script-governance` |
-| 目标产物不明 | `agent-asset-router` |
+| engineering 项目内工程产物不明 | `agent-asset-router`；其它项目类型走当前 profile |
 
 ## 修订记录
 

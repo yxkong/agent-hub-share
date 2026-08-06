@@ -2,7 +2,7 @@
 
 > **Language**：[简体中文](SKILLS_GUIDE.md) | [English](SKILLS_GUIDE.en.md)
 
-What each of the **13 share skills** does, when to use it, and the shortest path from clone to daily use. Agent runtime entry is always each skill’s `SKILL.md`; this page is for **humans** choosing skills and onboarding.
+What each of the **14 share skills** does, when to use it, and the shortest path from clone to daily use. Agent runtime entry is always each skill’s `SKILL.md`; this page is for **humans** choosing skills and onboarding.
 
 ## How it fits together
 
@@ -18,31 +18,32 @@ Clone repo → set AGENTS_HUB_ROOT → install-hub (mount skills + sync global r
 1. **Clone and set hub root** — See [QUICKSTART.md](QUICKSTART.md).
 2. **Install to clients** — `scripts/install-hub` (try `--dry-run` first). Links `skills/share/*` into Cursor / Claude / Codex and syncs `COMMON_AGENT_RULES.md`.
 3. **(Optional) Register a product repo** — `register-project` for `PROJECT_RULES.md` / `AGENTS.md`. Prompts stay in the private maintainer hub (no `prompts/` here).
-4. **Daily work** — Delivery tasks → `delivery-workflow`; unclear task type → `agent-asset-router`; docs/SQL/skill edits → `doc-script-governance` (backup first).
+4. **Daily work** — Delivery tasks → `delivery-workflow`; ambiguous engineering artifacts → `agent-asset-router`; non-engineering projects must use their current profile; docs/SQL/skill edits → `doc-script-governance` (backup first).
 
 ### Bundles
 
 | Bundle | Skills | For |
 |--------|--------|-----|
 | **Minimal** | bootstrap + delivery + doc-script | Less rework, sane docs placement |
-| **Standard** | + governance + router + scorecard + biz-safety | Spec, gates, scoring, biz safety |
-| **Asset Factory** | + skill/prompt engineering + discovery | Maintaining agent assets |
-| **Full** | + insight + TDD + webapp-testing | Insights, tests, browser checks |
+| **Engineering Standard** | Minimal + governance + router + scorecard + biz-safety | Engineering projects only; other profiles do not mount the router |
+| **Engineering Asset Factory** | Engineering Standard + skill/prompt engineering + discovery | Maintaining agent assets inside the engineering system |
+| **Full** | Engineering Asset Factory + insight + TDD + webapp-testing | Engineering insights, tests, browser checks |
 
 See [VERIFY.md](VERIFY.md) for smoke tests.
 
 ---
 
-## 13 skills at a glance
+## 14 skills at a glance
 
 | Skill | One line | Path |
 |-------|----------|------|
-| agent-asset-router | Route mixed tasks by target artifact | `skills/share/agent-asset-router/` |
+| agent-asset-router | Engineering only: route ambiguous engineering artifacts | `skills/share/agent-asset-router/` |
 | agent-hub-bootstrap | Install hub, fix mounts, publish skills | `skills/share/agent-hub-bootstrap/` |
 | ai-development-governance | Spec/ADR/gates/scorecard bus (no app code) | `skills/share/ai-development-governance/` |
 | biz-safety-audit | UGC/interaction/SMS biz safety review | `skills/share/biz-safety-audit/` |
 | delivery-workflow | Delivery stage gates (default for dev work) | `skills/share/delivery-workflow/` |
 | doc-script-governance | Docs/SQL placement and backup-before-edit | `skills/share/doc-script-governance/` |
+| ops-bootstrap | Cross-platform server access, service templates, deployment, read-only data checks | `skills/share/ops-bootstrap/` |
 | project-insight-extractor | Human-readable insights from sessions | `skills/share/project-insight-extractor/` |
 | prompt-engineering | Reusable prompt / agent-task assets | `skills/share/prompt-engineering/` |
 | skill-discovery | Find, compare, install skills | `skills/share/skill-discovery/` |
@@ -57,9 +58,9 @@ See [VERIFY.md](VERIFY.md) for smoke tests.
 
 ### 1. `agent-asset-router`
 
-Routes when the ask mixes skills, docs, Spec, tests, etc. Picks the **artifact type** first, then hands off. Does not implement work itself.
+Available only when the registered project is `project_type=engineering`. It routes ambiguous code, Spec/ADR, docs/SQL, test, replay, skill, prompt, and insight artifacts, then hands off to the owner skill. It is not mounted for generic, media, hub, or mixed projects.
 
-**When**: Ambiguous or multi-artifact requests.
+**When**: The engineering artifact or owner is unclear. If project type is unknown, resolve project identity or ask the user first.
 
 ---
 
@@ -107,7 +108,15 @@ Where `docs/` and SQL live, templates, **backup-file** before edits; includes G0
 
 ---
 
-### 7. `project-insight-extractor`
+### 7. `ops-bootstrap`
+
+Uses a Python core with thin PowerShell / shell wrappers for SSH and server asset mapping, base-service templates, deployment orchestration, log troubleshooting, and read-only database verification.
+
+**When**: Connect to a server, run health checks, install base services such as Nginx/MySQL/Redis, inspect abnormal logs, or verify database structure and data. It does not store real credentials, default to production mutations, or replace project deployment scripts.
+
+---
+
+### 8. `project-insight-extractor`
 
 Turns debugging/refactor/review material into **human** case studies and bullets—not executable agent prompts.
 
@@ -115,7 +124,7 @@ Turns debugging/refactor/review material into **human** case studies and bullets
 
 ---
 
-### 8. `prompt-engineering`
+### 9. `prompt-engineering`
 
 Shapes long sub-agent instructions into versioned prompt assets (private hub `prompts/`). Not SKILL.md bodies.
 
@@ -123,7 +132,7 @@ Shapes long sub-agent instructions into versioned prompt assets (private hub `pr
 
 ---
 
-### 9. `skill-discovery`
+### 10. `skill-discovery`
 
 Find/install/compare skills; decide if a capability should become a skill. Writing SKILL bodies → skill-engineering.
 
@@ -131,7 +140,7 @@ Find/install/compare skills; decide if a capability should become a skill. Writi
 
 ---
 
-### 10. `skill-engineering`
+### 11. `skill-engineering`
 
 Create/refactor/review skills: triggers, references layout, size gates, bad-smell registry.
 
@@ -141,7 +150,7 @@ Create/refactor/review skills: triggers, references layout, size gates, bad-smel
 
 ---
 
-### 11. `skill-scorecard`
+### 12. `skill-scorecard`
 
 Dual 100-point review of skills, prompts, references, scripts, mounts; Pass/Fix gate output.
 
@@ -151,7 +160,7 @@ See [SHARE_SKILL_SCORECARD.md](SHARE_SKILL_SCORECARD.md).
 
 ---
 
-### 12. `tdd-workflow`
+### 13. `tdd-workflow`
 
 Test-first: failing test → minimal fix → refactor with evidence. Does not replace delivery gates.
 
@@ -161,7 +170,7 @@ Test-first: failing test → minimal fix → refactor with evidence. Does not re
 
 ---
 
-### 13. `webapp-testing`
+### 14. `webapp-testing`
 
 Playwright-style local black-box: smoke, DOM recon, screenshots, console logs. Prefer calling existing scripts as black boxes.
 

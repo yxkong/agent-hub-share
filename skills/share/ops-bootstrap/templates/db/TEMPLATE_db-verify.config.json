@@ -7,7 +7,13 @@
     "host": "127.0.0.1",
     "port": 3306,
     "database": "",
-    "authSource": "project-dev-config-or-private-file"
+    "charset": "utf8mb4",
+    "timeoutSeconds": 10,
+    "credentials": {
+      "type": "env",
+      "usernameEnv": "OPS_MYSQL_USERNAME",
+      "passwordEnv": "OPS_MYSQL_PASSWORD"
+    }
   },
   "localCode": {
     "root": ".",
@@ -49,6 +55,21 @@
       "EXPLAIN",
       "WITH"
     ],
+    "deniedPrefixes": [
+      "INSERT",
+      "UPDATE",
+      "DELETE",
+      "DROP",
+      "ALTER",
+      "CREATE",
+      "GRANT",
+      "REVOKE",
+      "TRUNCATE"
+    ],
+    "limits": {
+      "maxRows": 100,
+      "timeoutSeconds": 10
+    },
     "redactColumns": [
       "password",
       "token",

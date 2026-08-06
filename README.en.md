@@ -24,7 +24,7 @@ Agent Hub closes the loop with **skills + common rules + gate scripts** (executa
 
 | Layer | Contents |
 |-------|----------|
-| **Share skills (13)** | Routing, governance bus, delivery workflow, docs/SQL governance, biz safety audit, skill/prompt engineering, scorecard, TDD, browser validation |
+| **Share skills (14)** | Engineering routing, governance bus, delivery workflow, docs/SQL governance, operations foundation, biz safety audit, skill/prompt engineering, scorecard, TDD, browser validation |
 | **Common rules** | `rules/common/COMMON_AGENT_RULES.md` only |
 | **Scripts** | L1 subset required by share skills ([`scripts/README.md`](scripts/README.md)); L2 scripts ship with each skill |
 | **CI / templates** | GitHub Actions plus issue/PR templates |
@@ -56,9 +56,9 @@ bash scripts/build-skill-index.sh --hub-root "$AGENTS_HUB_ROOT"
 | Package | Skills | Best for |
 |---------|--------|----------|
 | **Minimal** | `agent-hub-bootstrap` + `delivery-workflow` + `doc-script-governance` | Less rework, cleaner docs |
-| **Standard** | Minimal + `ai-development-governance` + `agent-asset-router` + `skill-scorecard` + `biz-safety-audit` | Spec, gates, scorecard, biz safety |
-| **Asset Factory** | Standard + `skill-engineering` + `prompt-engineering` + `skill-discovery` | Building skill/prompt assets |
-| **Full** | Asset Factory + `project-insight-extractor` + `tdd-workflow` + `webapp-testing` | Insight, TDD, browser smoke |
+| **Engineering Standard** | Minimal + `ai-development-governance` + `agent-asset-router` + `skill-scorecard` + `biz-safety-audit` | Engineering projects only; the router is not mounted for generic/media/hub/mixed |
+| **Engineering Asset Factory** | Engineering Standard + `skill-engineering` + `prompt-engineering` + `skill-discovery` | Build skill/prompt assets inside the engineering system |
+| **Full** | Engineering Asset Factory + `project-insight-extractor` + `tdd-workflow` + `webapp-testing` | Engineering insight, TDD, browser smoke |
 
 Index: [`skills/share/index.json`](skills/share/index.json)
 
@@ -70,7 +70,7 @@ Share layer uses placeholders such as `<project-key>`; bind real names in your r
 
 | Doc | Purpose |
 |-----|---------|
-| [SKILLS_GUIDE.en.md](docs/getting-started/SKILLS_GUIDE.en.md) | **13 skills + how to use the hub** |
+| [SKILLS_GUIDE.en.md](docs/getting-started/SKILLS_GUIDE.en.md) | **14 skills + how to use the hub** |
 | [getting-started/README.md](docs/getting-started/README.md) | Install & verify index (Chinese default) |
 | [QUICKSTART.md](docs/getting-started/QUICKSTART.md) | Install, register, verify |
 | [VERIFY.md](docs/getting-started/VERIFY.md) | Client load smoke tests |

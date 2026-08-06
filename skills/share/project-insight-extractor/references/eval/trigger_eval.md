@@ -17,7 +17,8 @@
 - 「帮我写一篇完整对外长文/连载」→ `<private-media-skill>`
 - 「把子 Agent prompt 落成 `*.prompt.md`」→ `prompt-engineering`
 - 「回填 SKILL 反模式表」→ 主模型评审后改仓库；卡片模板见 `references/skill_anti_pattern_feedback.md`
-- 「还没判断该做 skill、prompt 还是 insight」→ `agent-asset-router`
+- engineering 项目：「还没判断该做 skill、prompt 还是 insight」→ `agent-asset-router`
+- 非 engineering 项目的同类请求 → 当前 profile 或追问，不触发 `agent-asset-router`
 
 ## 通过标准
 

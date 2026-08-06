@@ -28,7 +28,7 @@ Expected:
 - `SKILL_ENTRYPOINTS=ok`
 - `SKILL_REFERENCES_STRUCTURE=ok`
 - `SHARE_SKILL_PRIVATE_COUPLING=ok`
-- `SKILL_INDEX=ok items=13` (matches the public skill bundle count)
+- `SKILL_INDEX=ok items=14` (matches the public skill bundle count)
 
 ## 2. Trigger smoke tests
 

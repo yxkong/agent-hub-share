@@ -10,14 +10,14 @@ import argparse
 
 from commands.bootstrap import run_bootstrap
 from commands.connect import run_connect_plan
-from commands.db_verify import run_db_plan
+from commands.db_verify import run_db_execute, run_db_plan
 from commands.deploy import run_deploy_plan
 from commands.detect import run_detect_plan
 from commands.local_port import run_local_free_port
 from commands.logs import run_logs_plan
 from commands.ops_check import run_ops_check_from_args
 from commands.provision import run_provision_plan
-from commands.query import run_query_plan
+from commands.query import run_query_execute, run_query_plan
 from core.console import info
 from core.errors import OpsError
 
@@ -71,6 +71,15 @@ def build_parser() -> argparse.ArgumentParser:
     query_plan = query_sub.add_parser("plan", help="print query allowlist and limits")
     query_plan.add_argument("--config", required=True, help="query config JSON")
     query_plan.set_defaults(func=run_query_plan)
+    query_run = query_sub.add_parser("run", help="execute one guarded MySQL readonly query")
+    query_run.add_argument("--config", required=True, help="query config JSON")
+    query_sql = query_run.add_mutually_exclusive_group(required=True)
+    query_sql.add_argument("--sql", default="", help="one explicit readonly SQL statement")
+    query_sql.add_argument("--sql-file", default="", help="UTF-8 file containing one readonly SQL statement")
+    query_run.add_argument("--connection", default="", help="named MySQL connection when multiple are configured")
+    query_run.add_argument("--max-rows", type=int, default=None, help="lower result cap; cannot exceed config")
+    query_run.add_argument("--confirm-readonly", action="store_true", help="confirm plan review and readonly execution")
+    query_run.set_defaults(func=run_query_execute)
 
     logs = sub.add_parser("logs", help="plan service log triage")
     logs_sub = logs.add_subparsers(dest="logs_command", required=True)
@@ -83,6 +92,11 @@ def build_parser() -> argparse.ArgumentParser:
     db_plan = db_sub.add_parser("plan", help="print database schema/data verification checks")
     db_plan.add_argument("--config", required=True, help="database verification config JSON")
     db_plan.set_defaults(func=run_db_plan)
+    db_run = db_sub.add_parser("run", help="execute configured guarded MySQL readonly checks")
+    db_run.add_argument("--config", required=True, help="database verification config JSON")
+    db_run.add_argument("--check", action="append", help="check name or group to run; repeatable")
+    db_run.add_argument("--confirm-readonly", action="store_true", help="confirm plan review and readonly execution")
+    db_run.set_defaults(func=run_db_execute)
 
     local = sub.add_parser("local", help="local workstation helpers (no remote SSH)")
     local_sub = local.add_subparsers(dest="local_command", required=True)

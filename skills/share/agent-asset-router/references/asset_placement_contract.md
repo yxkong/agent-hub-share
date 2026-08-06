@@ -1,6 +1,6 @@
 # Agent 资产放置契约
 
-> 本文件是 skill / prompt / insight / replay / docs / script / test / generated / temp 的唯一跨类型落位契约。领域细节仍由各 owner skill 管理，不在其它规则复制本表。
+> 仅适用于已确认 `project_type=engineering` 的工程任务，是 code / spec / ADR / prompt / skill / insight / replay / docs / script / test / generated / temp 的工程落位契约。media、hub、generic、mixed 体系不得引用本文件作为路由入口，应由各自 profile 或项目规则裁决。
 
 ## 1. 先判四个维度
 
@@ -55,7 +55,7 @@ forbidden_paths:
 validation:
 ```
 
-无法确定 `asset_type / owner_skill / canonical_path` 时，先回到 `agent-asset-router`，不得边写边猜。
+在 engineering 项目中无法确定 `asset_type / owner_skill / canonical_path` 时，回到 `agent-asset-router`；项目类型未知或非 engineering 时，先加载对应项目身份/profile 或询问用户，不得边写边猜。
 
 ## 5. 收口检查
 
@@ -64,3 +64,4 @@ validation:
 - prompt / insight / replay / docs 没有互相串位。
 - 项目私有事实没有进入 share。
 - 新资产已通过 owner skill 的验证与索引命令。
+- 当前项目类型确为 engineering；其它体系没有复用本契约兜底。

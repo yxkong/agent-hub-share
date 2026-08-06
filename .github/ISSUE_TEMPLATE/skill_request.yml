@@ -21,7 +21,7 @@ body:
     attributes:
       label: Checklist
       options:
-        - label: Checked agent-asset-router — not just a prompt or project skill
+        - label: Checked skill-discovery first; engineering projects may also use agent-asset-router when the target artifact is unclear
           required: true
         - label: No private project names in proposed share text
           required: true

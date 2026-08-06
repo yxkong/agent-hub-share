@@ -6,6 +6,7 @@
   python hub_build_indices.py tech-insight <vault_root>
   python hub_build_indices.py skills <skills_share_root>
   python hub_build_indices.py media-skills <skills_media_root>
+  python hub_build_indices.py public-catalog <hub_root>
 """
 import argparse
 import json
@@ -161,6 +162,120 @@ def cmd_media_skills(media_root):
     return 0
 
 
+def cmd_public_catalog(hub_root):
+    """Check that public docs and filenames match skills/share/index.json."""
+    hub_root = Path(hub_root).resolve()
+    index_path = hub_root / 'skills' / 'share' / 'index.json'
+    if not index_path.is_file():
+        sys.stderr.write('ERROR: public catalog index not found: {}\n'.format(index_path))
+        return 1
+
+    try:
+        payload = json.loads(index_path.read_text(encoding='utf-8'))
+    except (OSError, ValueError) as exc:
+        sys.stderr.write('ERROR: cannot read public catalog index: {}\n'.format(exc))
+        return 1
+
+    items = payload.get('items', [])
+    count = payload.get('count')
+    errors = []
+    if count != len(items):
+        errors.append('index count={} but items={}'.format(count, len(items)))
+    if not isinstance(count, int):
+        errors.append('index count is not an integer')
+        count = len(items)
+
+    source_mode = (hub_root / 'README.public.zh-CN.md').is_file()
+    mode = 'source' if source_mode else 'public'
+    zh_suffix = '.zh-CN.md' if source_mode else '.md'
+    root_zh = 'README.public.zh-CN.md' if source_mode else 'README.md'
+    root_en = 'README.public.en.md' if source_mode else 'README.en.md'
+
+    expected_markers = {
+        root_zh: (
+            'Share 技能（{}）'.format(count),
+            '**{} 技能介绍 + 整体用法**'.format(count),
+        ),
+        root_en: (
+            'Share skills ({})'.format(count),
+            '**{} skills + how to use the hub**'.format(count),
+        ),
+        'docs/getting-started/SKILLS_GUIDE{}'.format(zh_suffix): (
+            '{} 个共享技能'.format(count),
+            '## {} 个技能一览'.format(count),
+        ),
+        'docs/getting-started/SKILLS_GUIDE.en.md': (
+            '**{} share skills**'.format(count),
+            '## {} skills at a glance'.format(count),
+        ),
+        'docs/getting-started/VERIFY{}'.format(zh_suffix): (
+            'SKILL_INDEX=ok items={}'.format(count),
+        ),
+        'docs/getting-started/VERIFY.en.md': (
+            'SKILL_INDEX=ok items={}'.format(count),
+        ),
+        'docs/getting-started/SHARE_SKILL_SCORECARD{}'.format(zh_suffix): (
+            '当前 **{}** 个 share 技能'.format(count),
+            'SKILL_INDEX=ok items={}'.format(count),
+            '{}/{}'.format(count, count),
+        ),
+        'docs/getting-started/SHARE_SKILL_SCORECARD.en.md': (
+            'current **{}** share-skill'.format(count),
+            'SKILL_INDEX=ok items={}'.format(count),
+            '{}/{}'.format(count, count),
+        ),
+        'docs/getting-started/README.en.md': (
+            '**{} skills and how to use the hub**'.format(count),
+            'latest {}-skill bundle'.format(count),
+        ),
+    }
+
+    texts = {}
+    for rel, markers in expected_markers.items():
+        path = hub_root / rel
+        if not path.is_file():
+            errors.append('missing {}'.format(rel))
+            continue
+        text = path.read_text(encoding='utf-8')
+        texts[rel] = text
+        for marker in markers:
+            if marker not in text:
+                errors.append('{} missing {!r}'.format(rel, marker))
+
+    guide_paths = (
+        'docs/getting-started/SKILLS_GUIDE{}'.format(zh_suffix),
+        'docs/getting-started/SKILLS_GUIDE.en.md',
+    )
+    for rel in guide_paths:
+        text = texts.get(rel, '')
+        numbered_sections = re.findall(r'^###\s+\d+\.\s+`[^`]+`', text, re.M)
+        if len(numbered_sections) != count:
+            errors.append('{} sections={} expected={}'.format(rel, len(numbered_sections), count))
+        for item in items:
+            name = item.get('name') or item.get('dir')
+            if name and '`{}`'.format(name) not in text:
+                errors.append('{} missing skill {}'.format(rel, name))
+
+    if not source_mode:
+        required_public_names = ('README.en.md', 'scripts/README.en.md')
+        stale_source_names = ('README.public.en.md', 'scripts/README.public.en.md')
+        for rel in required_public_names:
+            if not (hub_root / rel).is_file():
+                errors.append('missing exported filename {}'.format(rel))
+        for rel in stale_source_names:
+            if (hub_root / rel).exists():
+                errors.append('stale source filename exported {}'.format(rel))
+
+    if errors:
+        sys.stderr.write('PUBLIC_CATALOG=fail errors={} mode={}\n'.format(len(errors), mode))
+        for error in errors:
+            sys.stderr.write('  {}\n'.format(error))
+        return 1
+
+    sys.stdout.write('PUBLIC_CATALOG=ok items={} mode={}\n'.format(count, mode))
+    return 0
+
+
 def cmd_tech_insight(vault, allow_missing=False):
     vault = Path(vault)
     items = []
@@ -261,6 +376,9 @@ def main():
     p4 = sub.add_parser('media-skills', help='Build skills/media/index.json')
     p4.add_argument('root', type=str, help='Path to hub skills/media/')
 
+    p5 = sub.add_parser('public-catalog', help='Check public docs against skills/share/index.json')
+    p5.add_argument('root', type=str, help='Path to private source hub or public mirror')
+
     args = ap.parse_args()
     if not getattr(args, 'cmd', None):
         ap.print_help()
@@ -273,6 +391,8 @@ def main():
         return cmd_skills(args.root)
     if args.cmd == 'media-skills':
         return cmd_media_skills(args.root)
+    if args.cmd == 'public-catalog':
+        return cmd_public_catalog(args.root)
     return 2
 
 

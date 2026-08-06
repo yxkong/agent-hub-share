@@ -38,6 +38,21 @@ jobs:
         shell: bash
         run: bash scripts/build-skill-index.sh --hub-root "$PWD"
 
+      - name: Check private public-export contracts
+        shell: bash
+        run: |
+          if [ -f scripts/python/export_public_share.py ]; then
+            python scripts/tests/test_export_public_share.py
+          fi
+
+      - name: Check public catalog consistency
+        shell: bash
+        run: python scripts/python/hub_build_indices.py public-catalog "$PWD"
+
+      - name: Verify generated skill index is committed
+        shell: bash
+        run: git diff --exit-code -- skills/share/index.json
+
   share-gates-windows:
     runs-on: windows-latest
     steps:
@@ -68,3 +83,17 @@ jobs:
         shell: pwsh
         run: ./scripts/build-skill-index.ps1 -HubRoot $PWD
 
+      - name: Check private public-export contracts
+        shell: pwsh
+        run: |
+          if (Test-Path scripts/python/export_public_share.py) {
+            python scripts/tests/test_export_public_share.py
+          }
+
+      - name: Check public catalog consistency
+        shell: pwsh
+        run: python scripts/python/hub_build_indices.py public-catalog $PWD
+
+      - name: Verify generated skill index is committed
+        shell: pwsh
+        run: git diff --exit-code -- skills/share/index.json

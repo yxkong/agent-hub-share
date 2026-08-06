@@ -12,7 +12,7 @@
 - `doc-script-governance`
 - `project-insight-extractor`
 - `webapp-testing`
-- `agent-asset-router`
+- `agent-asset-router`（仅 engineering 项目）
 - `<private-media-skill>`（maintainer hub 登记名见 `PROJECT_RULES.md`）
 - `delivery-workflow`
 

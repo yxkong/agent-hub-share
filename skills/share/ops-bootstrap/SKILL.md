@@ -21,9 +21,9 @@ description: 跨平台运维技能包（Python core + ps1/sh thin wrapper），�
 | `deploy` | 部署计划、配置档位、systemd/app env 模板、回滚钩子 | `references/capability_model.md` + `templates/deploy/` |
 | `online-detect` | 在线检测、端口/HTTP/systemd/日志/资源巡检 | `templates/detect/TEMPLATE_online-detection.config.json` |
 | `local-free-port` | 本机端口被占 / WinError 10013 / uvicorn 残留 | `scripts/free-local-port.ps1` + `ecs_ops.py local free-port` |
-| `data-query` | Redis/MySQL 只读查询、allowlist、限制和示例 | `templates/query/TEMPLATE_query.config.json` |
+| `data-query` | MySQL 只读查询执行、Redis/MySQL allowlist、限制和示例 | `templates/query/TEMPLATE_query.config.json` |
 | `log-triage` | 排查 Nginx/服务异常日志，先定位日志源和只读关联检查 | `templates/logs/TEMPLATE_log-triage.config.json` |
-| `db-verify` | 查询数据库表结构/数据并与本地代码核验 | `templates/db/TEMPLATE_db-verify.config.json` |
+| `db-verify` | 执行数据库表结构/数据只读检查并与本地代码核验 | `templates/db/TEMPLATE_db-verify.config.json` |
 | `project-ops-config` | 给某个项目落本地 ops 配置骨架 | `references/project_ops_contract.md` + `templates/project/TEMPLATE_ops.config.json` |
 | `ops-patterns` | 用户要求参考开源运维工具完善技能边界 | `references/open_source_patterns.md` |
 | `triage-case` | 服务器死机/OOM/SSH不通/磁盘满等故障，先查历史案例 | `references/case_library.md` |
@@ -53,8 +53,9 @@ description: 跨平台运维技能包（Python core + ps1/sh thin wrapper），�
 - 项目侧默认只保留一个 `ops.config.json`；通用模板留在 skill，项目侧只写变量、目标状态和私有引用。
 - 项目侧配置必须反映真实拓扑；没有本机 MySQL/Redis 就不要在 provision 里启用，只保留 query/db verify 引用。
 - 环境安装必须先跑 `provision plan`；`apply` 必须显式指定模块并支持 dry-run。
-- 部署、检测、查询都先跑 `plan`；查询默认只读 allowlist，Redis/MySQL 写命令禁止默认放行。
+- 部署、检测、查询都先跑 `plan`；MySQL `query run` / `db run` 还必须显式传 `--confirm-readonly`，查询默认只读 allowlist，写命令禁止放行。
 - 连接、日志排查、数据库核验都先生成只读 plan；真实 SSH、日志读取、DB 查询必须来自项目私有配置和人工明确目标。
+- MySQL `run` 使用的数据库账号自身也必须是只读账号；客户端 SQL 防护不能替代服务端最小权限。
 - 禁止在项目运维目录各自维护一份完整 bootstrap。
 - **禁止**把密码、私钥写进本技能或 templates。
 - **安全操作**：任何修改前必须备份；任何删除前必须人工确认；除非用户明确要求"删除"，不得执行 `rm`。详见 `references/safe_ops_manual.md`。
@@ -87,8 +88,10 @@ python "$AGENTS_HUB_ROOT/skills/share/ops-bootstrap/scripts/ecs_ops.py" provisio
 python "$AGENTS_HUB_ROOT/skills/share/ops-bootstrap/scripts/ecs_ops.py" deploy plan --config /path/to/ops/ops.config.json
 python "$AGENTS_HUB_ROOT/skills/share/ops-bootstrap/scripts/ecs_ops.py" detect plan --config /path/to/ops/ops.config.json
 python "$AGENTS_HUB_ROOT/skills/share/ops-bootstrap/scripts/ecs_ops.py" query plan --config /path/to/ops/ops.config.json
+python "$AGENTS_HUB_ROOT/skills/share/ops-bootstrap/scripts/ecs_ops.py" query run --config /path/to/ops/ops.config.json --sql "SELECT 1" --confirm-readonly
 python "$AGENTS_HUB_ROOT/skills/share/ops-bootstrap/scripts/ecs_ops.py" logs plan --config /path/to/ops/ops.config.json
 python "$AGENTS_HUB_ROOT/skills/share/ops-bootstrap/scripts/ecs_ops.py" db plan --config /path/to/ops/ops.config.json
+python "$AGENTS_HUB_ROOT/skills/share/ops-bootstrap/scripts/ecs_ops.py" db run --config /path/to/ops/ops.config.json --confirm-readonly
 python "$AGENTS_HUB_ROOT/skills/share/ops-bootstrap/scripts/ecs_ops.py" local free-port --port 9100
 ```
 

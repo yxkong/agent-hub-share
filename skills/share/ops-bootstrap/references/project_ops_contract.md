@@ -43,7 +43,9 @@
 
 - 不在 share 或项目模板里写真实密码、私钥、JWT secret、数据库 root 密码。
 - 项目私有 `credentials.md` 可以保存凭据，但必须被同步排除。
-- query/db 默认只读；写数据、删数据、建库建用户、开放端口都必须走单独确认。
+- query/db 默认只读；凭据通过环境变量或被同步排除的项目私有 JSON 引用；配置中禁止明文 password。
+- MySQL `run` 必须先执行对应 `plan`，再显式传 `--confirm-readonly`；写数据、删数据、建库建用户不由本技能执行。
+- 项目提供的 MySQL 账号必须是服务端只读最小权限账号；不得因为客户端已有 allowlist 就复用写账号。
 - `ops-check.remote.sh` 只做只读探测，不做安装、重启、reload。
 
 ## 验收
@@ -57,5 +59,7 @@ python <hub>/skills/share/ops-bootstrap/scripts/ecs_ops.py deploy plan --config 
 python <hub>/skills/share/ops-bootstrap/scripts/ecs_ops.py detect plan --config <ops>/ops.config.json
 python <hub>/skills/share/ops-bootstrap/scripts/ecs_ops.py logs plan --config <ops>/ops.config.json
 python <hub>/skills/share/ops-bootstrap/scripts/ecs_ops.py query plan --config <ops>/ops.config.json
+python <hub>/skills/share/ops-bootstrap/scripts/ecs_ops.py query run --config <ops>/ops.config.json --sql "SELECT 1" --confirm-readonly
 python <hub>/skills/share/ops-bootstrap/scripts/ecs_ops.py db plan --config <ops>/ops.config.json
+python <hub>/skills/share/ops-bootstrap/scripts/ecs_ops.py db run --config <ops>/ops.config.json --confirm-readonly
 ```

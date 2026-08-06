@@ -37,8 +37,10 @@ python scripts/ecs_ops.py connect plan --config templates/connect/TEMPLATE_targe
 python scripts/ecs_ops.py deploy plan --config templates/deploy/TEMPLATE_deploy.config.json
 python scripts/ecs_ops.py detect plan --config templates/detect/TEMPLATE_online-detection.config.json
 python scripts/ecs_ops.py query plan --config templates/query/TEMPLATE_query.config.json
+python scripts/ecs_ops.py query run --config <ops>/ops.config.json --sql "SELECT 1" --confirm-readonly
 python scripts/ecs_ops.py logs plan --config templates/logs/TEMPLATE_log-triage.config.json
 python scripts/ecs_ops.py db plan --config templates/db/TEMPLATE_db-verify.config.json
+python scripts/ecs_ops.py db run --config <ops>/ops.config.json --confirm-readonly
 ```
 
 当前已实现：
@@ -50,9 +52,11 @@ python scripts/ecs_ops.py provision plan --ops-root <ops> --mode offline --modul
 python scripts/ecs_ops.py deploy plan --config templates/deploy/TEMPLATE_deploy.config.json
 python scripts/ecs_ops.py detect plan --config templates/detect/TEMPLATE_online-detection.config.json
 python scripts/ecs_ops.py query plan --config templates/query/TEMPLATE_query.config.json
+python scripts/ecs_ops.py query run --config <ops>/ops.config.json --sql "SELECT 1" --confirm-readonly
 python scripts/ecs_ops.py connect plan --config templates/connect/TEMPLATE_target.config.json
 python scripts/ecs_ops.py logs plan --config templates/logs/TEMPLATE_log-triage.config.json
 python scripts/ecs_ops.py db plan --config templates/db/TEMPLATE_db-verify.config.json
+python scripts/ecs_ops.py db run --config <ops>/ops.config.json --confirm-readonly
 ```
 
 阶段要求：
@@ -108,12 +112,12 @@ python scripts/ecs_ops.py db plan --config templates/db/TEMPLATE_db-verify.confi
 | 部署计划 | `deploy plan` | `templates/deploy/TEMPLATE_deploy.config.json` |
 | 配置档位 | plan 引用 | `templates/profiles/TEMPLATE_small.profile.json` / `TEMPLATE_large.profile.json` / `TEMPLATE_fixed.profile.json` |
 | 在线检测 | `detect plan` | `templates/detect/TEMPLATE_online-detection.config.json` |
-| 数据查询 | `query plan` | `templates/query/TEMPLATE_query.config.json` |
+| 数据查询 | MySQL `query plan` → `query run --confirm-readonly`；Redis plan | `templates/query/TEMPLATE_query.config.json` |
 | 连接资产 | `connect plan` | `templates/connect/TEMPLATE_target.config.json` |
 | 日志排查 | `logs plan` | `templates/logs/TEMPLATE_log-triage.config.json` |
-| DB 核验 | `db plan` | `templates/db/TEMPLATE_db-verify.config.json` |
+| DB 核验 | `db plan` → `db run --confirm-readonly` | `templates/db/TEMPLATE_db-verify.config.json` |
 
-Redis/MySQL 查询默认只读，禁止把写命令纳入 share 默认 allowlist。
+MySQL 执行默认只读，Redis 仍只提供 plan；禁止把写命令纳入 share 默认 allowlist 或执行器。
 
 ## 组件规划
 

@@ -16,7 +16,8 @@
 - 「Cursor 找不到 skill / 链接坏了 / 怎么 install-hub」→ `agent-hub-bootstrap`
 - 「把这段长 prompt 落成 `*.prompt.md` 资产」→ `prompt-engineering`
 - 「用户已指定用 delivery-workflow，直接推进任务」→ 使用目标 skill，不再 discovery
-- 「skill / prompt / insight / docs 该沉淀成哪种资产」→ `agent-asset-router`
+- engineering 项目：「skill / prompt / insight / docs 该沉淀成哪种工程资产」→ `agent-asset-router`
+- 非 engineering 项目提出同类不确定请求 → 当前 profile 或询问用户，不触发 `agent-asset-router`
 
 ## 外部安装确认门
 

@@ -12,7 +12,7 @@
 - 会被发送给模型执行的系统提示词、工具约束、生成规则、子 Agent 长指令：进入本技能。
 - 稳定流程、触发规则、工具路由、坏味道沉淀：转 `skill-engineering`。
 - 面试表达、复盘案例、简历素材：转 `project-insight-extractor`。
-- 目标仍不确定：先走 `agent-asset-router`。
+- engineering 项目且工程目标仍不确定：转 `agent-asset-router`；其它项目类型走当前 profile 或询问用户。
 
 ## 前置步骤：Prompt Inventory（先扫描，再候选）
 

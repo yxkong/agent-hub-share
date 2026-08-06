@@ -24,7 +24,7 @@ Agent Hub 用 **技能 + 通用规则 + 脚本门禁** 组成闭环（可执行 
 
 | 层级 | 内容 |
 |------|------|
-| **Share 技能（13）** | 路由、治理总线、交付 workflow、文档/SQL 治理、业务安全审计、skill/prompt 工程、评分、TDD、浏览器验证 |
+| **Share 技能（14）** | 工程路由、治理总线、交付 workflow、文档/SQL 治理、运维底座、业务安全审计、skill/prompt 工程、评分、TDD、浏览器验证 |
 | **通用规则** | 仅 `rules/common/COMMON_AGENT_RULES.md` |
 | **脚本** | share 技能依赖的 L1 子集（见 [`scripts/README.md`](scripts/README.md)）；L2 随各技能目录 export |
 | **CI / 模板** | GitHub Actions 与 Issue/PR 模板 |
@@ -56,9 +56,9 @@ bash scripts/build-skill-index.sh --hub-root "$AGENTS_HUB_ROOT"
 | 套餐 | 包含技能 | 适用 |
 |------|----------|------|
 | **Minimal** | `agent-hub-bootstrap` + `delivery-workflow` + `doc-script-governance` | 降返工、规范文档 |
-| **Standard** | Minimal + `ai-development-governance` + `agent-asset-router` + `skill-scorecard` + `biz-safety-audit` | Spec/门禁/评分/业务安全 |
-| **Asset Factory** | Standard + `skill-engineering` + `prompt-engineering` + `skill-discovery` | 维护 skill/prompt 资产 |
-| **Full** | Asset Factory + `project-insight-extractor` + `tdd-workflow` + `webapp-testing` | 洞察 + TDD + 浏览器验证 |
+| **Engineering Standard** | Minimal + `ai-development-governance` + `agent-asset-router` + `skill-scorecard` + `biz-safety-audit` | 仅工程项目；router 不挂载到 generic/media/hub/mixed |
+| **Engineering Asset Factory** | Engineering Standard + `skill-engineering` + `prompt-engineering` + `skill-discovery` | 工程体系内维护 skill/prompt 资产 |
+| **Full** | Engineering Asset Factory + `project-insight-extractor` + `tdd-workflow` + `webapp-testing` | 工程体系内的洞察 + TDD + 浏览器验证 |
 
 目录：[`skills/share/index.json`](skills/share/index.json)
 
@@ -70,7 +70,7 @@ Share 层使用 `<project-key>` 等占位符；绑定真实项目名见业务仓
 
 | 文档 | 说明 |
 |------|------|
-| [SKILLS_GUIDE.md](docs/getting-started/SKILLS_GUIDE.md) | **13 技能介绍 + 整体用法** |
+| [SKILLS_GUIDE.md](docs/getting-started/SKILLS_GUIDE.md) | **14 技能介绍 + 整体用法** |
 | [getting-started/README.md](docs/getting-started/README.md) | 安装与验证文档索引 |
 | [QUICKSTART.md](docs/getting-started/QUICKSTART.md) | 安装、注册项目、验证 |
 | [VERIFY.md](docs/getting-started/VERIFY.md) | 确认客户端已加载技能 |

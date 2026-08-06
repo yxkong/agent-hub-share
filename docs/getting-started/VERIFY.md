@@ -28,7 +28,7 @@ pwsh -File "$env:AGENTS_HUB_ROOT\scripts\build-skill-index.ps1" -HubRoot $env:AG
 - `SKILL_ENTRYPOINTS=ok`
 - `SKILL_REFERENCES_STRUCTURE=ok`
 - `SHARE_SKILL_PRIVATE_COUPLING=ok`
-- `SKILL_INDEX=ok items=13`（与公开技能包条目数一致）
+- `SKILL_INDEX=ok items=14`（与公开技能包条目数一致）
 
 ## 2. 触发句烟测
 

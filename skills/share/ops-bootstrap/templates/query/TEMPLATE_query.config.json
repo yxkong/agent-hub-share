@@ -41,10 +41,17 @@
   "mysql": {
     "enabled": true,
     "connection": {
+      "name": "dev",
       "host": "127.0.0.1",
       "port": 3306,
       "database": "",
-      "authSource": "project-private-file"
+      "charset": "utf8mb4",
+      "timeoutSeconds": 10,
+      "credentials": {
+        "type": "env",
+        "usernameEnv": "OPS_MYSQL_USERNAME",
+        "passwordEnv": "OPS_MYSQL_PASSWORD"
+      }
     },
     "allowedPrefixes": [
       "SELECT",
@@ -63,8 +70,15 @@
       "REVOKE",
       "TRUNCATE"
     ],
+    "redactColumns": [
+      "password",
+      "token",
+      "secret",
+      "mobile",
+      "email"
+    ],
     "limits": {
-      "defaultLimit": 100,
+      "maxRows": 100,
       "timeoutSeconds": 10
     }
   }

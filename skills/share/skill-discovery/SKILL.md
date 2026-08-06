@@ -35,7 +35,7 @@ description: 发现、评估、去重和安装可复用 Agent Skill。适用于�
 
 ## 检索顺序
 
-检索、候选表、去重与外部安装命令见 `references/workflow.md`。若尚未确定目标是 skill / prompt / insight / docs / review，先转 `agent-asset-router`。
+检索、候选表、去重与外部安装命令见 `references/workflow.md`。仅在 engineering 项目中，若工程产物尚未确定为 skill / prompt / insight / docs / review，转 `agent-asset-router`；其它项目类型走当前 profile 或询问用户。
 
 ## 候选评估
 
