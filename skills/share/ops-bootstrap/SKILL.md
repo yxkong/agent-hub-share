@@ -5,6 +5,9 @@ description: 跨平台运维技能包（Python core + ps1/sh thin wrapper），�
 
 # Ops Bootstrap
 
+> 通用运维底座。在 `htyc` 项目运维包内作为跨项目可复用能力层；HTYC 专属资产、环境配置与业务脚本不放本目录。  
+> 项目侧目录契约见 `../docs/layout.md`（若在 htyc 包内）或各项目 ops 包的 layout 文档。
+
 ## 30 秒决策区
 
 | 任务类型 | 什么时候选它 | 先读什么 |
@@ -26,12 +29,14 @@ description: 跨平台运维技能包（Python core + ps1/sh thin wrapper），�
 | `db-verify` | 执行数据库表结构/数据只读检查并与本地代码核验 | `templates/db/TEMPLATE_db-verify.config.json` |
 | `project-ops-config` | 给某个项目落本地 ops 配置骨架 | `references/project_ops_contract.md` + `templates/project/TEMPLATE_ops.config.json` |
 | `ops-patterns` | 用户要求参考开源运维工具完善技能边界 | `references/open_source_patterns.md` |
-| `triage-case` | 服务器死机/OOM/SSH不通/磁盘满等故障，先查历史案例 | `references/case_library.md` |
-| `disk-triage` | 磁盘满 / 磁盘 100% / 日志满了，定位是哪块满 | `scripts/helpers/disk_triage.sh` + `references/case_library.md` CASE-003 |
-| `nginx-crash` | Nginx 突然崩溃、"systemctl status nginx failed"、无人操作但服务挂了 | `scripts/helpers/nginx_crash_triage.sh` + `references/case_library.md` CASE-004 |
-| `security-audit` | 服务器 CPU 飙高、疑似被入侵、挖矿木马、端口暴露公网 | `scripts/helpers/security_audit.sh` + `references/case_library.md` CASE-005 |
-| `nginx-cert` | SSL 证书过期、OCSP 错误刷屏、证书有效期检查 | `scripts/helpers/nginx_cert_check.sh` + `references/case_library.md` CASE-006 |
-| `nginx-drift` | 多台 Nginx 配置不一致、部分域名行为异常、配置漂移 | `scripts/helpers/nginx_drift_check.sh` + `references/case_library.md` CASE-007 |
+| `triage-case` | 服务器死机/OOM/SSH不通/磁盘满等故障，先查历史案例 | `references/case_library_index.md`（先读索引，再按行号读具体案例） |
+| `disk-triage` | 磁盘满 / 磁盘 100% / 日志满了，定位是哪块满 | `scripts/helpers/disk_triage.sh` + `references/case_library_index.md` -> CASE-003 |
+| `nginx-crash` | Nginx 突然崩溃、"systemctl status nginx failed"、无人操作但服务挂了 | `scripts/helpers/nginx_crash_triage.sh` + `references/case_library_index.md` -> CASE-004 |
+| `security-audit` | 服务器 CPU 飙高、疑似被入侵、挖矿木马、端口暴露公网 | `scripts/helpers/security_audit.sh` + `references/case_library_index.md` -> CASE-005 |
+| `nginx-cert` | SSL 证书过期、OCSP 错误刷屏、证书有效期检查 | `scripts/helpers/nginx_cert_check.sh` + `references/case_library_index.md` -> CASE-006 |
+| `nginx-drift` | 多台 Nginx 配置不一致、部分域名行为异常、配置漂移 | `scripts/helpers/nginx_drift_check.sh` + `references/case_library_index.md` -> CASE-007 |
+| `kafka-topic-id-drift` | producer 成功但所有 consumer group 超时/不消费，broker 报 partition topic ID mismatch | `ecs_ops.py kafka topic-id plan/apply` + `references/case_library_index.md` -> CASE-008 |
+| `kafka-repush` | 消费 Kafka 历史消息、按条件过滤后重新推送到同一/另一 topic | `references/case_library_index.md` -> CASE-009（含 dry-run→小批量→全量 SOP、限速、断点续推、验证闭环） |
 | `safe-ops` | 任何修改/删除/重启操作前，必须查阅安全操作规范 | `references/safe_ops_manual.md` |
 
 ## 作用边界
@@ -58,7 +63,7 @@ description: 跨平台运维技能包（Python core + ps1/sh thin wrapper），�
 - MySQL `run` 使用的数据库账号自身也必须是只读账号；客户端 SQL 防护不能替代服务端最小权限。
 - 禁止在项目运维目录各自维护一份完整 bootstrap。
 - **禁止**把密码、私钥写进本技能或 templates。
-- **安全操作**：任何修改前必须备份；任何删除前必须人工确认；除非用户明确要求"删除"，不得执行 `rm`。详见 `references/safe_ops_manual.md`。
+- **安全操作**：git 内资产以 git 回退为准；未纳入版本控制或远端资产修改前必须备份；任何删除前必须人工确认；除非用户明确要求"删除"，不得执行 `rm`。详见 `references/safe_ops_manual.md`。
 - **凭证隔离**：项目目录内不存放明文密码；通过 SSH 密钥直连跳板机操作所有节点；项目内 `account.md` 只保留 IP、SSH 别名和密钥路径。
 
 ## 调用
@@ -93,6 +98,9 @@ python "$AGENTS_HUB_ROOT/skills/share/ops-bootstrap/scripts/ecs_ops.py" logs pla
 python "$AGENTS_HUB_ROOT/skills/share/ops-bootstrap/scripts/ecs_ops.py" db plan --config /path/to/ops/ops.config.json
 python "$AGENTS_HUB_ROOT/skills/share/ops-bootstrap/scripts/ecs_ops.py" db run --config /path/to/ops/ops.config.json --confirm-readonly
 python "$AGENTS_HUB_ROOT/skills/share/ops-bootstrap/scripts/ecs_ops.py" local free-port --port 9100
+python "$AGENTS_HUB_ROOT/skills/share/ops-bootstrap/scripts/ecs_ops.py" kafka topic-id plan --log-dir /var/lib/kafka/logs --topic __consumer_offsets --expected-topic-id <topic-id-from-cluster-metadata>
+# apply 前必须停 broker；命令会先备份全部目标 partition.metadata，再原子替换漂移项
+python "$AGENTS_HUB_ROOT/skills/share/ops-bootstrap/scripts/ecs_ops.py" kafka topic-id apply --log-dir /var/lib/kafka/logs --topic __consumer_offsets --expected-topic-id <topic-id-from-cluster-metadata> --backup-dir /var/backups/kafka/topic-id --confirm-topic-id-repair
 ```
 
 项目侧推荐保留：
@@ -102,7 +110,7 @@ python "$AGENTS_HUB_ROOT/skills/share/ops-bootstrap/scripts/ecs_ops.py" local fr
 & "$env:AGENTS_HUB_ROOT\skills\share\ops-bootstrap\scripts\bootstrap-ssh.ps1" -OpsRoot $PSScriptRoot @args
 ```
 
-能力模型 → `references/capability_model.md`；项目配置闭环 → `references/project_ops_contract.md`；开源模式吸收 → `references/open_source_patterns.md`；细节 SOP → `references/workflow.md`；目录分层 → `references/layout_contract.md`；环境安装路线图 → `references/roadmap.md`；触发样例 → `references/trigger_eval.md`；**故障排查案例库** → `references/case_library.md`；**安全操作手册** -> `references/safe_ops_manual.md`.
+能力模型 → `references/capability_model.md`；项目配置闭环 → `references/project_ops_contract.md`；开源模式吸收 → `references/open_source_patterns.md`；细节 SOP → `references/workflow.md`；目录分层 → `references/layout_contract.md`；环境安装路线图 → `references/roadmap.md`；触发样例 → `references/trigger_eval.md`；**故障排查案例库索引** → `references/case_library_index.md`（案例全文 → `references/case_library.md`）；**安全操作手册** -> `references/safe_ops_manual.md`.
 
 ## 与其他技能
 

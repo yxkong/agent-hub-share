@@ -52,7 +52,9 @@ description: 面向 AI 真实研发交付的通用 workflow 技能（delivery wo
 
 ## 核心原则
 
-- **Fast Path 默认**：单点小改、契约不变、验证明确时直接实现；Full Path 是例外
+- **问题左移**：开发链路中，问题暴露得越早，修正成本越低；每进入一个更高成本阶段前，先处理本阶段能够发现的关键问题
+- **架构原则前置**：四高二低三底座用于设计和选型时发现问题、表达取舍，不在实现后补九项评分，也不作为写入授权字段
+- **Fast Path 默认**：单点小改、契约不变、验证明确时轻量收敛；Full Path 是例外
 - **Full Path 先发散后收敛**：需求歧义、跨端、接口/字段/SQL/权限/状态机改动时先设计
 - **主链路优先**：先完成最小闭环，再补失败链路和边角
 - **当前事实查证**：版本敏感或外部依赖的实现必须以官方/当前文档为事实源，不凭记忆补 API
@@ -65,8 +67,8 @@ description: 面向 AI 真实研发交付的通用 workflow 技能（delivery wo
 
 | 模式 | 适用条件 | 执行动作 |
 |------|----------|----------|
-| `Fast Path` | 单文件或单点小改；不改接口/数据结构；不跨模块；验证清楚；失败成本低 | 写一段最小设计摘要后直接实现 |
-| `Full Path` | 需求有歧义；涉及接口/字段契约；前后端联动；SQL/配置/权限/状态机；影响多模块或返工成本高 | 先收敛目标、边界、契约、风险、验证路径，再进入实现 |
+| `Fast Path` | 单文件或单点小改；不改接口/数据结构；不跨模块；验证清楚；失败成本低 | 用架构透镜写最小问题前置卡 → 微设计 → 自 Review → 实现；明确实施请求已完成目标授权 |
+| `Full Path` | 需求有歧义；涉及接口/字段契约；前后端联动；SQL/配置/权限/状态机；影响多模块或返工成本高 | 先用架构透镜暴露问题并收敛目标、边界、契约、取舍、风险与验证路径，再进入实现 |
 
 具体模板与推压处理见 `references/ai_execution_protocol.md` 与各路由 `*_workflow.md`。跨模块重构、全仓迁移、样板工程或给其他模型派发前，必须先读 `references/gates/reference_implementation_gate.md`。
 
@@ -88,7 +90,7 @@ description: 面向 AI 真实研发交付的通用 workflow 技能（delivery wo
 
 | 规则 | 要求 | 细则 |
 |------|------|------|
-| `R1` | 进入实现前先输出 `[实现阶段] 路由：delivery-workflow/<route> → 项目技能 <skill> § <章节路径>` | `references/ai_execution_protocol.md` |
+| `R1` | 明确实施请求形成目标授权后、进入实现前输出 `[实现阶段]` 路由；R1 只记录路由 | `references/ai_execution_protocol.md` |
 | `R2` | 派子 Agent 时，`model` 必须为 `-fast` 执行档；prompt 必须含范围、最小上下文包、验收/验证标准、完成状态协议 | `references/subagent_prompt_template.md` |
 | `R3` | 失败/返工必须沉淀到：认知洞察 / Agent 反模式 / 可复用 prompt 三路之一 | `references/ai_execution_protocol.md` |
 
@@ -99,17 +101,20 @@ description: 面向 AI 真实研发交付的通用 workflow 技能（delivery wo
 | Gate | 最小要求 | 细则 |
 |------|----------|------|
 | `Gate 1 需求理解` | 分清业务目标、现象、根因、真实边界 | `references/ai_execution_protocol.md` |
-| `Gate 2 设计收敛` | 收敛目标、边界、契约、风险、验证路径；Full Path 先发散再收敛 | 各路由 `*_workflow.md` |
-| `Gate 3 实现推进` | 一次一个最小闭环；进入下一闭环前做 checkpoint | `references/ai_execution_protocol.md` |
+| `Gate 2 设计收敛` | 方案选型前用四高二低三底座输出 `已暴露问题 / 设计决策 / 关键取舍 / 未决 P0 / 验证方式`；Fast Path 可压缩表达，Full Path 进入 SDD/ADR | 各路由 `*_workflow.md` + `ai-development-governance/templates/TEMPLATE_SDD.md` / `TEMPLATE_ADR.md` |
+| `Gate 3 实现推进` | 先打通唯一业务主链，再处理格式、脚本美化和边缘治理；一次一个可运行纵向闭环 | `references/ai_execution_protocol.md` |
 | `Gate 4 验证完成` | 主链路、关键失败链路、文档/SQL/配置落点都过；Full Path 必须给出主链证据矩阵；缺数据问题补三联检 | `references/checklist.md` + `references/gates/mainline_evidence_matrix.md` + `references/missing_data_debug_triad.md` |
-| `Gate 5 复盘` | Gate 4 后读 `replay_body_template.md`（6 个账本 + `gate5-v2`）+ closeout prompt，Path Guard 通过后落盘到 hub replay + `check-replay-structure.ps1` | `references/gates/delivery_replay.md` + `references/gates/replay_body_template.md` |
+| `Gate 5 复盘` | 正常完成在 Gate 4 后落盘；若在 Gate 2/3 因同类阻断连续返工两次或 Harness 自锁，立即写 `BLOCKED` Replay，不等 Gate 4 | `references/gates/delivery_replay.md` + `references/gates/replay_body_template.md` |
 | `Gate 6 失败沉淀` | 返工先归因，按 R3 handoff packet 路由到目标技能 | `references/ai_execution_protocol.md` + `references/gates/r3_handoff_contract.md` |
 | `Audit 研发体系审计` | 用户用关键词触发时，按入口真源、证据闭环、发布证据、Replay/Skill Health、脚本化治理五类审计；输出 P0/P1/P2 与验证判据 | `references/gates/ai_rd_closure_audit.md` + `prompts/share/agent-task/prompt-share-agent-task-ai-rd-closure-audit.prompt.md` |
 
 ## 闭环门
 
-- 需求已过 Gate 1 / 2，或明确属于 Fast Path。
-- 实现前已满足 R1；派发子 Agent 时已满足 R2。
+- 需求已过 Gate 1 / 2；Fast Path 仅轻量化产物。
+- Gate 2 已在实现前暴露适用的架构问题并记录取舍；仍有影响方向、安全或共享契约的未决 P0 时不得进入实现。
+- 用户已明确提出实施请求并满足 R1；同一目标内直接完成设计、依赖闭包、实现和验证；派发子 Agent 时满足 R2。
+- 源码引用、DDL/API/前端/测试依赖闭包和真实验证命令试跑属于 Agent 执行责任；发现同范围漏项直接补齐，不得转化为逐文件确认循环。
+- 主链未执行、消息无条件 ACK、状态真源不唯一或终态不可达时，任何 lint、格式、文档美化、白名单计数均不得占用“完成”表述。
 - 验证至少覆盖主链路；Full Path 已按 `references/gates/mainline_evidence_matrix.md` 标出 static / contract / runtime / user-visible / release / limitation 证据；缺数据类问题完成三联检。
 - 外部依赖、平台规则或版本敏感任务已给出当前事实来源；非平凡取舍已给出风险反证与停止条件。
 - Full Path / 跨模块 / 交付闭环任务已在 Gate 5 复盘落盘到 `$AGENTS_HUB_ROOT/docs/resource/replay/`（或明确标 `不落盘` / `BLOCKED` 原因）。

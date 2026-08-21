@@ -99,11 +99,11 @@ G8 Learning Gate        失败沉淀门      → delivery-workflow R3
 
 | 字段 | 内容 |
 |------|------|
-| **Trigger** | G1–G3 已过（或 Fast Path 豁免） |
+| **Trigger** | G1–G3 已过（或 Fast Path 已完成轻量产物） |
 | **Owner Skill** | `delivery-workflow` + 项目领域技能 |
-| **Required Inputs** | Task Contract 或 Fast Path 口头范围；checkpoint 协议 |
+| **Required Inputs** | Task Contract 或 Fast Path 微设计；Review PASS；绑定 task/hash/精确文件范围的写入许可证；checkpoint 协议 |
 | **Required Outputs** | 代码 / 配置 / SQL 改动 |
-| **Blockers** | 未输出 R1 出门声明 → 禁止改代码 |
+| **Blockers** | 无有效写入许可证或未输出 R1 → 禁止改代码；R1 不能替代许可证 |
 | **Fast Path** | 单闭环推进 |
 | **Full Path** | 最小闭环切分 + 子 Agent 7 要素 prompt |
 

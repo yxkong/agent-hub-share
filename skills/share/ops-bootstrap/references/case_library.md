@@ -180,6 +180,104 @@ Host <ops-host>
 
 ---
 
+## CASE-009: 消费 Kafka 历史消息按条件过滤后重推
+
+**日期**: 2026-08-10
+**影响**: 生产 bussiness 集群（示例内网：`10.0.0.50:19092`）
+**服务**: Kafka（consumer + producer，PLAINTEXT 无 ACL）
+
+### 触发场景
+
+用户要求：从 Kafka topic 消费指定时间范围的历史消息，按业务字段（如 `data.customerId`）过滤后，原样重新推送到同一 topic。典型关键词："消费后重新推送""重推""repush""时间范围消费""按条件过滤重推"。
+
+### 标准 SOP（Agent 必须按此流程执行）
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ 阶段一：环境只读探查（不写任何代码，先确认事实）              │
+│   ├─ 集群地址、端口、认证方式                                │
+│   ├─ topic 分区数、时间戳类型（CreateTime / LogAppendTime）   │
+│   ├─ 消息 schema（确认过滤字段路径）                          │
+│   ├─ 节点 Python 环境 + pip 可用性                            │
+│   └─ 时区换算（北京时间 → epoch ms）                          │
+├─────────────────────────────────────────────────────────────┤
+│ 阶段二：dry-run 全量扫描（--execute 不加，只统计落清单）       │
+│   ├─ 输出：命中条数、分区分布、时间范围覆盖度                  │
+│   ├─ 清单落盘 JSONL（customerId + partition + offset + ts）  │
+│   └─ 用户 review 清单确认无误后进入下一阶段                   │
+├─────────────────────────────────────────────────────────────┤
+│ 阶段三：小批量验证（--execute --max-push 10 --rate-per-min 10）│
+│   ├─ 推送 10 条，验证 producer 写入正常                       │
+│   ├─ 从 topic 末尾消费确认这 10 条已落盘                      │
+│   └─ 修正脚本缺陷（清单语义、limit 判断顺序等）               │
+├─────────────────────────────────────────────────────────────┤
+│ 阶段四：完整推送（--execute --rate-per-min N --resume-from）  │
+│   ├─ 断点续推跳过已推送的 (partition, offset)                 │
+│   ├─ 限速执行，后台运行并监控进度                              │
+│   └─ 推送完成后从 topic 末尾按时间窗口验证全量落盘             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 必须向用户确认的问题
+
+| 问题 | 选项 | 默认 |
+|---|---|---|
+| 是否限速？ | 每分钟 N 条 / 不限速 | **必须限速**（建议 10 条/分钟起步） |
+| 是否分批？ | 每批 N 条 / 一次性全量 | 先小批量 10 条验证 |
+| 是否断点续推？ | 从已有清单跳过 / 重新开始 | 续推（避免重复） |
+| 清单命名规则 | 每次运行独立清单 / 覆盖 | 独立清单（便于核对） |
+
+### 脚本必备能力
+
+| 参数 | 作用 | 必须？ |
+|---|---|---|
+| `--start/--end` | 北京时间时间范围 | 是 |
+| `--customer-file` | 过滤条件集合文件 | 是 |
+| `--execute` | 默认 dry-run；带此参数才推送 | 是 |
+| `--max-push N` | 最多推送 N 条（小批量验证） | 推荐 |
+| `--rate-per-min N` | 限速 N 条/分钟 | **必须** |
+| `--resume-from PATH` | 断点续推，跳过已推送的 (partition, offset) | 推荐 |
+| `--out-dir` | 清单输出目录 | 是 |
+
+### 关键设计决策
+
+1. **consumer 隔离**：独立 group（带时间戳唯一名），`offsets_for_times` 定位起始 offset，不 commit，不影响线上消费。
+2. **时间窗口**：按 `msg.timestamp`（CreateTime 毫秒）过滤，`ts > end_ms` 即 break，无死循环。
+3. **重推不变形**：原样推送（保留 value / key），不修改任何字段。
+4. **清单即真相**：推送成功后才写清单，dry-run 记录全部命中。清单不可混入"命中但未推送"的预判。
+
+### 验证闭环
+
+```bash
+# 1. dry-run 产出清单，人工 review 命中条数与时间范围
+# 2. 小批量推送后，从 topic 末尾消费验证
+python3 -c "
+from kafka import KafkaConsumer, TopicPartition
+c = KafkaConsumer(bootstrap_servers='<broker>', consumer_timeout_ms=10000)
+for p in sorted(c.partitions_for_topic('<topic>')):
+    tp = TopicPartition('<topic>', p)
+    c.assign([tp]); c.seek_to_end(tp)
+    end = c.position(tp)
+    c.seek(tp, max(end-50, 0))
+    # 检查新时间戳消息中是否包含推送的 customerId
+"
+# 3. 完整推送后，扩大回读范围（1,500 条/分区），按推送时间窗口过滤验证
+```
+
+### 预防措施
+
+1. 重推脚本必须内置 `--execute` 开关，默认 dry-run；禁止无开关直接推送。
+2. 生产推送必须限速（`--rate-per-min`），避免瞬时流量冲击下游。
+3. 断点续推以 (partition, offset) 为唯一键，确保清单严格等于真实推送。
+4. 脚本上传方式：走跳板中转（`scp local → bastion → target`），避免跨跳板 scp 的 ProxyJump 卡住。
+5. 推送完成后，将复盘记录写入 `incidents/kafka/`，按模板归档。
+
+### 相关脚本
+
+- 通用重推脚本模板：`htyc/scripts/kafka_repush_pushauth.py`（本项目可复用）
+
+---
+
 ## CASE-003: Kafka broker 下线后旧 partition 数据撑满数据盘
 
 **日期**: 2026-07-30
@@ -563,3 +661,309 @@ ssh <host> "nginx -t && systemctl reload nginx"
 3. 多人协作约定：Git 对齐人，中控对齐机器；禁改生产 `/etc/nginx`。
 4. push 必须带 `--dry-run` 或 `-Force` 标志，防止误操作。
 5. 在 `ops-check.remote.sh` 中增加配置漂移检查。
+
+---
+
+## CASE-008: Kafka topicId 漂移导致所有 consumer group 无法协调
+
+**日期**: 2026-08-09
+**影响**: `<ops-host>`（ZooKeeper 模式单 broker 或小型开发集群）
+**服务**: Kafka 3.x / ZooKeeper
+
+### 触发场景
+
+- producer 发送消息并收到 broker ACK，topic 的 log end offset 持续增长。
+- consumer 已启动，但 group 一直无 partition assignment、无消费位点。
+- `kafka-consumer-groups.sh --describe` 报 `Timed out waiting for a node assignment`。
+- 重启应用或 broker 后问题仍存在。
+
+### 排查步骤
+
+```bash
+# 1. 先确认 broker、topic leader 和消息写入正常
+kafka-topics.sh --bootstrap-server 127.0.0.1:9092 --describe --topic <business-topic>
+kafka-run-class.sh kafka.tools.GetOffsetShell --broker-list 127.0.0.1:9092 --topic <business-topic>
+
+# 2. 验证 group coordinator 是否普遍失效
+timeout 30 kafka-consumer-groups.sh --bootstrap-server 127.0.0.1:9092 --describe --group <consumer-group>
+
+# 3. 查 broker state-change/server 日志
+grep -E 'Topic ID in memory|does not match the topic ID|__consumer_offsets' <kafka-log-dir>/state-change.log
+
+# 4. ZooKeeper 模式：读取集群元数据中的 topic_id
+zookeeper-shell.sh 127.0.0.1:2181 get /brokers/topics/__consumer_offsets
+
+# 5. 只读扫描磁盘 partition.metadata；expected 必须来自上一步的集群元数据
+python "$AGENTS_HUB_ROOT/skills/share/ops-bootstrap/scripts/ecs_ops.py" kafka topic-id plan \
+  --log-dir /var/lib/kafka/logs \
+  --topic __consumer_offsets \
+  --expected-topic-id <topic-id-from-zookeeper>
+```
+
+关键判据：broker 日志中同一 offsets partition 同时出现两个 topicId，且 `plan` 显示 `driftedCount` 等于受影响 partition 数。仅凭 group 超时不能直接修改磁盘。
+
+### 根因分析
+
+| 层次 | 问题 |
+|------|------|
+| 直接原因 | `__consumer_offsets-N/partition.metadata` 中的 `topic_id` 与 ZooKeeper topic 元数据不一致 |
+| 为什么 producer 正常 | 普通业务 topic 的 leader 和日志未损坏，Produce API 不依赖 consumer group coordinator |
+| 为什么所有 group 失效 | broker 拒绝加载全部或部分 `__consumer_offsets` partition，协调器无法分配 group coordinator |
+| 为什么重启无效 | 漂移值持久化在磁盘 metadata 中，重启只会重复触发一致性校验 |
+
+### 解决方案
+
+这是 L2 修改操作：必须先评估停机窗口、确认 ZooKeeper 真源、执行 plan，并获得人工授权。不得删除或重建 `__consumer_offsets`。
+
+```bash
+# 1. 停止 broker，并确认进程完全退出
+systemctl stop kafka
+systemctl is-active kafka
+pgrep -af 'kafka.Kafka'
+
+# 2. 备份全部目标 partition.metadata 并原子修复漂移项
+python "$AGENTS_HUB_ROOT/skills/share/ops-bootstrap/scripts/ecs_ops.py" kafka topic-id apply \
+  --log-dir /var/lib/kafka/logs \
+  --topic __consumer_offsets \
+  --expected-topic-id <topic-id-from-zookeeper> \
+  --backup-dir /var/backups/kafka/topic-id \
+  --confirm-topic-id-repair
+
+# 3. 用服务管理器启动，等待 broker 元数据稳定
+systemctl start kafka
+systemctl is-active kafka
+
+# 4. 验证 offsets leader、group assignment、位点和 lag
+kafka-topics.sh --bootstrap-server 127.0.0.1:9092 --describe --topic __consumer_offsets
+kafka-consumer-groups.sh --bootstrap-server 127.0.0.1:9092 --describe --group <consumer-group>
+```
+
+helper 的安全边界：只匹配精确 `<topic>-<数字>` 目录；默认 `plan`；apply 需显式确认；broker 运行时拒绝修改；先生成 `tar.gz` 备份；同目录临时文件写入并 `os.replace`；修复后再次扫描。
+
+### 验证与回滚
+
+1. broker 日志不再出现 topic ID mismatch，所有 offsets partition 成为 leader/follower。
+2. consumer group 能稳定入组并拿到 partition，`CURRENT-OFFSET` 前进、`LAG` 收敛。
+3. 业务失败消息应按既有 retry/DLT 策略处理，不得通过跳位点掩盖业务异常。
+4. 若 broker 无法启动，保持 broker 停止，使用 apply 输出的归档恢复对应 `partition.metadata`，再复核真源和目标目录。
+
+### 预防措施
+
+1. 迁移 Kafka 数据目录时保持 ZooKeeper 快照与 broker 日志目录成对恢复。
+2. 恢复后把 group coordinator 检查加入验收，不只验证端口和 Produce API。
+3. `wait_port` 只代表 socket 就绪；topic/group 验证需额外等待 controller metadata 与 offsets 加载完成。
+4. KRaft 集群的真源和恢复路径不同，本案例及 helper 不可直接套用。
+
+---
+
+## CASE-010: OpenSearch local/NFS 混合数据节点的容量与高 CPU 排查
+
+**日期**: 2026-08-10
+**影响**: K8s 内 OpenSearch 日志集群（示例：5 个 data 节点，local PV + NFS CSI 混合）
+**服务**: OpenSearch / K8s / NFS CSI / MinIO operator
+
+### 触发场景
+
+日志写入链路出现 `disk usage exceeded flood-stage watermark`、索引被打上 `read_only_allow_delete`，扩容和解锁后，部分承载 NFS CSI 数据卷的 worker 节点 CPU 仍然偏高。现场容易产生两个误判：
+
+1. 把 NFS CSI 上的在线分片误认为“冷数据在 MinIO 上”。
+2. 看到 NAS 节点 CPU 高，就直接归因于 IO 性能问题。
+
+### 只读排查步骤
+
+#### 1. 先确认 OpenSearch 数据节点实际落盘
+
+```bash
+kubectl -n <logging-ns> get pod -o wide
+kubectl -n <logging-ns> get pvc -o custom-columns=NAME:.metadata.name,SC:.spec.storageClassName,VOLUME:.spec.volumeName,CAP:.status.capacity.storage
+```
+
+判据：
+
+- `StorageClass=local`：在线分片落在宿主机本地盘或 local PV。
+- `StorageClass=nfs-csi`：在线分片落在 NFS/NAS 挂载卷。
+- PVC 声明容量不一定等于真实宿主机空间上限，local PV 还要看宿主机挂载点使用率。
+
+#### 2. 区分在线数据、冷数据和快照仓库
+
+```bash
+kubectl -n <logging-ns> exec <opensearch-master-pod> -- \
+  curl -ks -u <user>:<pass> https://localhost:9200/_snapshot?pretty
+
+kubectl -n <logging-ns> exec <opensearch-master-pod> -- \
+  curl -ks -u <user>:<pass> https://localhost:9200/_cat/plugins?v
+```
+
+判据：
+
+- `_snapshot` 返回 `{ }`：没有登记 snapshot repository，不能说冷数据在 MinIO/S3。
+- 插件列表没有 `repository-s3`：通常不具备 S3/MinIO 快照仓库能力。
+- ISM 只有 `hot -> delete`：代表到期删除，不代表热转冷或归档到对象存储。
+
+#### 3. 判断 CPU 高是否由 IO wait 导致
+
+```bash
+top -bn1
+iostat -xz 1 2
+ps -eo pid,pcpu,pmem,rss,etime,comm,args --sort=-pcpu
+```
+
+判据：
+
+- `%wa` 长时间高、进程大量 `D` 状态、设备 await/util 高：优先怀疑 IO/NFS。
+- `%us` 长时间高、`%wa` 接近 0：优先按 CPU 计算型过载排查。
+- NFS 在线分片可能放大查询、merge、recovery 成本，但不能只凭“NAS 节点 CPU 高”下结论。
+
+#### 4. 把高 CPU PID 映射回 Pod
+
+```bash
+tr '\0' ' ' < /proc/<pid>/cmdline
+cat /proc/<pid>/cgroup
+crictl inspect <container-id>
+```
+
+重点识别：
+
+- OpenSearch data 节点是否正在承担 indexing / search / merge / recovery。
+- 日志采集器、Kafka Connect、业务 Java 是否与 OpenSearch 混部叠加。
+- operator/controller 是否长期空转；若是控制面 Pod，可优先评估低风险重启。
+
+### 根因分析模型
+
+| 现象 | 不要直接推断 | 应该补充的证据 |
+|------|--------------|----------------|
+| NFS CSI 节点 CPU 高 | NAS IO 慢导致 | `top` 的 `%wa`、`iostat` await/util、进程状态 |
+| data 节点挂 NAS | 冷数据在 MinIO | `_snapshot` repository、`repository-s3` 插件、ISM 状态机 |
+| PVC 写了 20Gi | 数据只能写 20Gi | 宿主机 `df`、PV 实际路径、local PV 实现 |
+| flood-stage 已解除 | 写入一定恢复 | 索引 `read_only_allow_delete` 是否仍为 true |
+
+### 处置顺序
+
+1. **先止写入故障**：扩容或释放触发 flood-stage 的本地盘，再清除索引只读块。
+2. **再控保留周期**：核对 ISM policy 的实际 `min_index_age`，不要相信策略名。
+3. **再看算力热点**：用 PID -> Pod 映射拆出 OpenSearch、业务 Java、operator/controller 各自占用。
+4. **低风险先摘异常控制面**：例如只重启异常空转的 operator Pod，不碰数据 Pod、PVC 或 StatefulSet。
+5. **最后做结构性优化**：减少高写入日志在 NFS 在线分片上的占比，或把 NAS 节点定位为低频/冷查询用途。
+
+### 验证闭环
+
+1. OpenSearch health 为 green/yellow 可解释状态，写入索引无 `read_only_allow_delete=true`。
+2. 业务日志写入链路恢复，无持续 `TOO_MANY_REQUESTS/12/disk usage exceeded flood-stage watermark`。
+3. CPU 归因有证据：高 CPU PID 已映射到 Pod，且 `%us` / `%wa` 判断一致。
+4. 控制面重启后，新 Pod Ready，数据面 Pod 仍 Running，节点 CPU/load 有下降或剩余大户明确。
+
+### 预防措施
+
+1. OpenSearch 数据节点混用 local/NFS 时，容量告警必须按**宿主机本地盘余量**和**节点角色**分别看，不只看集群平均。
+2. 日志保留策略以实际 ISM policy 为准；策略名带 `4d`、`short` 等字样不能作为事实。
+3. 若要使用 MinIO/S3 做快照或冷归档，必须显式配置 repository、插件和恢复演练；否则不要把 MinIO 当作默认冷数据层。
+4. 8C worker 上避免叠放 OpenSearch data、重业务 Java、Kafka Connect/Amoro optimizer、长期高 CPU operator。
+5. 对 operator/controller 设置合理 CPU request/limit，并把长期高 CPU 控制面纳入巡检。
+
+---
+
+## CASE-011: Java 容器线程触达 kubelet podPidsLimit 后被探针重启
+
+**日期**: 2026-08-17
+**影响**: K8s 中的 Java 服务 Pod（示例：3 副本，cgroup `pids.max=1000`）
+**服务**: Java / Tomcat / kubelet / 入口 Nginx
+
+### 触发场景
+
+同一 Deployment 多个副本在晚高峰前后约 1 分钟内全部重启。表象像节点 OOM、apt 升级或有人点了平台重启。日志里可能出现：
+
+- `java.lang.OutOfMemoryError: unable to create new native thread`
+- kubelet `PreStop hook failed` 随后 SIGTERM，容器 `exit 143`
+- `/actuator/health` readiness/liveness timeout
+- Tomcat 线程名 `http-nio-<port>-exec-N` 的 N 快速升高
+
+### 排查步骤
+
+```bash
+# 1. 先拆「发版/点击重启」vs「kubelet 杀容器」
+kubectl get deploy,rs,pod -n <ns> -l app=<app> -o wide
+kubectl get deploy <deploy> -n <ns> -o jsonpath='{.spec.template.metadata.annotations}'
+# restartedAt 变化 = 平台滚动（新 Pod Attempt:0）
+# 同一 Pod UID 的 Attempt:1/2 + exit 143 = kubelet 停容器
+
+# 2. 看停机前 60~90 秒，不要只看 PreStop
+journalctl -u kubelet --since '<t-10m>' --until '<t+5m>' | grep -v 'Unable to retrieve pull secret'
+journalctl -u containerd --since '<t-10m>' --until '<t+5m>' | grep <container-name>
+
+# 3. native thread OOM：查 cgroup 线程配额，不要先加 -Xmx
+grep podPidsLimit /var/lib/kubelet/config.yaml
+cat /sys/fs/cgroup/kubepods.slice/.../pids.max
+cat /sys/fs/cgroup/kubepods.slice/.../pids.current
+ls /proc/<java-pid>/task | wc -l
+# 线程名分布
+for t in /proc/<java-pid>/task/*/comm; do cat "$t"; done | sort | uniq -c | sort -nr | head
+
+# 4. 排除节点级事故
+dmesg -T | grep -i 'oom\|kill' | tail
+systemctl is-enabled apt-daily-upgrade.timer
+free -h
+```
+
+判据：
+
+- 堆 RSS 远低于 `-Xmx`，但 `pids.current` 贴近 `pids.max`：这是线程配额，不是 Java 堆 OOM。
+- 多副本同时重启但 RS / 镜像 / `restartedAt` 不变：共享流量模型 + 相同线程基线即可同秒触顶。
+- `PreStop hook failed` 只能说明停机钩子非 0；要看钩子里业务步骤是否已成功（例如注册中心 DOWN 已 200）。
+
+### 根因分析模型
+
+| 现象 | 不要直接推断 | 应该补充的证据 |
+|------|--------------|----------------|
+| `unable to create new native thread` | 堆内存不够，先加 `-Xmx` | `pids.current` / `pids.max`、线程名分布 |
+| 三副本同秒重启 | 节点 apt / 内核 OOM | `restartedAt`、RS、dmesg、timer 状态 |
+| `PreStop hook failed` | 停机脚本是根因 | 钩子内部是否已成功；随后是否仍 SIGTERM |
+| 收了 Tomcat max 仍见 http-nio 上涨 | 应用又泄漏线程 | 高峰是否回落；backup/Kafka 池是否跟着涨 |
+| 内部服务 QPS 暴增 | 自己的消费者/定时任务 | 调用方 Pod IP → 入口 Nginx 源 IP + UA |
+
+### 线程预算（2C 容器、pids.max=1000 的经验值）
+
+| 项 | 危险基线 | 更稳妥 |
+|---|---|---|
+| Tomcat `threads.max` | 1000（峰值可直接打满 pids） | 与 CPU 匹配，例如 120–250 |
+| Kafka `listener.concurrency` × listener 数 | 全局 5，再叠加 Micrometer scheduler | 默认 2，热点单独覆盖；可关 per-consumer Micrometer |
+| 异步池 core=max 且常驻 | 闲时已占几百 | core 小、max 弹性、`allowCoreThreadTimeOut` |
+| 闲时 pids.current / max | ≥70% | 闲时 <40%，峰值仍留 >400 余量 |
+
+### 流量溯源（http-nio 独涨时）
+
+1. 应用 HTTP 访问日志或 OpenSearch `Http trace log` 按 path、按分钟聚合，对比基线窗口与高峰窗口。
+2. 把调用方集群内 IP 反查成 Pod / Service；若是 BFF/渠道网关，继续查该服务的渠道 URL 或 adaptor。
+3. 到入口 Nginx access_log 用同一时间窗 + 路径关键字取源 IP 和 User-Agent。
+4. 消费者日志量很低时，不要先查 Kafka 重放。
+
+示例入口行（脱敏）：
+
+```text
+203.0.113.80 - - [17/Aug/2026:17:56:19 +0800] "POST /openApi/api/<channel>/getQuota HTTP/1.1" 200 1304 "-" "Apache-HttpClient/4.5.12"
+```
+
+### 解决方案
+
+1. **先保活**：限制 Tomcat max / accept-count / max-connections，避免峰值线程顶满 `pids.max`。
+2. **再降基线**：Kafka concurrency、异步池 core、关掉无用的 per-consumer metrics 线程。
+3. **不要先改全集群 `podPidsLimit`**：会掩盖膨胀，大 Tomcat 池仍可能把小 CPU 配额打满。
+4. **高峰仍涨但不重启**：用流量溯源找渠道/对端并发，而不是继续加线程上限。
+5. **探针**：存活/就绪不要在线程耗尽时还依赖同一 HTTP 池的重检查；超时过短会把卡顿放大成重启。
+
+### 验证闭环
+
+1. 启动 10 分钟后 `pids.current` 明显低于改前基线（例如从 ~750 降到 ~300）。
+2. `http-nio` 线程数封顶在配置的 `threads.max` 附近，且高峰后回落。
+3. 连续一个业务高峰窗口无 `unable to create new native thread`、无同 Pod `Attempt+1` / exit 143。
+4. 若高峰 `http-nio` 仍接近 max：已拿到 path、调用方服务、入口源 IP，并能区分「正常业务」与「对端突发轮询」。
+
+### 预防措施
+
+1. Java 服务上线前把 Tomcat / 线程池 / Kafka concurrency 纳入与 `podPidsLimit` 对照的预算，而不是沿用默认 1000。
+2. 巡检看 `pids.current` 和 `http-nio-exec-N` 高水位，不要只看堆内存和重启次数。
+3. 渠道额度/状态查询类接口要对对端明确并发与间隔；入口 Nginx 保留可检索的 access_log。
+4. 停机脚本不要把非关键 IO（例如写不存在的 start.log）变成 PreStop 失败，以免掩盖真正停机原因。
+
+### 相关档案
+
+- 事件档案写在各运维包 `incidents/`（htyc：`20260813-java-native-thread-oom-podpidslimit`、`20260817-java-peak-thread-kubelet-restart`）。

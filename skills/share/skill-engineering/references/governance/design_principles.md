@@ -110,6 +110,7 @@
 
 | 反模式 | 问题 | 正确做法 |
 |--------|------|----------|
+| 跨运行时对齐绕过共享契约 | 复制参考项目内部架构、前端叠产品名、DB 补丁或固定预算，让“效果一致”变成多套实现耦合 | 先冻结 versioned observable contract + 同源 golden；平台/垂类/Skill/前端按所有权实现；契约变更双端对拍，禁止产品分支、DB workaround 和长期兼容壳 |
 | 默认 full 化 | skill 变得很重，维护成本高 | 默认 `standard`，高复杂度再升 `full` |
 | 只看结构不看可用性 | 技能漂亮但驱动不了开发 | 优先验证入口、主链路、切入点和 SOP |
 | 平台专属内容混入默认链 | 非当前环境时会误导 AI | 平台专属内容放 P2 按需阅读 |
@@ -129,3 +130,6 @@
 | 搬迁丢正文 | Move 后 handbook 被 stub 覆盖或 git 编码损坏 | 先 backup → 迁正文 → 写 stub → grep 交叉引用；验证 handbook 文件大小与首段标题 |
 | bak 内可发现 SKILL.md | dated 快照或 `bak/**` 仍保留 `SKILL.md` 文件名，污染 discovery/review/Agent 触发 | **禁止** skill 树下非 canonical 路径出现 `SKILL.md`；备份用 `_SKILL.md` / `SKILL-<stamp>.md` / `SKILL_md/`；`check-skill-entrypoints` 必须 fail；`find-skills` 只列 canonical |
 | 挂载入口当真源 | 在 `.cursor/skills/` 等工作区入口改正文，与 hub 漂移 | 正文只改 hub 真源；挂载仅经 `agent-hub-bootstrap` 脚本；见 `skill_truth_source_contract.md` |
+| Harness 自锁 | 写入 Guard 连自己的状态查询、撤销或恢复命令也拒绝，导致只能删除 Hook | 恢复控制面永远可用并做真实 Hook 回归；业务写入仍 fail closed |
+| 确认循环 | 用户已明确要求实施，仍为设计 Hash、引用方、测试或新增文件逐次重签 | 一次目标授权覆盖同一目标的设计、依赖闭包、实现和验证；只在目标越界或高风险动作前再次确认 |
+| Canonical 范围替换 | 用同一路径把原 Spec/SDD 的业务范围替换为另一主题，导致旧需求失去真源 | 新主题使用新身份或显式兼容演进；发布前做需求 ID、索引和引用反查，禁止静默覆盖 |

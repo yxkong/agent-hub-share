@@ -14,7 +14,9 @@ description: AI 研发治理总纲技能（AI development governance, spec, ADR,
 | `spec` | 真实研发需求尚未形成 Spec，或要提升 Spec 生成稳定性 | `references/governance/spec_compiler_workflow.md`，再按路由读取模板 |
 | `sdd` | Spec 已冻结，需要形成可交给实现和 TDD 的软件设计 | `templates/TEMPLATE_SDD.md` |
 | `adr` | SDD 中存在多方案取舍或架构影响 | `templates/TEMPLATE_ADR.md` |
+| `architecture-principles` | 需要在设计期用四高二低三底座提前暴露问题、形成取舍 | 已装配的工程 Profile，再进入 `templates/TEMPLATE_SDD.md` / `TEMPLATE_ADR.md` |
 | `task-contract` | 需要拆成最小可验证任务契约 | `templates/TEMPLATE_TASK_CONTRACT.md` |
+| `implementation-auth` | 设计已 Review，准备写入代码、配置、文档或治理资产 | `references/gates/implementation_authorization_gate.md` |
 | `project-contract` | 跨项目、Java/Python 同步、共享 DB/API、项目技能一致性 | `references/gates/project_contract_gate.md` |
 | `security` | 涉及权限、租户、敏感数据、密钥 | `references/security_gate.md` |
 | `biz-safety` | 涉及 UGC、交互防刷、短信/通知 | `biz-safety-audit` 技能（content / interaction / sms 路由） |
@@ -33,6 +35,7 @@ description: AI 研发治理总纲技能（AI development governance, spec, ADR,
 - Spec / SDD / ADR / Task Contract / Security / Release / Quality 总体治理
 - 跨 skill 协作矩阵与评分模型
 - 风险升级与人工确认点
+- 一次目标授权语义、状态机与高风险确认边界
 
 **不负责**：
 
@@ -44,9 +47,12 @@ description: AI 研发治理总纲技能（AI development governance, spec, ADR,
 
 ## 核心原则
 
+- **问题越早暴露，修正成本越低**：需求、事实、设计和任务契约优先证伪错误方向，不把可前置发现的问题留到实现、联调或发布
+- **架构原则用于生成设计**：四高二低三底座是设计期问题发现透镜；Review 只检查决策可追溯和未决 P0，授权只绑定设计与范围，Quality Gate 验证实现结果
 - **治理先于执行**：Spec / ADR / Contract 没收敛时，不进入高成本实现
 - **门禁独立存在**：Security / Release / Quality 不因赶进度被吞进执行细节
 - **Fast Path 可轻量，不可失控**：可简化治理产物，不可跳过必要门禁
+- **明确实施请求即目标授权**：同一目标内的设计细化、依赖补齐、文件扩展和验证不重复确认；只读请求不授权，高风险或目标越界另行确认
 - **执行归 delivery，治理归本技能**：避免一份技能同时承担“怎么做”和“先过哪些门”
 - **知识转动作**：外部优秀方法只沉淀为目标契约、当前事实查证、风险反证、测试证据、薄切片交付与失败回灌，不把术语变成运行负担
 - **Spec 是编译契约**：Full Path 先形成 Fact Pack，再生成、反证、校验和冻结 Spec；模板字段齐全不等于可实施
@@ -58,15 +64,16 @@ description: AI 研发治理总纲技能（AI development governance, spec, ADR,
 - 跨项目、共享库、Java/Python 同步、前后端契约联动，必须过 Project Contract Gate
 - Full Path 进入实现前必须有 SDD 或等价设计契约；有架构取舍，必须有 ADR
 - Full Path 进入实现前必须通过 Spec Compiler `implementation-ready` 校验；`review/proposed` 不得当作冻结契约
+- 任何持久化写入前必须通过 `references/gates/implementation_authorization_gate.md`；范围或设计变化立即失效
 - 涉及用户数据、权限、租户、密钥，必须过 Security Gate
 - 涉及 UGC、交互、短信/通知，必须过 `biz-safety-audit`
 - AI 生成代码准备合并，必须过 Code Review Gate
 - 进入上线前，必须过 Release Gate + Rollback Gate
 - 发生失败、返工、回滚，必须进入 Learning Gate（`delivery-workflow` R3）
 
-## Fast Path 豁免
+## Fast Path 轻量化
 
-满足 `delivery-workflow` Fast Path 条件时，G1 Spec / G2 ADR / G3 Task Contract 可轻量化或口头收敛，**不得**跳过 G5 Quality Gate 与 G8 Learning Gate（若发生失败）。
+满足 `delivery-workflow` Fast Path 条件时，G1 Spec / G2 ADR / G3 Task Contract 可轻量化，**不得**跳过写入授权门、G5 Quality Gate 与 G8 Learning Gate（若发生失败）。
 
 ## 闭环门
 
@@ -88,6 +95,7 @@ description: AI 研发治理总纲技能（AI development governance, spec, ADR,
 - `references/rollback_gate.md`
 - `references/governance_checklist.md`
 - `references/gates/project_contract_gate.md`
+- `references/gates/implementation_authorization_gate.md`
 - `references/scorecard.md`
 - `references/skill_interop_matrix.md`
 

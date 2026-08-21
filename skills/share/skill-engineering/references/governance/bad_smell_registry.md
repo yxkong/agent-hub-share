@@ -27,6 +27,11 @@ summary: 技能工程中重复出现问题的模式抽象库。与主技能一�
 
 > **只读区**：条目已进 `governance/design_principles.md` §六，此处保留可追溯摘要。**禁止**把仍待统计的草案放在本区。
 
+[CROSS_RUNTIME_CONTRACT_BYPASS] **跨运行时对齐绕过共享契约**
+- 触发条件：要求两个 Runtime/产品效果一致时，直接复制参考项目内部类结构、在前端按产品/工具名加分支、用数据库补丁修执行逻辑，或使用固定预算魔数；同类返工重复发生
+- 规则：先冻结 versioned observable contract 与同源 golden；区分平台 Runtime、垂类代码、Skill/Prompt 和前端渲染；前端只消费通用关系，内部实现按各项目指纹；变更必须双端对拍，禁止 DB workaround 与长期兼容壳
+- 计数：2 | 状态：已提升 → design_principles.md §六
+
 [MAIN_FILE_BLOAT] **主文件膨胀**
 - 触发条件：主文件 **非空行**（trim 行首行尾空白后仍非空的物理行，见父技能 `SKILL.md` §主文件行数）超过**所属类型**上限（纯路由 80 / 路由器+硬约束 130 / 多域 150 / 元技能 160）；或以打补丁方式持续追加、未配套下移细节到 references
 - 规则：超过所属类型非空行上限立即拆分；一切细节下沉 `references/`；自检须用 hub **`check-skill-size.sh` / `check-skill-size.ps1`**（见 `AGENTS_HUB_ROOT/scripts`），禁止各模型自拼 `awk`
@@ -95,6 +100,21 @@ summary: 技能工程中重复出现问题的模式抽象库。与主技能一�
 [REDIRECT_STUB_NO_VALUE] **无外部引用的中转索引仍保留**
 - 触发条件：SKILL 已能直达 active reference，旧 `modes/*.md` 或 redirect stub 只重复阅读顺序、无外部依赖
 - 规则：删除中转文件并从 INDEX 移除；把必要顺序与裁决直接写入 SKILL 路由，勿为 stub 而 stub
+- 计数：2 | 状态：已提升 → design_principles.md §六
+
+[HARNESS_SELF_LOCK] **治理守卫锁死恢复控制面**
+- 触发条件：写入 Hook 把自身 `status/propose/verify/revoke` 当业务写入拒绝，用户只能删除 Hook 才能继续；同类阻断重复发生
+- 规则：恢复控制面始终可执行并覆盖真实 Hook 进程测试；业务写入继续 fail closed
+- 计数：2 | 状态：已提升 → design_principles.md §六
+
+[CONFIRMATION_LOOP] **逐文件重签导致确认循环**
+- 触发条件：用户已明确要求实现或修复，Agent 仍为设计 Hash、Mapper、测试、DDL、引用方或新增文件连续要求确认
+- 规则：明确实施请求只建立一次目标授权；同一目标内由 Agent 完成设计、依赖闭包、实现和验证。仅目标切换、越出授权根、生产/外部写入、权限密钥、安全升级、删除/不可逆、发布推送等风险边界重新确认
+- 计数：3 | 状态：已提升 → design_principles.md §六
+
+[CANONICAL_SCOPE_REPLACEMENT] **同路径静默替换 canonical 范围**
+- 触发条件：新主题直接覆盖既有 Spec/SDD 路径，旧需求、ID 和索引失去唯一真源
+- 规则：新主题使用新身份或显式演进映射；发布前反查需求 ID、索引与引用，禁止静默覆盖
 - 计数：2 | 状态：已提升 → design_principles.md §六
 
 ---
@@ -177,4 +197,4 @@ summary: 技能工程中重复出现问题的模式抽象库。与主技能一�
 
 按需检索设计原则正文时，用下列 ID 对齐 `design_principles.md §六`：
 
-`MAIN_FILE_BLOAT` · `SUBSKILL_MERGE_INCOMPLETE` · `REFS_DEPTH_VIOLATION` · `BAK_SKILLMD_DISCOVERABLE` · `VALUE_GATE_MISSING` · `PRODUCT_REVIEW_INCREMENTAL_TRAP` · `DOC_SCRIPT_CONTRACT_DRIFT` · `HIDDEN_SCRIPT_MODE` · `MACHINE_INDEX_ID_FABRICATION` · `CROSS_PLATFORM_WRAPPER_DRIFT` · `MULTI_ROUTER_PARALLEL` · `HANDBOOK_NO_TIER` · `REDIRECT_STUB_NO_VALUE`
+`CROSS_RUNTIME_CONTRACT_BYPASS` · `MAIN_FILE_BLOAT` · `SUBSKILL_MERGE_INCOMPLETE` · `REFS_DEPTH_VIOLATION` · `BAK_SKILLMD_DISCOVERABLE` · `VALUE_GATE_MISSING` · `PRODUCT_REVIEW_INCREMENTAL_TRAP` · `DOC_SCRIPT_CONTRACT_DRIFT` · `HIDDEN_SCRIPT_MODE` · `MACHINE_INDEX_ID_FABRICATION` · `CROSS_PLATFORM_WRAPPER_DRIFT` · `MULTI_ROUTER_PARALLEL` · `HANDBOOK_NO_TIER` · `REDIRECT_STUB_NO_VALUE` · `HARNESS_SELF_LOCK` · `CONFIRMATION_LOOP` · `CANONICAL_SCOPE_REPLACEMENT`

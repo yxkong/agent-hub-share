@@ -48,6 +48,7 @@ AI 研发治理总线：定义从需求入口到失败沉淀的端到端阶段�
 
 | 版本 | 日期 | 修订要点 |
 |------|------|----------|
+| 1.5.0 | 2026-08-18 | 实施授权收敛为一次目标授权；设计、依赖闭包与验证不再触发逐文件重签，高风险边界仍单独确认 |
 | 1.4.0 | 2026-07-28 | 引入 Spec Compiler：统一 Fact Pack、文档状态/版本、追踪 ID、Python 校验核心与 baseline/held-out |
 | 1.3.0 | 2026-06-10 | 增加主链证据、Project Contract、Release Evidence、Task Replay Lite / Skill Health Signal 轻量闭环；不新增 runbook/dashboard |
 | 1.2.0 | 2026-06-08 | 增强持久上下文闭环、多视角反证与反迎合检查 |

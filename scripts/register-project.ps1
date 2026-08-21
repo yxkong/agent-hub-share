@@ -97,7 +97,6 @@ if ($ProjectType) {
             "skill_groups: $SkillGroups",
             "project_skills: $ProjectSkills",
             "default_workflow: $defaultWorkflow",
-            'project_skill: unknown',
             "prompts_enabled: $defaultPromptsEnabled",
             ''
         ) -join "`n"

@@ -55,7 +55,7 @@
 
 ## 维护约束
 
-- 改 scripts / references / `SKILL.md` 前对触及文件跑 `backup-file`
+- 已纳入 git 的 scripts / references / `SKILL.md` 以 git 回退为准，不强制 `backup-file`；未纳入版本控制或远端资产变更前必须备份
 - 扩展新场景时先归入 `references/capability_model.md` 的运维生命周期（Access / Inventory / Provision / Deploy / Config / Detect / Log / Data / DB / Backup / Audit），再决定补模板、plan 或脚本；禁止按单个工具名零散加功能
 - `ecs_ops.py` 只做 CLI 路由；业务无关逻辑进 `scripts/core/`，命令实现进 `scripts/commands/`
 - wrapper 不新增配置解析、SSH block 生成、远程检查等核心逻辑

@@ -14,6 +14,7 @@ from commands.db_verify import run_db_execute, run_db_plan
 from commands.deploy import run_deploy_plan
 from commands.detect import run_detect_plan
 from commands.local_port import run_local_free_port
+from commands.kafka import run_kafka_topic_id_apply, run_kafka_topic_id_plan
 from commands.logs import run_logs_plan
 from commands.ops_check import run_ops_check_from_args
 from commands.provision import run_provision_plan
@@ -118,6 +119,27 @@ def build_parser() -> argparse.ArgumentParser:
     )
     free_port.add_argument("--retries", type=int, default=3, help="kill/recheck rounds")
     free_port.set_defaults(func=run_local_free_port)
+
+    kafka = sub.add_parser("kafka", help="guarded Kafka broker diagnostics and repair")
+    kafka_sub = kafka.add_subparsers(dest="kafka_command", required=True)
+    topic_id = kafka_sub.add_parser("topic-id", help="plan or repair partition topic ID drift")
+    topic_id_sub = topic_id.add_subparsers(dest="kafka_topic_id_command", required=True)
+    topic_id_plan = topic_id_sub.add_parser("plan", help="scan exact topic partitions without changes")
+    topic_id_plan.add_argument("--log-dir", required=True, help="Kafka log.dirs path")
+    topic_id_plan.add_argument("--topic", default="__consumer_offsets", help="exact Kafka topic name")
+    topic_id_plan.add_argument("--expected-topic-id", required=True, help="topic ID from cluster metadata")
+    topic_id_plan.set_defaults(func=run_kafka_topic_id_plan)
+    topic_id_apply = topic_id_sub.add_parser("apply", help="backup and atomically repair drifted metadata")
+    topic_id_apply.add_argument("--log-dir", required=True, help="Kafka log.dirs path")
+    topic_id_apply.add_argument("--topic", default="__consumer_offsets", help="exact Kafka topic name")
+    topic_id_apply.add_argument("--expected-topic-id", required=True, help="topic ID from cluster metadata")
+    topic_id_apply.add_argument("--backup-dir", required=True, help="directory for metadata tar.gz backup")
+    topic_id_apply.add_argument(
+        "--confirm-topic-id-repair",
+        action="store_true",
+        help="confirm the broker is stopped and the reviewed plan may be applied",
+    )
+    topic_id_apply.set_defaults(func=run_kafka_topic_id_apply)
 
     return parser
 

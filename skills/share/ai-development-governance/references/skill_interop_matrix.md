@@ -34,7 +34,8 @@
 | Spec G1 | `ai-development-governance` | `delivery-workflow` | Feature Spec |
 | 设计 G2 | `delivery-workflow` | `ai-development-governance` | 最小设计 / ADR |
 | 任务契约 G3 | `ai-development-governance` | `delivery-workflow` | Task Contract |
-| 实现 G4 | `delivery-workflow` | 项目领域 skill | 代码改动 |
+| 实现授权 G4a | `ai-development-governance` | `agent-hub-bootstrap` | 授权语义 / Codex Hook |
+| 实现 G4b | `delivery-workflow` | 项目领域 skill | 按许可证白名单写入 |
 | 子 Agent 派发 | `delivery-workflow` | `prompt-engineering` | 7 要素 / hub prompt |
 | 代码审查 G5a | `ai-development-governance` | `delivery-workflow` | code review 记录 |
 | 测试验证 G5b | `delivery-workflow` | `tdd-workflow`、`webapp-testing` | 测试证据 / 截图 / 日志 |
@@ -61,7 +62,7 @@
 
 1. `delivery-workflow` 进场做 Fast/Full triage（体系/规范/门禁/评分或需 G1–G3 产物时转 governance，再回 delivery）
 2. 写/改 docs/SQL → `doc-script-governance`
-3. 写代码 → 项目领域技能（可并行 `tdd-workflow` 先写测试）
+3. 写代码 → 先过 governance 写入授权门，再转项目领域技能（可配合 `tdd-workflow`）
 4. 代码审查 → `ai-development-governance` G5 code_review_gate
 5. 测试验证 → `tdd-workflow` + `webapp-testing` + delivery-workflow 三联检
 6. 安全审计 → `ai-development-governance` G6 security_gate + `biz-safety-audit`（涉及 UGC/交互/短信时）

@@ -116,7 +116,7 @@ contract_groups:
 skill_groups:
 project_skills:
 default_workflow: none
-project_skill: unknown
+# project_skill: my-project-dev  # 可选；填写时必须指向本项目 canonical SKILL.md
 ```
 
 `sync-agent-rules` 的 layered 模式生成两部分：个人全局为 `首跳 + common + personal + environment`；项目增量为 `首跳 + typed personal preferences + profile + contract groups + project overlay`。项目文件不重复全局正文。

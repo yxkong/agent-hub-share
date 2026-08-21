@@ -11,7 +11,7 @@
 
 ## should-not-trigger
 
-- 「帮我直接实现这个接口 / 页面 / SQL」→ `delivery-workflow` + 项目领域技能
+- 「帮我直接实现这个接口 / 页面 / SQL」→ `delivery-workflow` 做设计/授权映射，再转项目领域技能
 - 「文档放哪个目录、改前怎么备份」→ `doc-script-governance`
 - 「帮我审查这个 SKILL.md 结构」→ `skill-engineering`
 - 「已经满足 Fast Path，直接推进这个单点改动」→ `delivery-workflow`

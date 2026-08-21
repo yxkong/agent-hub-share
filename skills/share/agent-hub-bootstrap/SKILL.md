@@ -14,6 +14,7 @@ description: 初始化、修复、发布和校验 agent hub 挂载（install-hub
 | `sync` | 同步规则、共享技能、项目技能或 prompt 链接 | `references/workflow.md` |
 | `diagnose` | Cursor/Claude/Codex 找不到 skill、链接失效、重复入口 | `references/trigger_eval.md` + `references/workflow.md` |
 | `script-tiering` | 不确定脚本放 hub 根还是技能目录 | `references/script_tiering.md` |
+| `guard-install` | 安装命令破坏防护与 Codex 写入授权门 | `references/destructive_command_guard.md` + `references/write_authorization_guard.md` |
 
 ## 作用边界
 
@@ -76,6 +77,7 @@ Hub 初始化先生成 **个人全局规则 bundle + global skills**；只有显
 | 校验 references 拓扑（顶层 `*.md` 数量、语义子目录深度） | L2 `skill-engineering/scripts/check-skill-structure.*` |
 | 统计主文件非空行 / 行数门禁 | L2 `skill-engineering/scripts/check-skill-size.*` |
 | 修复历史备份中的重复入口 | L2 `skill-engineering/scripts/fix-skill-entrypoints.*` |
+| 安装工具层 guard | `scripts/install-guard.ps1` / `.sh`（破坏性命令跨平台；写入授权硬门当前仅 Codex） |
 
 - 脚本分级（**hub 稳定入口 + skill 实现真源**）：见 **`references/script_tiering.md`**；索引见 hub 根 **`scripts/README.md`**。
 - Agent 执行挂载类任务：只组参数并调用现成 L1/L2 脚本，**禁止**在业务仓现写临时脚本。
@@ -122,6 +124,9 @@ Hub 初始化先生成 **个人全局规则 bundle + global skills**；只有显
 
 ## trigger / eval 与安全
 
+- 写入授权的唯一语义真源属于 `ai-development-governance`；本技能只复制脚本、合并 Hook 配置并校验安装结果，不另增确认点。明确实施请求应进入一次性 `GOAL_AUTHORIZED`，风险边界由治理真源裁决。
+- Codex 项目 Hook 未经宿主信任前只能报告 `NEEDS_USER_TRUST`，不得宣称硬门已生效；其他宿主在适配器验证前仅保留原破坏性命令守卫。
+
 dry-run 优先、`-ReplaceRealDirs` 破坏性、挂载边界与 should-trigger / should-not-trigger → **[references/trigger_eval.md](references/trigger_eval.md)**。
 
 真实校验样例见 `references/closure_example.md`。
@@ -144,3 +149,4 @@ dry-run 优先、`-ReplaceRealDirs` 破坏性、挂载边界与 should-trigger /
 - 规则新增、修订与回灌：`docs/design/ai-dev-system/AGENT_RULES_LEARNING_LEDGER.md`
 - `*.prompt.md` 正文与 eval：显式 prompt 维护任务再读 `prompt-engineering`
 - 不清楚是否属于 skill / prompt / docs / plugin：先用当前项目规则判断，必要时询问用户；不要默认引入工程类路由器
+- 破坏性命令拦截 hook 安装与平台差异：`references/destructive_command_guard.md`

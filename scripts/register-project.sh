@@ -119,7 +119,6 @@ contract_groups: $CONTRACT_GROUPS
 skill_groups: $SKILL_GROUPS
 project_skills: $PROJECT_SKILLS
 default_workflow: $DEFAULT_WORKFLOW
-project_skill: unknown
 prompts_enabled: $(if [ "$PROJECT_TYPE" = 'media' ]; then printf false; else printf true; fi)
 SKELETON
     fi
