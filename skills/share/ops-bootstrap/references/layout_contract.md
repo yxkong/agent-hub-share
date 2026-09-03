@@ -46,7 +46,7 @@
 | Core 库 | `scripts/core/` | 配置解析、SSH 调用、计划渲染、公共执行器 |
 | 命令实现 | `scripts/commands/` | bootstrap、ops-check、provision、deploy、detect、query 等命令实现 |
 | 组件模块 | `scripts/modules/<component>/` | Python/uv/JDK/Nginx/Node/MySQL/Redis/ZooKeeper/Kafka 等模块的 plan/check/apply 实现 |
-| Helper | `scripts/helpers/` | 单一职责工具，如公钥部署、模板渲染、远端探测 |
+| Helper | `scripts/helpers/` | 单一职责工具：公钥部署、模板渲染、远端探测、磁盘/Nginx 巡检、**校验 txt 下发**（`deploy_mp_verify.ps1`） |
 | 测试 | `tests/` 或 skill 既有测试目录 | 本地纯函数、模板解析、命令 plan 快照 |
 
 兼容规则：

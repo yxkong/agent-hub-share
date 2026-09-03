@@ -8,6 +8,7 @@
 
 | 版本 | 日期 | 修订要点 |
 |------|------|----------|
+| 1.13.0 | 2026-08-24 | 新增 Nginx helper：微信/小程序校验 txt 按域名 `root` 下发并做 HTTPS 验收 |
 | 1.12.0 | 2026-08-05 | 补齐 MySQL `query run` / `db run` 只读执行器：凭据引用、SQL 防护、限行、超时、脱敏和强制回滚 |
 | 1.11.0 | 2026-07-24 | 新增本机端口释放 helper：`local free-port` / `free-local-port.ps1|.sh`，覆盖 WinError 10013 / uvicorn 残留 |
 | 1.10.0 | 2026-07-16 | 明确维护章程修订记录统一倒序，并补充运维能力模型优先的维护原则 |
@@ -40,7 +41,7 @@
 
 | 层 | 内容 |
 |----|------|
-| share skill | `ecs_ops.py`、`core/mysql_readonly.py`、`setup_ssh_key.py`、`bootstrap-ssh.ps1`、`ops-check.ps1`、`bootstrap-ssh.sh`、`ops-check.sh`、`free-local-port.ps1`、`free-local-port.sh`、`helpers/free_local_port.py` |
+| share skill | `ecs_ops.py`、`core/mysql_readonly.py`、`setup_ssh_key.py`、`bootstrap-ssh.ps1`、`ops-check.ps1`、`bootstrap-ssh.sh`、`ops-check.sh`、`free-local-port.ps1`、`free-local-port.sh`、`deploy-mp-verify.ps1`、`helpers/free_local_port.py`、`helpers/deploy_mp_verify.ps1` |
 | share references | `capability_model.md`、`project_ops_contract.md`、`open_source_patterns.md`、`workflow.md`、`layout_contract.md`、`roadmap.md`、`trigger_eval.md` |
 | share templates | `TEMPLATE_sync.config.json`、`TEMPLATE_ops-check.remote.sh`、`templates/project/TEMPLATE_ops.config.json`、`templates/connect/`、`templates/provision/`、`templates/deploy/`、`templates/detect/`、`templates/logs/`、`templates/query/`、`templates/db/`、`templates/profiles/` |
 | 项目 ops 目录 | `sync.config.json`、`ops.config.json`、`account.md`、`ops-check.remote.sh`、`credentials.md`、`docs/` |
@@ -73,7 +74,7 @@
 
 ## 单一职责
 
-只做 **目标连接、SSH 接入、通用 ops-check 编排、环境安装模块契约、部署/检测/日志/查询/DB 核验计划和可复用配置模板**。
+只做 **目标连接、SSH 接入、通用 ops-check 编排、环境安装模块契约、部署/检测/日志/查询/DB 核验计划、可复用配置模板，以及 Nginx 站点根校验 txt 下发**。
 
 ## 不负责
 

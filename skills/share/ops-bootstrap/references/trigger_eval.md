@@ -20,9 +20,9 @@
 - 「帮我查询 xxx 数据库表结构并和本地代码核验」
 - 「帮我查询 xxx 数据库中的数据，确认开发写入」
 - 「参考 GitHub 上开源运维工具，把这个 ops 技能做完整」
+- 「小程序校验文件下发 / 微信校验 txt 放到业务域名」
 
 ## should-not-trigger
-
 - 只改某台机 nginx/mysql 业务配置
 - 执行某台机器的安装、重启、删库、证书替换等有状态动作
 - 只修改某个项目的 nginx server block、MySQL 用户或 Redis 密码
@@ -42,5 +42,6 @@
 | 查 Redis key 状态 | 用 `query plan` 校验只读 allowlist；Redis 执行仍由项目侧完成 |
 | 连接某台服务器 | 用 `connect plan` 解析别名、主机、服务清单；凭据引用留在项目侧 |
 | 排查 nginx 502 | 用 `logs plan` 定义 error/access/journalctl 和关联检查；真实读取日志需明确目标 |
+| 小程序校验 txt 下发 | 先 `deploy-mp-verify.ps1 -DryRun`，确认 root 与节点后再 apply；不 reload Nginx |
 | 核验订单表结构 | 先用 `db plan` 定义 schema/data 检查，再以私有凭据执行 `db run --confirm-readonly`；SQL 保持只读、限行、脱敏并 rollback |
 | 查询另一个项目的 MySQL 样例数据 | 使用其 `ops.config.json` 执行 `query plan`，确认后 `query run --confirm-readonly`；不得新建项目专用连库脚本 |

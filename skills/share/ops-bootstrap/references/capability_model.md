@@ -7,7 +7,7 @@
 | Access | SSH alias、公钥、账号上下文 | 不保存私钥和密码 |
 | Inventory | 目标名、IP/端口、服务清单、别名映射 | share 只放脱敏模板，真实资产在项目侧 |
 | Provision | Python/uv/JDK/Nginx/Node/MySQL/Redis/ZooKeeper/Kafka 安装规划 | 先 plan/check，apply 必须显式确认 |
-| Deploy | 上传、渲染配置、切换版本、重启、回滚 | 项目脚本执行真实业务动作，share 只管编排契约 |
+| Deploy | 上传、渲染配置、切换版本、重启、回滚；微信/小程序校验 txt 落到 Nginx 静态 root | 业务发布仍由项目脚本执行；校验 txt 用 `scripts/deploy-mp-verify.ps1`（须 DryRun），不 reload |
 | Config Profiles | small/large/fixed 多档参数 | 只提供变量值，不替代服务配置模板 |
 | Service Configs | Nginx/Redis/MySQL/JDK/JVM/systemd 配置模板 | 模板脱敏，凭据和域名在项目侧填 |
 | Online Detect | 进程、端口、HTTP、systemd、日志、磁盘内存；本机开发端口释放；磁盘满排查；Nginx 崩溃溯源；安全审计；证书检查；配置漂移检查 | 默认只读；`local free-port` 仅杀本机占用进程；`disk_triage.sh`/`nginx_crash_triage.sh`/`security_audit.sh`/`nginx_cert_check.sh`/`nginx_drift_check.sh` 只读探测不删文件 |
@@ -30,6 +30,7 @@
 | 安全审计 / 疑似入侵 | 主机名、SSH 别名 | 检查公网监听端口、可疑进程、异常 cron、挖矿进程、iptables 规则 | `scripts/helpers/security_audit.sh` + CASE-005 |
 | SSL 证书 / OCSP 错误 | 证书目录、错误日志路径 | 检查证书有效期、OCSP 错误计数、OCSP responder 可达性 | `scripts/helpers/nginx_cert_check.sh` + CASE-006 |
 | Nginx 配置漂移 | 多台主机名/SSH 别名 | 对比所有节点配置文件数量和 MD5，输出差异列表 | `scripts/helpers/nginx_drift_check.sh` + CASE-007 |
+| 小程序/微信校验 txt | 环境 OpsRoot、域名、本地 txt | 从 conf.d 解析 root，全 nginx 节点幂等写入，HTTPS GET 验收 | `scripts/deploy-mp-verify.ps1` + `references/modules/nginx_mp_verify.md` |
 
 ## 部署能力
 

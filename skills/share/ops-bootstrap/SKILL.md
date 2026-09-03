@@ -1,6 +1,6 @@
 ---
 name: ops-bootstrap
-description: 跨平台运维技能包（Python core + ps1/sh thin wrapper），覆盖服务器连接与资产映射、SSH alias、公钥部署、ops-check、在线/离线环境安装规划、Nginx/MySQL/Redis/JDK/Node/ZooKeeper/Kafka 等服务模板、部署编排、在线检测、日志排查和只读数据核验；用于用户要求连接某台服务器、安装基础服务、排查服务异常日志、核验数据库结构/数据或抽取通用运维能力时；不负责保存真实凭据、默认执行生产变更或替代项目业务部署脚本。
+description: 跨平台运维技能包（Python core + ps1/sh thin wrapper），覆盖服务器连接与资产映射、SSH alias、公钥部署、ops-check、在线/离线环境安装规划、Nginx/MySQL/Redis/JDK/Node/ZooKeeper/Kafka 等服务模板、部署编排、微信/小程序校验 txt 下发、在线检测、日志排查和只读数据核验；用于用户要求连接某台服务器、安装基础服务、排查服务异常日志、核验数据库结构/数据、下发小程序校验文件或抽取通用运维能力时；不负责保存真实凭据、默认执行生产变更或替代项目业务部署脚本。
 ---
 
 # Ops Bootstrap
@@ -37,11 +37,12 @@ description: 跨平台运维技能包（Python core + ps1/sh thin wrapper），�
 | `nginx-drift` | 多台 Nginx 配置不一致、部分域名行为异常、配置漂移 | `scripts/helpers/nginx_drift_check.sh` + `references/case_library_index.md` -> CASE-007 |
 | `kafka-topic-id-drift` | producer 成功但所有 consumer group 超时/不消费，broker 报 partition topic ID mismatch | `ecs_ops.py kafka topic-id plan/apply` + `references/case_library_index.md` -> CASE-008 |
 | `kafka-repush` | 消费 Kafka 历史消息、按条件过滤后重新推送到同一/另一 topic | `references/case_library_index.md` -> CASE-009（含 dry-run→小批量→全量 SOP、限速、断点续推、验证闭环） |
+| `nginx-mp-verify` | 微信/小程序校验 txt 下发到业务域名静态根 | `scripts/deploy-mp-verify.ps1` + `references/modules/nginx_mp_verify.md` |
 | `safe-ops` | 任何修改/删除/重启操作前，必须查阅安全操作规范 | `references/safe_ops_manual.md` |
 
 ## 作用边界
 
-**负责**：跨项目可复用的目标资产解析、SSH 接入、健康检查、环境安装规划、部署编排模板、在线检测模板、日志排查计划、只读数据查询和数据库核验模板（L2），以及本机开发端口释放等本地 helper；实现入口真源是 `scripts/ecs_ops.py`。
+**负责**：跨项目可复用的目标资产解析、SSH 接入、健康检查、环境安装规划、部署编排模板、在线检测模板、日志排查计划、只读数据查询和数据库核验模板（L2），本机开发端口释放 helper，以及 Nginx 站点根上的微信/小程序校验 txt 下发（`scripts/deploy-mp-verify.ps1`）；实现入口真源是 `scripts/ecs_ops.py`（校验 txt 为 Nginx helper，与 `nginx_cert_check.sh` 同类）。
 
 **不负责**：
 
@@ -64,6 +65,7 @@ description: 跨平台运维技能包（Python core + ps1/sh thin wrapper），�
 - 禁止在项目运维目录各自维护一份完整 bootstrap。
 - **禁止**把密码、私钥写进本技能或 templates。
 - **安全操作**：git 内资产以 git 回退为准；未纳入版本控制或远端资产修改前必须备份；任何删除前必须人工确认；除非用户明确要求"删除"，不得执行 `rm`。详见 `references/safe_ops_manual.md`。
+- **校验 txt**：必须先 `-DryRun`；路径只来自当前环境 `conf.d` 的 `root`；不为静态 txt reload Nginx。细则 `references/modules/nginx_mp_verify.md`。
 - **凭证隔离**：项目目录内不存放明文密码；通过 SSH 密钥直连跳板机操作所有节点；项目内 `account.md` 只保留 IP、SSH 别名和密钥路径。
 
 ## 调用
@@ -73,6 +75,7 @@ $L2 = "$env:AGENTS_HUB_ROOT\skills\share\ops-bootstrap\scripts"
 & "$L2\bootstrap-ssh.ps1" -OpsRoot <ops-dir>
 & "$L2\ops-check.ps1" -OpsRoot <ops-dir>
 & "$L2\free-local-port.ps1" -Port 9100
+& "$L2\deploy-mp-verify.ps1" -OpsRoot <ops-dir> -LocalFile <txt> -Domain a.example,b.example -DryRun
 ```
 
 macOS/Linux：
@@ -110,7 +113,7 @@ python "$AGENTS_HUB_ROOT/skills/share/ops-bootstrap/scripts/ecs_ops.py" kafka to
 & "$env:AGENTS_HUB_ROOT\skills\share\ops-bootstrap\scripts\bootstrap-ssh.ps1" -OpsRoot $PSScriptRoot @args
 ```
 
-能力模型 → `references/capability_model.md`；项目配置闭环 → `references/project_ops_contract.md`；开源模式吸收 → `references/open_source_patterns.md`；细节 SOP → `references/workflow.md`；目录分层 → `references/layout_contract.md`；环境安装路线图 → `references/roadmap.md`；触发样例 → `references/trigger_eval.md`；**故障排查案例库索引** → `references/case_library_index.md`（案例全文 → `references/case_library.md`）；**安全操作手册** -> `references/safe_ops_manual.md`.
+能力模型 → `references/capability_model.md`；项目配置闭环 → `references/project_ops_contract.md`；开源模式吸收 → `references/open_source_patterns.md`；细节 SOP → `references/workflow.md`；目录分层 → `references/layout_contract.md`；环境安装路线图 → `references/roadmap.md`；触发样例 → `references/trigger_eval.md`；**故障排查案例库索引** → `references/case_library_index.md`（案例全文 → `references/case_library.md`）；**安全操作手册** -> `references/safe_ops_manual.md`；小程序校验 txt → `references/modules/nginx_mp_verify.md`.
 
 ## 与其他技能
 

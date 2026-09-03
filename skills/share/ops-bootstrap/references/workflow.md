@@ -121,3 +121,13 @@ bash "$AGENTS_HUB_ROOT/skills/share/ops-bootstrap/scripts/ops-check.sh" --ops-ro
 - `kafka`
 
 执行顺序必须是 `plan` → `check` → `apply --module <name>`，不得默认全量安装。
+
+## 小程序 / 微信校验 txt
+
+走 Nginx helper，不新建独立 skill。SOP：`references/modules/nginx_mp_verify.md`。
+
+```powershell
+# 本仓库
+.\prod\scripts\deploy-mp-verify.ps1 -LocalFile <txt> -Domain a.example,b.example -DryRun
+.\prod\scripts\deploy-mp-verify.ps1 -LocalFile <txt> -Domain a.example,b.example
+```
